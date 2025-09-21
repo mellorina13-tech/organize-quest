@@ -632,21 +632,6 @@
             </div>
 
             <form id="loginForm" style="display: block;">
-                <button type="button" class="google-btn" id="googleLoginBtn" style="width: 100%; padding: 0.8rem; margin-bottom: 1.5rem; background: white; border: 2px solid #e0e0e0; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease;">
-                    <svg width="20" height="20" viewBox="0 0 20 20">
-                        <path fill="#4285F4" d="M19.6 10.2c0-.7-.1-1.4-.2-2H10v3.8h5.4c-.2 1.2-1 2.2-2 2.9v2.5h3.2c1.9-1.7 3-4.3 3-7.2z"/>
-                        <path fill="#34A853" d="M10 20c2.7 0 4.9-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H1.1v2.6C2.8 17.9 6.1 20 10 20z"/>
-                        <path fill="#FBBC05" d="M4.4 11.9c-.4-1.2-.4-2.6 0-3.8V5.5H1.1c-1.5 2.9-1.5 6.4 0 9.3l3.3-2.9z"/>
-                        <path fill="#EA4335" d="M10 4c1.4 0 2.7.5 3.7 1.4l2.8-2.8C14.9 1 12.7 0 10 0 6.1 0 2.8 2.1 1.1 5.5l3.3 2.6C5.2 5.8 7.4 4 10 4z"/>
-                    </svg>
-                    <span id="googleBtnText">Continue with Google</span>
-                </button>
-                
-                <div style="text-align: center; margin: 1.5rem 0; color: var(--gray); position: relative;">
-                    <span style="background: white; padding: 0 1rem; position: relative; z-index: 1;" id="orText">or</span>
-                    <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #e0e0e0; z-index: 0;"></div>
-                </div>
-
                 <div class="form-group">
                     <label id="loginEmailLabel">Email</label>
                     <input type="email" id="loginEmail" required placeholder="your@email.com">
@@ -662,21 +647,6 @@
             </form>
 
             <form id="signupForm" style="display: none;">
-                <button type="button" class="google-btn" id="googleSignupBtn" style="width: 100%; padding: 0.8rem; margin-bottom: 1.5rem; background: white; border: 2px solid #e0e0e0; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease;">
-                    <svg width="20" height="20" viewBox="0 0 20 20">
-                        <path fill="#4285F4" d="M19.6 10.2c0-.7-.1-1.4-.2-2H10v3.8h5.4c-.2 1.2-1 2.2-2 2.9v2.5h3.2c1.9-1.7 3-4.3 3-7.2z"/>
-                        <path fill="#34A853" d="M10 20c2.7 0 4.9-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H1.1v2.6C2.8 17.9 6.1 20 10 20z"/>
-                        <path fill="#FBBC05" d="M4.4 11.9c-.4-1.2-.4-2.6 0-3.8V5.5H1.1c-1.5 2.9-1.5 6.4 0 9.3l3.3-2.9z"/>
-                        <path fill="#EA4335" d="M10 4c1.4 0 2.7.5 3.7 1.4l2.8-2.8C14.9 1 12.7 0 10 0 6.1 0 2.8 2.1 1.1 5.5l3.3 2.6C5.2 5.8 7.4 4 10 4z"/>
-                    </svg>
-                    <span id="googleSignupBtnText">Sign up with Google</span>
-                </button>
-
-                <div style="text-align: center; margin: 1.5rem 0; color: var(--gray); position: relative;">
-                    <span style="background: white; padding: 0 1rem; position: relative; z-index: 1;" id="orText2">or</span>
-                    <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #e0e0e0; z-index: 0;"></div>
-                </div>
-
                 <div class="form-group">
                     <label id="signupNameLabel">Full Name</label>
                     <input type="text" id="signupName" required placeholder="John Doe">
@@ -740,11 +710,7 @@
                 signupEmailLabel: 'Email',
                 signupPasswordLabel: 'Password',
                 signupConfirmLabel: 'Confirm Password',
-                signupSubmitBtn: 'Create Account',
-                googleBtnText: 'Continue with Google',
-                googleSignupBtnText: 'Sign up with Google',
-                orText: 'or',
-                orText2: 'or'
+                signupSubmitBtn: 'Create Account'
             },
             tr: {
                 logoText: 'Organize.Quest',
@@ -778,11 +744,7 @@
                 signupEmailLabel: 'E-posta',
                 signupPasswordLabel: 'Şifre',
                 signupConfirmLabel: 'Şifre Tekrar',
-                signupSubmitBtn: 'Hesap Oluştur',
-                googleBtnText: 'Google ile devam et',
-                googleSignupBtnText: 'Google ile üye ol',
-                orText: 'veya',
-                orText2: 'veya'
+                signupSubmitBtn: 'Hesap Oluştur'
             }
         };
 
