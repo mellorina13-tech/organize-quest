@@ -53,10 +53,57 @@
             text-decoration: none;
         }
 
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
         .profile-container {
             max-width: 800px;
             margin: 3rem auto;
             padding: 0 2rem;
+        }
+
+        .auth-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            color: var(--gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
         }
 
         .profile-header {
@@ -141,18 +188,6 @@
             transform: translateY(-2px);
         }
 
-        .btn-secondary {
-            background: white;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary);
-            color: white;
-        }
-
         .btn-danger {
             background: #dc3545;
             color: white;
@@ -160,6 +195,10 @@
 
         .btn-danger:hover {
             background: #c82333;
+        }
+
+        .hidden {
+            display: none;
         }
 
         @media (max-width: 768px) {
@@ -173,52 +212,99 @@
     <nav>
         <div class="nav-container">
             <a href="index.html" class="logo">🌍 Organize.Quest</a>
-            <button class="btn-secondary" style="width: auto; padding: 0.5rem 1.5rem;" onclick="window.location.href='index.html'">← Back to Home</button>
+            <button class="btn-secondary" onclick="window.location.href='index.html'">← Back to Home</button>
         </div>
     </nav>
 
     <div class="profile-container">
-        <div class="profile-header">
-            <div class="profile-avatar">👤</div>
-            <h1 id="userName">My Account</h1>
-            <p id="userEmail" style="opacity: 0.9;"></p>
-        </div>
+        <!-- Login/Signup Section (shown when not logged in) -->
+        <div id="authSection" class="auth-container">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Welcome to Organize.Quest</h2>
+            
+            <div class="auth-tabs">
+                <button class="tab-btn active" id="loginTabBtn">Sign In</button>
+                <button class="tab-btn" id="signupTabBtn">Sign Up</button>
+            </div>
 
-        <div class="profile-form">
-            <h2 style="margin-bottom: 1.5rem;">Edit Profile</h2>
-            <form id="profileForm">
+            <!-- Login Form -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" class="hidden">
                 <div class="form-group">
                     <label>Full Name</label>
-                    <input type="text" id="profileName" placeholder="John Doe">
+                    <input type="text" id="signupName" required placeholder="John Doe">
                 </div>
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="profileEmail" readonly>
+                    <input type="email" id="signupEmail" required placeholder="your@email.com">
                 </div>
                 <div class="form-group">
-                    <label>Phone Number</label>
-                    <input type="tel" id="profilePhone" placeholder="+90 555 123 4567">
+                    <label>Password</label>
+                    <input type="password" id="signupPassword" required placeholder="••••••••" minlength="6">
                 </div>
                 <div class="form-group">
-                    <label>Bio</label>
-                    <textarea id="profileBio" placeholder="Tell us about yourself..." rows="3"></textarea>
+                    <label>Confirm Password</label>
+                    <input type="password" id="signupConfirm" required placeholder="••••••••" minlength="6">
                 </div>
-                <div class="form-group">
-                    <label>City</label>
-                    <input type="text" id="profileCity" placeholder="Istanbul">
-                </div>
-                <div class="form-group">
-                    <label>Country</label>
-                    <input type="text" id="profileCountry" placeholder="Turkey">
-                </div>
-                <div class="form-group">
-                    <label>Interests (comma separated)</label>
-                    <input type="text" id="profileInterests" placeholder="Technology, Sports, Music">
-                </div>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">Cancel</button>
-                <button type="button" class="btn btn-danger" id="logoutBtn">Logout</button>
+                <button type="submit" class="btn btn-primary">Create Account</button>
             </form>
+        </div>
+
+        <!-- Profile Section (shown when logged in) -->
+        <div id="profileSection" class="hidden">
+            <div class="profile-header">
+                <div class="profile-avatar">👤</div>
+                <h1 id="userName">My Account</h1>
+                <p id="userEmail" style="opacity: 0.9;"></p>
+            </div>
+
+            <div class="profile-form">
+                <h2 style="margin-bottom: 1.5rem;">Edit Profile</h2>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="profileName" placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="profileEmail" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="profilePhone" placeholder="+90 555 123 4567">
+                    </div>
+                    <div class="form-group">
+                        <label>Bio</label>
+                        <textarea id="profileBio" placeholder="Tell us about yourself..." rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="profileCity" placeholder="Istanbul">
+                    </div>
+                    <div class="form-group">
+                        <label>Country</label>
+                        <input type="text" id="profileCountry" placeholder="Turkey">
+                    </div>
+                    <div class="form-group">
+                        <label>Interests (comma separated)</label>
+                        <input type="text" id="profileInterests" placeholder="Technology, Sports, Music">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">Back to Home</button>
+                    <button type="button" class="btn btn-danger" id="logoutBtn">Logout</button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -229,27 +315,132 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzcWhub29ia2xodmd6Zm5vZ2FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyNTAyNDYsImV4cCI6MjA1MjgyNjI0Nn0.aMHsyKeqmCgQUfW8TYoTa7aR5CsOnIaFa4bPlE_sxRE';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Get user from localStorage (not sessionStorage)
         let currentUser = JSON.parse(localStorage.getItem('currentUser'));
 
-        // If no user, redirect to home
-        if (!currentUser) {
-            alert('Please log in to access your profile');
-            window.location.href = 'index.html';
+        // Switch between login and signup tabs
+        function switchTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const loginTabBtn = document.getElementById('loginTabBtn');
+            const signupTabBtn = document.getElementById('signupTabBtn');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                loginTabBtn.classList.add('active');
+                signupTabBtn.classList.remove('active');
+            } else {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                signupTabBtn.classList.add('active');
+                loginTabBtn.classList.remove('active');
+            }
         }
 
-        // Fill in user data
-        document.getElementById('userName').textContent = currentUser.name || 'My Account';
-        document.getElementById('userEmail').textContent = currentUser.email || '';
-        document.getElementById('profileName').value = currentUser.name || '';
-        document.getElementById('profileEmail').value = currentUser.email || '';
-        document.getElementById('profilePhone').value = currentUser.phone || '';
-        document.getElementById('profileBio').value = currentUser.bio || '';
-        document.getElementById('profileCity').value = currentUser.city || '';
-        document.getElementById('profileCountry').value = currentUser.country || '';
-        document.getElementById('profileInterests').value = currentUser.interests || '';
+        // Show profile section
+        function showProfile() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('profileSection').classList.remove('hidden');
+            
+            document.getElementById('userName').textContent = currentUser.name || 'My Account';
+            document.getElementById('userEmail').textContent = currentUser.email || '';
+            document.getElementById('profileName').value = currentUser.name || '';
+            document.getElementById('profileEmail').value = currentUser.email || '';
+            document.getElementById('profilePhone').value = currentUser.phone || '';
+            document.getElementById('profileBio').value = currentUser.bio || '';
+            document.getElementById('profileCity').value = currentUser.city || '';
+            document.getElementById('profileCountry').value = currentUser.country || '';
+            document.getElementById('profileInterests').value = currentUser.interests || '';
+        }
 
-        // Save profile
+        // Check if user is logged in
+        if (currentUser) {
+            showProfile();
+        }
+
+        // Tab switching
+        document.getElementById('loginTabBtn').addEventListener('click', () => switchTab('login'));
+        document.getElementById('signupTabBtn').addEventListener('click', () => switchTab('signup'));
+
+        // Login form
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) {
+                    alert('Error: ' + error.message);
+                    return;
+                }
+
+                const { data: profile } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', data.user.id)
+                    .single();
+
+                currentUser = profile || { id: data.user.id, email: email, name: 'User' };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                alert('Successfully logged in!');
+                showProfile();
+            } catch (err) {
+                alert('Login error: ' + err.message);
+            }
+        });
+
+        // Signup form
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirm = document.getElementById('signupConfirm').value;
+
+            if (password !== confirm) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: { name: name }
+                    }
+                });
+
+                if (error) {
+                    alert('Error: ' + error.message);
+                    return;
+                }
+
+                const { error: profileError } = await supabase
+                    .from('users')
+                    .insert([{ 
+                        id: data.user.id,
+                        email: email, 
+                        name: name 
+                    }]);
+
+                currentUser = { id: data.user.id, email: email, name: name };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                alert('Account created! Please verify your email.');
+                showProfile();
+            } catch (err) {
+                alert('Signup error: ' + err.message);
+            }
+        });
+
+        // Save profile changes
         document.getElementById('profileForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -260,10 +451,8 @@
             currentUser.country = document.getElementById('profileCountry').value;
             currentUser.interests = document.getElementById('profileInterests').value;
             
-            // Save to localStorage
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             
-            // Try to update in Supabase if user has an ID
             if (currentUser.id) {
                 try {
                     const { error } = await supabase
@@ -292,21 +481,15 @@
 
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', async function() {
-            // Sign out from Supabase
             try {
                 await supabase.auth.signOut();
             } catch (err) {
                 console.error('Error signing out from Supabase:', err);
             }
             
-            // Clear localStorage
             localStorage.removeItem('currentUser');
-            
-            // Show alert and then redirect
             alert('Logged out successfully!');
-            
-            // Use replace to ensure clean navigation
-            window.location.replace('index.html');
+            window.location.href = 'index.html';
         });
     </script>
 </body>
