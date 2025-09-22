@@ -29,63 +29,6 @@
             color: #333;
             overflow-x: hidden;
             background: white;
-            opacity: 1; /* Remove loading state by default */
-        }
-
-        .language-bar {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            padding: 0.5rem 0;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1001;
-        }
-
-        .language-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .lang-switcher {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .lang-btn {
-            background: rgba(88, 101, 242, 0.1);
-            color: var(--dark);
-            border: 2px solid rgba(88, 101, 242, 0.2);
-            padding: 0.4rem 0.6rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.3rem;
-            transition: all 0.3s ease;
-            line-height: 1;
-        }
-
-        .lang-btn:hover {
-            background: rgba(88, 101, 242, 0.15);
-            transform: translateY(-1px);
-        }
-
-        .lang-btn.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            box-shadow: 0 2px 8px rgba(88, 101, 242, 0.3);
-        }
-
-        .landing-page {
-            display: block;
-        }
-
-        .landing-page.hidden {
-            display: none;
         }
 
         nav {
@@ -117,28 +60,39 @@
             cursor: pointer;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-
-        .nav-link {
-            color: var(--gray);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            font-size: 0.95rem;
-        }
-
-        .nav-link:hover {
-            color: var(--primary);
-        }
-
         .nav-buttons {
             display: flex;
             gap: 1rem;
             align-items: center;
+        }
+
+        .lang-switcher {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .lang-btn {
+            background: rgba(88, 101, 242, 0.1);
+            color: var(--dark);
+            border: 2px solid rgba(88, 101, 242, 0.2);
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            line-height: 1;
+        }
+
+        .lang-btn:hover {
+            background: rgba(88, 101, 242, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(88, 101, 242, 0.3);
         }
 
         .user-menu {
@@ -226,6 +180,7 @@
             transition: all 0.3s ease;
             font-size: 0.95rem;
             cursor: pointer;
+            border: none;
         }
 
         .btn-nav:hover {
@@ -291,116 +246,6 @@
         .btn-primary:hover {
             transform: translateY(-3px);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: white;
-            padding: 1rem 2.5rem;
-            border: 2px solid white;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .btn-secondary:hover {
-            background: white;
-            color: var(--primary);
-            transform: translateY(-3px);
-        }
-
-        .hero-visual {
-            position: relative;
-        }
-
-        .phone-mockup {
-            width: 100%;
-            max-width: 400px;
-            height: 500px;
-            background: white;
-            border-radius: 30px;
-            padding: 20px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-            margin: 0 auto;
-        }
-
-        .mockup-map {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
-            border-radius: 15px;
-            position: relative;
-        }
-
-        .map-pin {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            background: var(--secondary);
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-        }
-
-        .map-pin:nth-child(1) { top: 30%; left: 40%; }
-        .map-pin:nth-child(2) { top: 50%; left: 60%; background: var(--accent); }
-        .map-pin:nth-child(3) { top: 70%; left: 30%; background: var(--primary); }
-
-        .features {
-            padding: 5rem 2rem;
-            background: var(--light);
-        }
-
-        .features-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .features-header {
-            text-align: center;
-            margin-bottom: 4rem;
-        }
-
-        .features-header h2 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .features-header p {
-            font-size: 1.2rem;
-            color: var(--gray);
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .feature-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            text-align: center;
-        }
-
-        .feature-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
         }
 
         .map-app {
@@ -489,6 +334,8 @@
             width: 90%;
             max-width: 500px;
             position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-close {
@@ -519,27 +366,20 @@
             font-size: 1rem;
         }
 
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            .hero-container {
-                grid-template-columns: 1fr;
-            }
-            .hero-visual {
-                display: none;
-            }
-            .map-container {
-                grid-template-columns: 1fr;
-            }
-            .map-sidebar {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                max-height: 40vh;
-                z-index: 999;
-            }
+        .tab-btn {
+            flex: 1;
+            padding: 1rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            color: var(--gray);
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
         }
     </style>
 </head>
@@ -547,11 +387,7 @@
     <div class="landing-page" id="landingPage">
         <nav>
             <div class="nav-container">
-                <div class="logo">🌍 <span id="logoText">Organize.Quest</span></div>
-                <div class="nav-links">
-                    <a href="#features" class="nav-link" id="navFeatures">Features</a>
-                    <a href="#" class="nav-link" id="navAbout">About</a>
-                </div>
+                <div class="logo" id="logoText">🌍 Organize.Quest</div>
                 <div class="nav-buttons">
                     <div class="lang-switcher">
                         <button class="lang-btn active" id="btnEN">🇬🇧</button>
@@ -564,7 +400,6 @@
                         </button>
                         <div class="user-dropdown" id="userDropdown">
                             <a href="profile.html" class="dropdown-item">📝 Edit Profile</a>
-                            <a href="#" class="dropdown-item" id="myOrganizations">🏢 My Organizations</a>
                             <div class="dropdown-divider"></div>
                             <a href="#" class="dropdown-item" id="logoutDropdown">🚪 Logout</a>
                         </div>
@@ -581,42 +416,6 @@
                     <p id="heroDesc">Create, discover, and join organizations in your neighborhood.</p>
                     <div class="hero-buttons">
                         <button class="btn-primary" id="heroMapBtn">Start Exploring</button>
-                        <a href="#features" class="btn-secondary">Learn More</a>
-                    </div>
-                </div>
-                <div class="hero-visual">
-                    <div class="phone-mockup">
-                        <div class="mockup-map">
-                            <div class="map-pin"></div>
-                            <div class="map-pin"></div>
-                            <div class="map-pin"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="features" id="features">
-            <div class="features-container">
-                <div class="features-header">
-                    <h2 id="featuresTitle">Everything You Need to Connect</h2>
-                    <p id="featuresDesc">Powerful features to help you build communities</p>
-                </div>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">📍</div>
-                        <h3>Location Discovery</h3>
-                        <p>Find organizations near you</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🚀</div>
-                        <h3>Easy Creation</h3>
-                        <p>Create your organization in minutes</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🏷️</div>
-                        <h3>Smart Categories</h3>
-                        <p>Browse by category</p>
                     </div>
                 </div>
             </div>
@@ -657,34 +456,12 @@
                         <option value="Non-Profit">🤝 Non-Profit</option>
                         <option value="Sports">⚽ Sports</option>
                         <option value="Arts">🎨 Arts</option>
-                        <option value="Community">🏘️ Community</option>
+                        <option value="Community">🏙️ Community</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label id="orgDescLabel">Description</label>
                     <textarea id="orgDescription" placeholder="Describe your organization"></textarea>
-                </div>
-                <div class="form-group">
-                    <label id="orgDateLabel">Event Date & Time</label>
-                    <input type="datetime-local" id="orgDateTime">
-                </div>
-                <div class="form-group">
-                    <label id="orgAgeLabel">Age Restriction</label>
-                    <select id="orgAgeRestriction">
-                        <option value="all">All Ages</option>
-                        <option value="18+">18+ Only</option>
-                        <option value="21+">21+ Only</option>
-                        <option value="13+">13+ Only</option>
-                        <option value="kids">Kids (Under 13)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label id="orgCapacityLabel">Maximum Participants</label>
-                    <input type="number" id="orgCapacity" min="1" placeholder="e.g., 50">
-                </div>
-                <div class="form-group">
-                    <label id="orgContactLabel">Contact Email</label>
-                    <input type="email" id="orgContact" placeholder="contact@organization.com">
                 </div>
                 <div class="form-group">
                     <label id="orgLocationLabel">Location on Map *</label>
@@ -701,10 +478,10 @@
             <h2 id="loginModalTitle">Welcome to Organize.Quest</h2>
             
             <div id="loginTabButtons" style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid #e0e0e0;">
-                <button class="tab-btn active" id="loginTabBtn" style="flex: 1; padding: 1rem; background: none; border: none; border-bottom: 3px solid var(--primary); font-weight: 600; color: var(--primary); cursor: pointer;">
+                <button class="tab-btn active" id="loginTabBtn">
                     <span id="loginTabText">Sign In</span>
                 </button>
-                <button class="tab-btn" id="signupTabBtn" style="flex: 1; padding: 1rem; background: none; border: none; border-bottom: 3px solid transparent; font-weight: 600; color: var(--gray); cursor: pointer;">
+                <button class="tab-btn" id="signupTabBtn">
                     <span id="signupTabText">Sign Up</span>
                 </button>
             </div>
@@ -718,15 +495,7 @@
                     <label id="loginPasswordLabel">Password</label>
                     <input type="password" id="loginPassword" required placeholder="••••••••">
                 </div>
-                <div class="form-group">
-                    <a href="#" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;" id="forgotPasswordLink">Forgot password?</a>
-                </div>
                 <button type="submit" class="map-btn map-btn-primary" id="loginSubmitBtn">Sign In</button>
-                
-                <!-- Google login button placeholder (remove if not implementing OAuth) -->
-                <!-- <button type="button" class="map-btn" id="googleLoginBtn" style="margin-top: 1rem; background: white; border: 2px solid #e0e0e0;">
-                    Sign in with Google
-                </button> -->
             </form>
 
             <form id="signupForm" style="display: none;">
@@ -747,25 +516,13 @@
                     <input type="password" id="signupConfirm" required placeholder="••••••••" minlength="6">
                 </div>
                 <button type="submit" class="map-btn map-btn-primary" id="signupSubmitBtn">Create Account</button>
-                
-                <!-- Google signup button placeholder (remove if not implementing OAuth) -->
-                <!-- <button type="button" class="map-btn" id="googleSignupBtn" style="margin-top: 1rem; background: white; border: 2px solid #e0e0e0;">
-                    Sign up with Google
-                </button> -->
             </form>
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Make sure page is visible immediately
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loading...');
-        });
-
-        // Supabase Configuration
         const SUPABASE_URL = 'https://wsqhnoobklhvgzfnogap.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzcWhub29ia2xodmd6Zm5vZ2FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyNTAyNDYsImV4cCI6MjA1MjgyNjI0Nn0.aMHsyKeqmCgQUfW8TYoTa7aR5CsOnIaFa4bPlE_sxRE';
         
@@ -778,26 +535,39 @@
             console.error('Supabase initialization error:', err);
         }
         
+        let currentLang = 'en';
+        let map, userMarker, organizations = [], createMode = false, selectedLocation = null;
+        let currentUser = null;
+
         const translations = {
             en: {
-                logoText: 'Organize.Quest',
-                navFeatures: 'Features',
-                navAbout: 'About',
-                loginBtn: 'Log In',
-                openMapBtn: 'Open Map',
                 heroTitle: 'Build Your Local Community Network',
                 heroDesc: 'Create, discover, and join organizations in your neighborhood.',
-                featuresTitle: 'Everything You Need to Connect',
-                featuresDesc: 'Powerful features to help you build communities',
-                mapTitle: 'Organize.Quest Map',
                 modalTitle: 'Create Organization',
                 orgNameLabel: 'Organization Name *',
                 orgCategoryLabel: 'Category *',
                 orgDescLabel: 'Description',
-                orgDateLabel: 'Event Date & Time',
-                orgAgeLabel: 'Age Restriction',
-                orgCapacityLabel: 'Maksimum Katılımcı',
-                orgContactLabel: 'İletişim E-postası',
+                orgLocationLabel: 'Location on Map *',
+                createOrgSubmit: 'Create Organization',
+                loginModalTitle: 'Welcome to Organize.Quest',
+                loginTabText: 'Sign In',
+                signupTabText: 'Sign Up',
+                loginEmailLabel: 'Email',
+                loginPasswordLabel: 'Password',
+                loginSubmitBtn: 'Sign In',
+                signupNameLabel: 'Full Name',
+                signupEmailLabel: 'Email',
+                signupPasswordLabel: 'Password',
+                signupConfirmLabel: 'Confirm Password',
+                signupSubmitBtn: 'Create Account'
+            },
+            tr: {
+                heroTitle: 'Yerel Topluluk Ağınızı Kurun',
+                heroDesc: 'Mahallenizdeki organizasyonları oluşturun, keşfedin ve katılın.',
+                modalTitle: 'Organizasyon Oluştur',
+                orgNameLabel: 'Organizasyon Adı *',
+                orgCategoryLabel: 'Kategori *',
+                orgDescLabel: 'Açıklama',
                 orgLocationLabel: 'Harita Üzerinde Konum *',
                 createOrgSubmit: 'Organizasyon Oluştur',
                 loginModalTitle: 'Organize.Quest\'e Hoş Geldiniz',
@@ -805,7 +575,6 @@
                 signupTabText: 'Üye Ol',
                 loginEmailLabel: 'E-posta',
                 loginPasswordLabel: 'Şifre',
-                forgotPasswordLink: 'Şifremi unuttum?',
                 loginSubmitBtn: 'Giriş Yap',
                 signupNameLabel: 'Ad Soyad',
                 signupEmailLabel: 'E-posta',
@@ -814,48 +583,6 @@
                 signupSubmitBtn: 'Hesap Oluştur'
             }
         };
-
-        let currentLang = 'en';
-        let map, userMarker, organizations = [], createMode = false, selectedLocation = null;
-        let currentUser = null;
-
-        // EmailJS Configuration
-        // TODO: Replace with your EmailJS credentials from emailjs.com
-        const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
-        const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID';
-        const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
-
-        // Initialize EmailJS
-        (function() {
-            // Only init if valid key is provided
-            if (EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
-                emailjs.init(EMAILJS_PUBLIC_KEY);
-            }
-        })();
-
-        // Email sending function
-        function sendWelcomeEmail(userEmail, userName) {
-            // Skip if EmailJS not configured
-            if (EMAILJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY') {
-                console.log('EmailJS not configured - skipping welcome email');
-                return;
-            }
-
-            const templateParams = {
-                to_email: userEmail,
-                to_name: userName,
-                message: currentLang === 'tr' 
-                    ? 'Organize.Quest topluluğuna hoş geldiniz! Artık organizasyonlar oluşturabilir ve etkinliklere katılabilirsiniz.'
-                    : 'Welcome to Organize.Quest! You can now create organizations and join events.'
-            };
-
-            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-                .then(function(response) {
-                    console.log('Email sent successfully!', response.status, response.text);
-                }, function(error) {
-                    console.log('Email failed...', error);
-                });
-        }
 
         function changeLanguage(lang) {
             currentLang = lang;
@@ -868,6 +595,18 @@
             });
         }
 
+        function showUserMenu() {
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('userMenu').style.display = 'block';
+            const userName = currentUser.name || currentUser.email || 'My Account';
+            document.getElementById('userMenuName').textContent = userName;
+        }
+
+        function hideUserMenu() {
+            document.getElementById('loginBtn').style.display = 'block';
+            document.getElementById('userMenu').style.display = 'none';
+        }
+
         function switchLoginTab(tab) {
             const loginForm = document.getElementById('loginForm');
             const signupForm = document.getElementById('signupForm');
@@ -877,17 +616,13 @@
             if (tab === 'login') {
                 loginForm.style.display = 'block';
                 signupForm.style.display = 'none';
-                loginTabBtn.style.borderBottom = '3px solid var(--primary)';
-                loginTabBtn.style.color = 'var(--primary)';
-                signupTabBtn.style.borderBottom = '3px solid transparent';
-                signupTabBtn.style.color = 'var(--gray)';
+                loginTabBtn.classList.add('active');
+                signupTabBtn.classList.remove('active');
             } else {
                 loginForm.style.display = 'none';
                 signupForm.style.display = 'block';
-                signupTabBtn.style.borderBottom = '3px solid var(--primary)';
-                signupTabBtn.style.color = 'var(--primary)';
-                loginTabBtn.style.borderBottom = '3px solid transparent';
-                loginTabBtn.style.color = 'var(--gray)';
+                signupTabBtn.classList.add('active');
+                loginTabBtn.classList.remove('active');
             }
         }
 
@@ -903,14 +638,14 @@
         }
 
         function openMapApp() {
-            document.getElementById('landingPage').classList.add('hidden');
+            document.getElementById('landingPage').style.display = 'none';
             document.getElementById('mapApp').classList.add('active');
             if (!map) setTimeout(initMap, 100);
         }
 
         function closeMapApp() {
             document.getElementById('mapApp').classList.remove('active');
-            document.getElementById('landingPage').classList.remove('hidden');
+            document.getElementById('landingPage').style.display = 'block';
         }
 
         function initMap() {
@@ -955,98 +690,55 @@
             }
         }
 
-        // Initialize app when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            // Check for saved user session
             const savedUser = JSON.parse(localStorage.getItem('currentUser'));
             if (savedUser) {
                 currentUser = savedUser;
                 showUserMenu();
             }
 
-            // Function to show user menu instead of login button
-            function showUserMenu() {
-                document.getElementById('loginBtn').style.display = 'none';
-                document.getElementById('userMenu').style.display = 'block';
-                const userName = currentUser.name || currentUser.email || 'My Account';
-                document.getElementById('userMenuName').textContent = userName;
-            }
-
-            // Function to hide user menu and show login button
-            function hideUserMenu() {
-                document.getElementById('loginBtn').style.display = 'block';
-                document.getElementById('userMenu').style.display = 'none';
-            }
-
-            // Toggle user dropdown
             document.getElementById('userMenuBtn').addEventListener('click', function(e) {
                 e.stopPropagation();
                 document.getElementById('userDropdown').classList.toggle('show');
             });
 
-            // Close dropdown when clicking outside
             document.addEventListener('click', function() {
                 document.getElementById('userDropdown').classList.remove('show');
             });
 
-            // Logout from dropdown
             document.getElementById('logoutDropdown').addEventListener('click', async function(e) {
                 e.preventDefault();
-                
-                // Sign out from Supabase
                 try {
                     await supabase.auth.signOut();
                 } catch (err) {
                     console.error('Error signing out:', err);
                 }
-                
-                // Clear user session
                 currentUser = null;
                 localStorage.removeItem('currentUser');
-                
-                // Update UI
                 hideUserMenu();
-                
                 alert(currentLang === 'tr' ? 'Başarıyla çıkış yaptınız!' : 'Successfully logged out!');
             });
 
-            // My Organizations (placeholder)
-            document.getElementById('myOrganizations').addEventListener('click', function(e) {
-                e.preventDefault();
-                alert(currentLang === 'tr' ? 
-                    'Bu özellik yakında eklenecek!' : 
-                    'This feature is coming soon!');
-            });
-
-            // Language switchers
             document.getElementById('btnEN').addEventListener('click', () => changeLanguage('en'));
             document.getElementById('btnTR').addEventListener('click', () => changeLanguage('tr'));
             
-            // Navigation
             document.getElementById('openMapBtn').addEventListener('click', openMapApp);
             document.getElementById('heroMapBtn').addEventListener('click', openMapApp);
             document.getElementById('closeMapBtn').addEventListener('click', closeMapApp);
             
-            // Map controls
             document.getElementById('findLocationBtn').addEventListener('click', initMap);
             document.getElementById('createOrgBtn').addEventListener('click', toggleCreateMode);
             
-            // Modal controls
             document.getElementById('modalCloseBtn').addEventListener('click', () => {
                 document.getElementById('createModal').classList.remove('show');
             });
             document.getElementById('loginModalClose').addEventListener('click', closeLoginModal);
             
-            // Login tabs
             document.getElementById('loginTabBtn').addEventListener('click', () => switchLoginTab('login'));
             document.getElementById('signupTabBtn').addEventListener('click', () => switchLoginTab('signup'));
             
-            // Login button
-            document.getElementById('loginBtn').addEventListener('click', function() {
-                openLoginModal();
-            });
+            document.getElementById('loginBtn').addEventListener('click', openLoginModal);
 
-            // Login form submit
             document.getElementById('loginForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const email = document.getElementById('loginEmail').value;
@@ -1080,41 +772,6 @@
                 }
             });
 
-            // Signup form submit
-            document.getElementById('signupForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                
-                try {
-                    const { data, error } = await supabase.auth.signInWithPassword({
-                        email: email,
-                        password: password
-                    });
-
-                    if (error) {
-                        alert('Error: ' + error.message);
-                        return;
-                    }
-
-                    const { data: profile } = await supabase
-                        .from('users')
-                        .select('*')
-                        .eq('id', data.user.id)
-                        .single();
-
-                    currentUser = profile || { id: data.user.id, email: email, name: 'User' };
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    alert(currentLang === 'tr' ? 'Başarıyla giriş yaptınız!' : 'Successfully logged in!');
-                    closeLoginModal();
-                    showUserMenu();
-                } catch (err) {
-                    alert('Login error: ' + err.message);
-                }
-            });
-
-            // Signup form submit
             document.getElementById('signupForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const name = document.getElementById('signupName').value;
@@ -1152,8 +809,6 @@
                     currentUser = { id: data.user.id, email: email, name: name };
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     
-                    sendWelcomeEmail(email, name);
-                    
                     alert(currentLang === 'tr' ? 
                         'Hesabınız başarıyla oluşturuldu! Email adresinizi doğrulayın.' : 
                         'Account created! Please verify your email.');
@@ -1164,7 +819,6 @@
                 }
             });
 
-            // Create organization form submit
             document.getElementById('createOrgForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 if (selectedLocation) {
@@ -1172,10 +826,6 @@
                         name: document.getElementById('orgName').value,
                         category: document.getElementById('orgCategory').value,
                         description: document.getElementById('orgDescription').value,
-                        event_date: document.getElementById('orgDateTime').value || null,
-                        age_restriction: document.getElementById('orgAgeRestriction').value,
-                        capacity: document.getElementById('orgCapacity').value || null,
-                        contact_email: document.getElementById('orgContact').value,
                         latitude: selectedLocation.lat,
                         longitude: selectedLocation.lng,
                         created_by: currentUser.id
@@ -1201,149 +851,7 @@
                                 <div style="min-width: 250px;">
                                     <h3 style="color: var(--primary); margin-bottom: 10px;">${org.name}</h3>
                                     <p><strong>Category:</strong> ${org.category}</p>
-                                    ${org.event_date ? `<p><strong>📅 Date:</strong> ${new Date(org.event_date).toLocaleString()}</p>` : ''}
-                                    ${org.age_restriction !== 'all' ? `<p><strong>🔞 Age:</strong> ${org.age_restriction}</p>` : ''}
-                                    ${org.capacity ? `<p><strong>👥 Max:</strong> ${org.capacity} people</p>` : ''}
                                     ${org.description ? `<p>${org.description}</p>` : ''}
-                                    ${org.contact_email ? `<p><strong>📧 Contact:</strong> ${org.contact_email}</p>` : ''}
-                                </div>
-                            `);
-                        
-                        document.getElementById('createModal').classList.remove('show');
-                        this.reset();
-                        document.getElementById('orgLocationDisplay').value = '';
-                        selectedLocation = null;
-                        alert(currentLang === 'tr' ? 'Organizasyon başarıyla oluşturuldu!' : 'Organization created successfully!');
-                    } catch (err) {
-                        alert('Error creating organization: ' + err.message);
-                    }
-                }
-            });
-        });e) {
-                e.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                
-                try {
-                    const { data, error } = await supabase.auth.signInWithPassword({
-                        email: email,
-                        password: password
-                    });
-
-                    if (error) {
-                        alert('Error: ' + error.message);
-                        return;
-                    }
-
-                    const { data: profile } = await supabase
-                        .from('users')
-                        .select('*')
-                        .eq('id', data.user.id)
-                        .single();
-
-                    currentUser = profile || { id: data.user.id, email: email, name: 'User' };
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    alert(currentLang === 'tr' ? 'Başarıyla giriş yaptınız!' : 'Successfully logged in!');
-                    closeLoginModal();
-                    document.getElementById('loginBtn').textContent = currentLang === 'tr' ? '👤 Hesabım' : '👤 My Account';
-                } catch (err) {
-                    alert('Login error: ' + err.message);
-                }
-            });
-
-            // Signup form submit
-            document.getElementById('signupForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const name = document.getElementById('signupName').value;
-                const email = document.getElementById('signupEmail').value;
-                const password = document.getElementById('signupPassword').value;
-                const confirm = document.getElementById('signupConfirm').value;
-
-                if (password !== confirm) {
-                    alert(currentLang === 'tr' ? 'Şifreler eşleşmiyor!' : 'Passwords do not match!');
-                    return;
-                }
-
-                try {
-                    const { data, error } = await supabase.auth.signUp({
-                        email: email,
-                        password: password,
-                        options: {
-                            data: { name: name }
-                        }
-                    });
-
-                    if (error) {
-                        alert('Error: ' + error.message);
-                        return;
-                    }
-
-                    const { error: profileError } = await supabase
-                        .from('users')
-                        .insert([{ 
-                            id: data.user.id,
-                            email: email, 
-                            name: name 
-                        }]);
-
-                    currentUser = { id: data.user.id, email: email, name: name };
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    sendWelcomeEmail(email, name);
-                    
-                    alert(currentLang === 'tr' ? 
-                        'Hesabınız başarıyla oluşturuldu! Email adresinizi doğrulayın.' : 
-                        'Account created! Please verify your email.');
-                    closeLoginModal();
-                    document.getElementById('loginBtn').textContent = currentLang === 'tr' ? '👤 Hesabım' : '👤 My Account';
-                } catch (err) {
-                    alert('Signup error: ' + err.message);
-                }
-            });
-
-            // Create organization form submit
-            document.getElementById('createOrgForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                if (selectedLocation) {
-                    const orgData = {
-                        name: document.getElementById('orgName').value,
-                        category: document.getElementById('orgCategory').value,
-                        description: document.getElementById('orgDescription').value,
-                        event_date: document.getElementById('orgDateTime').value || null,
-                        age_restriction: document.getElementById('orgAgeRestriction').value,
-                        capacity: document.getElementById('orgCapacity').value || null,
-                        contact_email: document.getElementById('orgContact').value,
-                        latitude: selectedLocation.lat,
-                        longitude: selectedLocation.lng,
-                        created_by: currentUser.id
-                    };
-
-                    try {
-                        const { data, error } = await supabase
-                            .from('organizations')
-                            .insert([orgData])
-                            .select();
-
-                        if (error) {
-                            alert('Error: ' + error.message);
-                            return;
-                        }
-
-                        const org = data[0];
-                        organizations.push(org);
-                        
-                        const marker = L.marker([org.latitude, org.longitude])
-                            .addTo(map)
-                            .bindPopup(`
-                                <div style="min-width: 250px;">
-                                    <h3 style="color: var(--primary); margin-bottom: 10px;">${org.name}</h3>
-                                    <p><strong>Category:</strong> ${org.category}</p>
-                                    ${org.event_date ? `<p><strong>📅 Date:</strong> ${new Date(org.event_date).toLocaleString()}</p>` : ''}
-                                    ${org.age_restriction !== 'all' ? `<p><strong>🔞 Age:</strong> ${org.age_restriction}</p>` : ''}
-                                    ${org.capacity ? `<p><strong>👥 Max:</strong> ${org.capacity} people</p>` : ''}
-                                    ${org.description ? `<p>${org.description}</p>` : ''}
-                                    ${org.contact_email ? `<p><strong>📧 Contact:</strong> ${org.contact_email}</p>` : ''}
                                 </div>
                             `);
                         
@@ -1360,38 +868,4 @@
         });
     </script>
 </body>
-</html> 'Maximum Participants',
-                orgContactLabel: 'Contact Email',
-                orgLocationLabel: 'Location on Map *',
-                createOrgSubmit: 'Create Organization',
-                loginModalTitle: 'Welcome to Organize.Quest',
-                loginTabText: 'Sign In',
-                signupTabText: 'Sign Up',
-                loginEmailLabel: 'Email',
-                loginPasswordLabel: 'Password',
-                forgotPasswordLink: 'Forgot password?',
-                loginSubmitBtn: 'Sign In',
-                signupNameLabel: 'Full Name',
-                signupEmailLabel: 'Email',
-                signupPasswordLabel: 'Password',
-                signupConfirmLabel: 'Confirm Password',
-                signupSubmitBtn: 'Create Account'
-            },
-            tr: {
-                logoText: 'Organize.Quest',
-                navFeatures: 'Özellikler',
-                navAbout: 'Hakkında',
-                loginBtn: 'Giriş Yap',
-                openMapBtn: 'Haritayı Aç',
-                heroTitle: 'Yerel Topluluk Ağınızı Kurun',
-                heroDesc: 'Mahallenizdeki organizasyonları oluşturun, keşfedin ve katılın.',
-                featuresTitle: 'Bağlanmak İçin Her Şey',
-                featuresDesc: 'Toplulukları oluşturmanıza yardımcı olacak güçlü özellikler',
-                mapTitle: 'Organize.Quest Harita',
-                modalTitle: 'Organizasyon Oluştur',
-                orgNameLabel: 'Organizasyon Adı *',
-                orgCategoryLabel: 'Kategori *',
-                orgDescLabel: 'Açıklama',
-                orgDateLabel: 'Etkinlik Tarihi & Saati',
-                orgAgeLabel: 'Yaş Kısıtlaması',
-                orgCapacityLabel:
+</html>
