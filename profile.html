@@ -302,8 +302,11 @@
             // Clear localStorage
             localStorage.removeItem('currentUser');
             
+            // Show alert and then redirect
             alert('Logged out successfully!');
-            window.location.href = 'index.html';
+            
+            // Use replace to ensure clean navigation
+            window.location.replace('index.html');
         });
     </script>
 </body>
