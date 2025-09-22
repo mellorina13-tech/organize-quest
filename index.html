@@ -1,6 +1,4 @@
-// Google login buttons
-            document.getElementById('googleLoginBtn').addEventListener('click', async function() {
-                const { data<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -30,6 +28,17 @@
             line-height: 1.6;
             color: #333;
             overflow-x: hidden;
+            background: white;
+        }
+
+        /* Loading state to prevent flash of unstyled content */
+        body.loading {
+            opacity: 0;
+        }
+
+        body.loaded {
+            opacity: 1;
+            transition: opacity 0.3s ease;
         }
 
         .language-bar {
@@ -433,6 +442,7 @@
             border-radius: 20px;
             width: 90%;
             max-width: 500px;
+            position: relative;
         }
 
         .modal-close {
@@ -473,14 +483,25 @@
             .hero-visual {
                 display: none;
             }
+            .map-container {
+                grid-template-columns: 1fr;
+            }
+            .map-sidebar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                max-height: 40vh;
+                z-index: 999;
+            }
         }
     </style>
 </head>
-<body>
+<body class="loading">
     <div class="landing-page" id="landingPage">
         <nav>
             <div class="nav-container">
-                <div class="logo">🌐 <span id="logoText">Organize.Quest</span></div>
+                <div class="logo">🌍 <span id="logoText">Organize.Quest</span></div>
                 <div class="nav-links">
                     <a href="#features" class="nav-link" id="navFeatures">Features</a>
                     <a href="#" class="nav-link" id="navAbout">About</a>
@@ -547,7 +568,7 @@
 
     <div class="map-app" id="mapApp">
         <div class="map-header">
-            <h2>🌐 <span id="mapTitle">Organize.Quest Map</span></h2>
+            <h2>🌍 <span id="mapTitle">Organize.Quest Map</span></h2>
             <button class="btn-primary" id="closeMapBtn">← Back</button>
         </div>
         <div class="map-container">
@@ -644,6 +665,11 @@
                     <a href="#" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;" id="forgotPasswordLink">Forgot password?</a>
                 </div>
                 <button type="submit" class="map-btn map-btn-primary" id="loginSubmitBtn">Sign In</button>
+                
+                <!-- Google login button placeholder (remove if not implementing OAuth) -->
+                <!-- <button type="button" class="map-btn" id="googleLoginBtn" style="margin-top: 1rem; background: white; border: 2px solid #e0e0e0;">
+                    Sign in with Google
+                </button> -->
             </form>
 
             <form id="signupForm" style="display: none;">
@@ -664,6 +690,11 @@
                     <input type="password" id="signupConfirm" required placeholder="••••••••" minlength="6">
                 </div>
                 <button type="submit" class="map-btn map-btn-primary" id="signupSubmitBtn">Create Account</button>
+                
+                <!-- Google signup button placeholder (remove if not implementing OAuth) -->
+                <!-- <button type="button" class="map-btn" id="googleSignupBtn" style="margin-top: 1rem; background: white; border: 2px solid #e0e0e0;">
+                    Sign up with Google
+                </button> -->
             </form>
         </div>
     </div>
@@ -672,11 +703,18 @@
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // Add loading state management
+        window.addEventListener('DOMContentLoaded', function() {
+            document.body.classList.remove('loading');
+            document.body.classList.add('loaded');
+        });
+
         // Supabase Configuration
         const SUPABASE_URL = 'https://wsqhnoobklhvgzfnogap.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzcWhub29ia2xodmd6Zm5vZ2FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyNTAyNDYsImV4cCI6MjA1MjgyNjI0Nn0.aMHsyKeqmCgQUfW8TYoTa7aR5CsOnIaFa4bPlE_sxRE';
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
         const translations = {
             en: {
                 logoText: 'Organize.Quest',
@@ -695,40 +733,6 @@
                 orgDescLabel: 'Description',
                 orgDateLabel: 'Event Date & Time',
                 orgAgeLabel: 'Age Restriction',
-                orgCapacityLabel: 'Maximum Participants',
-                orgContactLabel: 'Contact Email',
-                orgLocationLabel: 'Location on Map *',
-                createOrgSubmit: 'Create Organization',
-                loginModalTitle: 'Welcome to Organize.Quest',
-                loginTabText: 'Sign In',
-                signupTabText: 'Sign Up',
-                loginEmailLabel: 'Email',
-                loginPasswordLabel: 'Password',
-                forgotPasswordLink: 'Forgot password?',
-                loginSubmitBtn: 'Sign In',
-                signupNameLabel: 'Full Name',
-                signupEmailLabel: 'Email',
-                signupPasswordLabel: 'Password',
-                signupConfirmLabel: 'Confirm Password',
-                signupSubmitBtn: 'Create Account'
-            },
-            tr: {
-                logoText: 'Organize.Quest',
-                navFeatures: 'Özellikler',
-                navAbout: 'Hakkında',
-                loginBtn: 'Giriş Yap',
-                openMapBtn: 'Haritayı Aç',
-                heroTitle: 'Yerel Topluluk Ağınızı Kurun',
-                heroDesc: 'Mahallenizdeki organizasyonları oluşturun, keşfedin ve katılın.',
-                featuresTitle: 'Bağlanmak İçin Her Şey',
-                featuresDesc: 'Toplulukları oluşturmanıza yardımcı olacak güçlü özellikler',
-                mapTitle: 'Organize.Quest Harita',
-                modalTitle: 'Organizasyon Oluştur',
-                orgNameLabel: 'Organizasyon Adı *',
-                orgCategoryLabel: 'Kategori *',
-                orgDescLabel: 'Açıklama',
-                orgDateLabel: 'Etkinlik Tarihi & Saati',
-                orgAgeLabel: 'Yaş Kısıtlaması',
                 orgCapacityLabel: 'Maksimum Katılımcı',
                 orgContactLabel: 'İletişim E-postası',
                 orgLocationLabel: 'Harita Üzerinde Konum *',
@@ -753,18 +757,27 @@
         let currentUser = null;
 
         // EmailJS Configuration
-        // TODO: emailjs.com'dan aldığınız bilgilerle değiştirin
-        const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY'; // emailjs.com'dan alacaksınız
-        const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID'; // Gmail service ID
-        const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID'; // Template ID
+        // TODO: Replace with your EmailJS credentials from emailjs.com
+        const EMAILJS_PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
+        const EMAILJS_SERVICE_ID = 'YOUR_SERVICE_ID';
+        const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
 
-        // EmailJS başlat
+        // Initialize EmailJS
         (function() {
-            emailjs.init(EMAILJS_PUBLIC_KEY);
+            // Only init if valid key is provided
+            if (EMAILJS_PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
+                emailjs.init(EMAILJS_PUBLIC_KEY);
+            }
         })();
 
-        // Email gönderme fonksiyonu
+        // Email sending function
         function sendWelcomeEmail(userEmail, userName) {
+            // Skip if EmailJS not configured
+            if (EMAILJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY') {
+                console.log('EmailJS not configured - skipping welcome email');
+                return;
+            }
+
             const templateParams = {
                 to_email: userEmail,
                 to_name: userName,
@@ -826,22 +839,6 @@
             document.getElementById('signupForm').reset();
         }
 
-        function openLoginModal() {
-            document.getElementById('loginModal').classList.add('show');
-            switchLoginTab('login');
-        }
-
-        function changeLanguage(lang) {
-            currentLang = lang;
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn' + lang.toUpperCase()).classList.add('active');
-            
-            Object.keys(translations[lang]).forEach(key => {
-                const el = document.getElementById(key);
-                if (el) el.textContent = translations[lang][key];
-            });
-        }
-
         function openMapApp() {
             document.getElementById('landingPage').classList.add('hidden');
             document.getElementById('mapApp').classList.add('active');
@@ -860,7 +857,6 @@
             map.on('click', function(e) {
                 if (createMode) {
                     selectedLocation = e.latlng;
-                    // Konum bilgisini input'a yaz
                     document.getElementById('orgLocationDisplay').value = 
                         `Lat: ${e.latlng.lat.toFixed(4)}, Lng: ${e.latlng.lng.toFixed(4)}`;
                     document.getElementById('createModal').classList.add('show');
@@ -879,7 +875,6 @@
         }
 
         function toggleCreateMode() {
-            // Önce kullanıcı girişi kontrolü
             if (!currentUser) {
                 alert(currentLang === 'tr' ? 
                     'Organizasyon oluşturmak için lütfen giriş yapın!' : 
@@ -897,42 +892,46 @@
             }
         }
 
+        // Initialize app when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
+            // Check for saved user session
+            const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (savedUser) {
+                currentUser = savedUser;
+                document.getElementById('loginBtn').textContent = currentLang === 'tr' ? '👤 Hesabım' : '👤 My Account';
+            }
+
+            // Language switchers
             document.getElementById('btnEN').addEventListener('click', () => changeLanguage('en'));
             document.getElementById('btnTR').addEventListener('click', () => changeLanguage('tr'));
+            
+            // Navigation
             document.getElementById('openMapBtn').addEventListener('click', openMapApp);
             document.getElementById('heroMapBtn').addEventListener('click', openMapApp);
             document.getElementById('closeMapBtn').addEventListener('click', closeMapApp);
+            
+            // Map controls
             document.getElementById('findLocationBtn').addEventListener('click', initMap);
             document.getElementById('createOrgBtn').addEventListener('click', toggleCreateMode);
+            
+            // Modal controls
             document.getElementById('modalCloseBtn').addEventListener('click', () => {
                 document.getElementById('createModal').classList.remove('show');
             });
-
-            // Login modal events
             document.getElementById('loginModalClose').addEventListener('click', closeLoginModal);
+            
+            // Login tabs
             document.getElementById('loginTabBtn').addEventListener('click', () => switchLoginTab('login'));
             document.getElementById('signupTabBtn').addEventListener('click', () => switchLoginTab('signup'));
-
-            // Google login buttons
-            document.getElementById('googleLoginBtn').addEventListener('click', function() {
-                // Google OAuth simülasyonu
-                currentUser = { email: 'user@gmail.com', name: 'Google User', provider: 'google' };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                alert(currentLang === 'tr' ? 'Google ile başarıyla giriş yaptınız!' : 'Successfully signed in with Google!');
-                closeLoginModal();
-                document.getElementById('loginBtn').textContent = currentLang === 'tr' ? '👤 Hesabım' : '👤 My Account';
-            });
-
-            document.getElementById('googleSignupBtn').addEventListener('click', function() {
-                // Google OAuth simülasyonu
-                currentUser = { email: 'user@gmail.com', name: 'Google User', provider: 'google' };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                alert(currentLang === 'tr' ? 'Google ile hesabınız oluşturuldu!' : 'Account created with Google!');
-                closeLoginModal();
-                document.getElementById('loginBtn').textContent = currentLang === 'tr' ? '👤 Hesabım' : '👤 My Account';
+            
+            // Login button - redirect to profile if logged in
+            document.getElementById('loginBtn').addEventListener('click', function() {
+                if (currentUser) {
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    window.location.href = 'profile.html';
+                } else {
+                    openLoginModal();
+                }
             });
 
             // Login form submit
@@ -941,30 +940,32 @@
                 const email = document.getElementById('loginEmail').value;
                 const password = document.getElementById('loginPassword').value;
                 
-                // Supabase ile giriş
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
 
-                if (error) {
-                    alert('Error: ' + error.message);
-                    return;
+                    if (error) {
+                        alert('Error: ' + error.message);
+                        return;
+                    }
+
+                    const { data: profile } = await supabase
+                        .from('users')
+                        .select('*')
+                        .eq('id', data.user.id)
+                        .single();
+
+                    currentUser = profile || { id: data.user.id, email: email, name: 'User' };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    alert(currentLang === 'tr' ? 'Başarıyla giriş yaptınız!' : 'Successfully logged in!');
+                    closeLoginModal();
+                    document.getElementById('loginBtn').textContent = currentLang === 'tr' ? '👤 Hesabım' : '👤 My Account';
+                } catch (err) {
+                    alert('Login error: ' + err.message);
                 }
-
-                // User tablosundan profil bilgilerini al
-                const { data: profile, error: profileError } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('id', data.user.id)
-                    .single();
-
-                currentUser = profile || { id: data.user.id, email: email, name: 'User' };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                alert(currentLang === 'tr' ? 'Başarıyla giriş yaptınız!' : 'Successfully logged in!');
-                closeLoginModal();
-                document.getElementById('loginBtn').textContent = currentLang === 'tr' ? '👤 Hesabım' : '👤 My Account';
             });
 
             // Signup form submit
@@ -980,62 +981,44 @@
                     return;
                 }
 
-                // Supabase ile kayıt
-                const { data, error } = await supabase.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: {
-                        data: { name: name }
+                try {
+                    const { data, error } = await supabase.auth.signUp({
+                        email: email,
+                        password: password,
+                        options: {
+                            data: { name: name }
+                        }
+                    });
+
+                    if (error) {
+                        alert('Error: ' + error.message);
+                        return;
                     }
-                });
 
-                if (error) {
-                    alert('Error: ' + error.message);
-                    return;
-                }
+                    const { error: profileError } = await supabase
+                        .from('users')
+                        .insert([{ 
+                            id: data.user.id,
+                            email: email, 
+                            name: name 
+                        }]);
 
-                // User tablosuna profil bilgilerini ekle
-                const { error: profileError } = await supabase
-                    .from('users')
-                    .insert([{ 
-                        id: data.user.id,
-                        email: email, 
-                        name: name 
-                    }]);
-
-                currentUser = { id: data.user.id, email: email, name: name };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                // Hoş geldin emaili gönder
-                sendWelcomeEmail(email, name);
-                
-                alert(currentLang === 'tr' ? 
-                    'Hesabınız başarıyla oluşturuldu! Email adresinizi doğrulayın.' : 
-                    'Account created! Please verify your email.');
-                closeLoginModal();
-                document.getElementById('loginBtn').textContent = currentLang === 'tr' ? '👤 Hesabım' : '👤 My Account';
-            });
-
-            // Login butonu - giriş yapılmışsa profile.html'e yönlendir
-            document.getElementById('loginBtn').addEventListener('click', function() {
-                if (currentUser) {
-                    // Kullanıcı bilgisini localStorage'a kaydet (profile.html'de okuyabilmek için)
+                    currentUser = { id: data.user.id, email: email, name: name };
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    window.location.href = 'profile.html';
-                } else {
-                    openLoginModal();
-                }
-            });
-
-            // Sayfa yüklendiğinde kullanıcıyı kontrol et
-            window.addEventListener('DOMContentLoaded', function() {
-                const savedUser = JSON.parse(localStorage.getItem('currentUser'));
-                if (savedUser) {
-                    currentUser = savedUser;
+                    
+                    sendWelcomeEmail(email, name);
+                    
+                    alert(currentLang === 'tr' ? 
+                        'Hesabınız başarıyla oluşturuldu! Email adresinizi doğrulayın.' : 
+                        'Account created! Please verify your email.');
+                    closeLoginModal();
                     document.getElementById('loginBtn').textContent = currentLang === 'tr' ? '👤 Hesabım' : '👤 My Account';
+                } catch (err) {
+                    alert('Signup error: ' + err.message);
                 }
             });
 
+            // Create organization form submit
             document.getElementById('createOrgForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 if (selectedLocation) {
@@ -1052,43 +1035,79 @@
                         created_by: currentUser.id
                     };
 
-                    // Supabase'e kaydet
-                    const { data, error } = await supabase
-                        .from('organizations')
-                        .insert([orgData])
-                        .select();
+                    try {
+                        const { data, error } = await supabase
+                            .from('organizations')
+                            .insert([orgData])
+                            .select();
 
-                    if (error) {
-                        alert('Error: ' + error.message);
-                        return;
+                        if (error) {
+                            alert('Error: ' + error.message);
+                            return;
+                        }
+
+                        const org = data[0];
+                        organizations.push(org);
+                        
+                        const marker = L.marker([org.latitude, org.longitude])
+                            .addTo(map)
+                            .bindPopup(`
+                                <div style="min-width: 250px;">
+                                    <h3 style="color: var(--primary); margin-bottom: 10px;">${org.name}</h3>
+                                    <p><strong>Category:</strong> ${org.category}</p>
+                                    ${org.event_date ? `<p><strong>📅 Date:</strong> ${new Date(org.event_date).toLocaleString()}</p>` : ''}
+                                    ${org.age_restriction !== 'all' ? `<p><strong>🔞 Age:</strong> ${org.age_restriction}</p>` : ''}
+                                    ${org.capacity ? `<p><strong>👥 Max:</strong> ${org.capacity} people</p>` : ''}
+                                    ${org.description ? `<p>${org.description}</p>` : ''}
+                                    ${org.contact_email ? `<p><strong>📧 Contact:</strong> ${org.contact_email}</p>` : ''}
+                                </div>
+                            `);
+                        
+                        document.getElementById('createModal').classList.remove('show');
+                        this.reset();
+                        document.getElementById('orgLocationDisplay').value = '';
+                        selectedLocation = null;
+                        alert(currentLang === 'tr' ? 'Organizasyon başarıyla oluşturuldu!' : 'Organization created successfully!');
+                    } catch (err) {
+                        alert('Error creating organization: ' + err.message);
                     }
-
-                    const org = data[0];
-                    organizations.push(org);
-                    
-                    // Haritaya marker ekle
-                    const marker = L.marker([org.latitude, org.longitude])
-                        .addTo(map)
-                        .bindPopup(`
-                            <div style="min-width: 250px;">
-                                <h3 style="color: var(--primary); margin-bottom: 10px;">${org.name}</h3>
-                                <p><strong>Category:</strong> ${org.category}</p>
-                                ${org.event_date ? `<p><strong>📅 Date:</strong> ${new Date(org.event_date).toLocaleString()}</p>` : ''}
-                                ${org.age_restriction !== 'all' ? `<p><strong>🔞 Age:</strong> ${org.age_restriction}</p>` : ''}
-                                ${org.capacity ? `<p><strong>👥 Max:</strong> ${org.capacity} people</p>` : ''}
-                                ${org.description ? `<p>${org.description}</p>` : ''}
-                                ${org.contact_email ? `<p><strong>📧 Contact:</strong> ${org.contact_email}</p>` : ''}
-                            </div>
-                        `);
-                    
-                    document.getElementById('createModal').classList.remove('show');
-                    this.reset();
-                    document.getElementById('orgLocationDisplay').value = '';
-                    selectedLocation = null;
-                    alert(currentLang === 'tr' ? 'Organizasyon başarıyla oluşturuldu!' : 'Organization created successfully!');
                 }
             });
         });
     </script>
 </body>
-</html>
+</html> 'Maximum Participants',
+                orgContactLabel: 'Contact Email',
+                orgLocationLabel: 'Location on Map *',
+                createOrgSubmit: 'Create Organization',
+                loginModalTitle: 'Welcome to Organize.Quest',
+                loginTabText: 'Sign In',
+                signupTabText: 'Sign Up',
+                loginEmailLabel: 'Email',
+                loginPasswordLabel: 'Password',
+                forgotPasswordLink: 'Forgot password?',
+                loginSubmitBtn: 'Sign In',
+                signupNameLabel: 'Full Name',
+                signupEmailLabel: 'Email',
+                signupPasswordLabel: 'Password',
+                signupConfirmLabel: 'Confirm Password',
+                signupSubmitBtn: 'Create Account'
+            },
+            tr: {
+                logoText: 'Organize.Quest',
+                navFeatures: 'Özellikler',
+                navAbout: 'Hakkında',
+                loginBtn: 'Giriş Yap',
+                openMapBtn: 'Haritayı Aç',
+                heroTitle: 'Yerel Topluluk Ağınızı Kurun',
+                heroDesc: 'Mahallenizdeki organizasyonları oluşturun, keşfedin ve katılın.',
+                featuresTitle: 'Bağlanmak İçin Her Şey',
+                featuresDesc: 'Toplulukları oluşturmanıza yardımcı olacak güçlü özellikler',
+                mapTitle: 'Organize.Quest Harita',
+                modalTitle: 'Organizasyon Oluştur',
+                orgNameLabel: 'Organizasyon Adı *',
+                orgCategoryLabel: 'Kategori *',
+                orgDescLabel: 'Açıklama',
+                orgDateLabel: 'Etkinlik Tarihi & Saati',
+                orgAgeLabel: 'Yaş Kısıtlaması',
+                orgCapacityLabel:
