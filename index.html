@@ -29,16 +29,7 @@
             color: #333;
             overflow-x: hidden;
             background: white;
-        }
-
-        /* Loading state to prevent flash of unstyled content */
-        body.loading {
-            opacity: 0;
-        }
-
-        body.loaded {
-            opacity: 1;
-            transition: opacity 0.3s ease;
+            opacity: 1; /* Remove loading state by default */
         }
 
         .language-bar {
@@ -552,7 +543,7 @@
         }
     </style>
 </head>
-<body class="loading">
+<body>
     <div class="landing-page" id="landingPage">
         <nav>
             <div class="nav-container">
@@ -769,17 +760,23 @@
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Add loading state management
-        window.addEventListener('DOMContentLoaded', function() {
-            document.body.classList.remove('loading');
-            document.body.classList.add('loaded');
+        // Make sure page is visible immediately
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loading...');
         });
 
         // Supabase Configuration
         const SUPABASE_URL = 'https://wsqhnoobklhvgzfnogap.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndzcWhub29ia2xodmd6Zm5vZ2FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyNTAyNDYsImV4cCI6MjA1MjgyNjI0Nn0.aMHsyKeqmCgQUfW8TYoTa7aR5CsOnIaFa4bPlE_sxRE';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let supabase;
+        try {
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (err) {
+            console.error('Supabase initialization error:', err);
+        }
         
         const translations = {
             en: {
