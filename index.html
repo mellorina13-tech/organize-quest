@@ -150,6 +150,61 @@
             align-items: center;
         }
 
+        .user-menu {
+            position: relative;
+        }
+
+        .user-menu-btn {
+            background: var(--primary);
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            display: none;
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            color: #333;
+            text-decoration: none;
+            display: block;
+            font-size: 0.95rem;
+        }
+
+        .dropdown-item:hover {
+            background: var(--light);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 0.5rem 0;
+        }
+
         .btn-login {
             background: transparent;
             color: var(--primary);
@@ -512,6 +567,17 @@
                         <button class="lang-btn" id="btnTR">🇹🇷</button>
                     </div>
                     <button class="btn-login" id="loginBtn">Log In</button>
+                    <div class="user-menu" id="userMenu" style="display: none;">
+                        <button class="user-menu-btn" id="userMenuBtn">
+                            👤 <span id="userMenuName">My Account</span> ▼
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="profile.html" class="dropdown-item">📝 Edit Profile</a>
+                            <a href="#" class="dropdown-item" id="myOrganizations">🏢 My Organizations</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item" id="logoutDropdown">🚪 Logout</a>
+                        </div>
+                    </div>
                     <button class="btn-nav" id="openMapBtn">Open Map</button>
                 </div>
             </div>
@@ -898,8 +964,62 @@
             const savedUser = JSON.parse(localStorage.getItem('currentUser'));
             if (savedUser) {
                 currentUser = savedUser;
-                document.getElementById('loginBtn').textContent = currentLang === 'tr' ? '👤 Hesabım' : '👤 My Account';
+                showUserMenu();
             }
+
+            // Function to show user menu instead of login button
+            function showUserMenu() {
+                document.getElementById('loginBtn').style.display = 'none';
+                document.getElementById('userMenu').style.display = 'block';
+                const userName = currentUser.name || currentUser.email || 'My Account';
+                document.getElementById('userMenuName').textContent = userName;
+            }
+
+            // Function to hide user menu and show login button
+            function hideUserMenu() {
+                document.getElementById('loginBtn').style.display = 'block';
+                document.getElementById('userMenu').style.display = 'none';
+            }
+
+            // Toggle user dropdown
+            document.getElementById('userMenuBtn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                document.getElementById('userDropdown').classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function() {
+                document.getElementById('userDropdown').classList.remove('show');
+            });
+
+            // Logout from dropdown
+            document.getElementById('logoutDropdown').addEventListener('click', async function(e) {
+                e.preventDefault();
+                
+                // Sign out from Supabase
+                try {
+                    await supabase.auth.signOut();
+                } catch (err) {
+                    console.error('Error signing out:', err);
+                }
+                
+                // Clear user session
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                
+                // Update UI
+                hideUserMenu();
+                
+                alert(currentLang === 'tr' ? 'Başarıyla çıkış yaptınız!' : 'Successfully logged out!');
+            });
+
+            // My Organizations (placeholder)
+            document.getElementById('myOrganizations').addEventListener('click', function(e) {
+                e.preventDefault();
+                alert(currentLang === 'tr' ? 
+                    'Bu özellik yakında eklenecek!' : 
+                    'This feature is coming soon!');
+            });
 
             // Language switchers
             document.getElementById('btnEN').addEventListener('click', () => changeLanguage('en'));
@@ -924,18 +1044,185 @@
             document.getElementById('loginTabBtn').addEventListener('click', () => switchLoginTab('login'));
             document.getElementById('signupTabBtn').addEventListener('click', () => switchLoginTab('signup'));
             
-            // Login button - redirect to profile if logged in
+            // Login button
             document.getElementById('loginBtn').addEventListener('click', function() {
-                if (currentUser) {
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    window.location.href = 'profile.html';
-                } else {
-                    openLoginModal();
-                }
+                openLoginModal();
             });
 
             // Login form submit
             document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+                    if (error) {
+                        alert('Error: ' + error.message);
+                        return;
+                    }
+
+                    const { data: profile } = await supabase
+                        .from('users')
+                        .select('*')
+                        .eq('id', data.user.id)
+                        .single();
+
+                    currentUser = profile || { id: data.user.id, email: email, name: 'User' };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    alert(currentLang === 'tr' ? 'Başarıyla giriş yaptınız!' : 'Successfully logged in!');
+                    closeLoginModal();
+                    showUserMenu();
+                } catch (err) {
+                    alert('Login error: ' + err.message);
+                }
+            });
+
+            // Signup form submit
+            document.getElementById('signupForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+
+                    if (error) {
+                        alert('Error: ' + error.message);
+                        return;
+                    }
+
+                    const { data: profile } = await supabase
+                        .from('users')
+                        .select('*')
+                        .eq('id', data.user.id)
+                        .single();
+
+                    currentUser = profile || { id: data.user.id, email: email, name: 'User' };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    alert(currentLang === 'tr' ? 'Başarıyla giriş yaptınız!' : 'Successfully logged in!');
+                    closeLoginModal();
+                    showUserMenu();
+                } catch (err) {
+                    alert('Login error: ' + err.message);
+                }
+            });
+
+            // Signup form submit
+            document.getElementById('signupForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const name = document.getElementById('signupName').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+                const confirm = document.getElementById('signupConfirm').value;
+
+                if (password !== confirm) {
+                    alert(currentLang === 'tr' ? 'Şifreler eşleşmiyor!' : 'Passwords do not match!');
+                    return;
+                }
+
+                try {
+                    const { data, error } = await supabase.auth.signUp({
+                        email: email,
+                        password: password,
+                        options: {
+                            data: { name: name }
+                        }
+                    });
+
+                    if (error) {
+                        alert('Error: ' + error.message);
+                        return;
+                    }
+
+                    const { error: profileError } = await supabase
+                        .from('users')
+                        .insert([{ 
+                            id: data.user.id,
+                            email: email, 
+                            name: name 
+                        }]);
+
+                    currentUser = { id: data.user.id, email: email, name: name };
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    sendWelcomeEmail(email, name);
+                    
+                    alert(currentLang === 'tr' ? 
+                        'Hesabınız başarıyla oluşturuldu! Email adresinizi doğrulayın.' : 
+                        'Account created! Please verify your email.');
+                    closeLoginModal();
+                    showUserMenu();
+                } catch (err) {
+                    alert('Signup error: ' + err.message);
+                }
+            });
+
+            // Create organization form submit
+            document.getElementById('createOrgForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                if (selectedLocation) {
+                    const orgData = {
+                        name: document.getElementById('orgName').value,
+                        category: document.getElementById('orgCategory').value,
+                        description: document.getElementById('orgDescription').value,
+                        event_date: document.getElementById('orgDateTime').value || null,
+                        age_restriction: document.getElementById('orgAgeRestriction').value,
+                        capacity: document.getElementById('orgCapacity').value || null,
+                        contact_email: document.getElementById('orgContact').value,
+                        latitude: selectedLocation.lat,
+                        longitude: selectedLocation.lng,
+                        created_by: currentUser.id
+                    };
+
+                    try {
+                        const { data, error } = await supabase
+                            .from('organizations')
+                            .insert([orgData])
+                            .select();
+
+                        if (error) {
+                            alert('Error: ' + error.message);
+                            return;
+                        }
+
+                        const org = data[0];
+                        organizations.push(org);
+                        
+                        const marker = L.marker([org.latitude, org.longitude])
+                            .addTo(map)
+                            .bindPopup(`
+                                <div style="min-width: 250px;">
+                                    <h3 style="color: var(--primary); margin-bottom: 10px;">${org.name}</h3>
+                                    <p><strong>Category:</strong> ${org.category}</p>
+                                    ${org.event_date ? `<p><strong>📅 Date:</strong> ${new Date(org.event_date).toLocaleString()}</p>` : ''}
+                                    ${org.age_restriction !== 'all' ? `<p><strong>🔞 Age:</strong> ${org.age_restriction}</p>` : ''}
+                                    ${org.capacity ? `<p><strong>👥 Max:</strong> ${org.capacity} people</p>` : ''}
+                                    ${org.description ? `<p>${org.description}</p>` : ''}
+                                    ${org.contact_email ? `<p><strong>📧 Contact:</strong> ${org.contact_email}</p>` : ''}
+                                </div>
+                            `);
+                        
+                        document.getElementById('createModal').classList.remove('show');
+                        this.reset();
+                        document.getElementById('orgLocationDisplay').value = '';
+                        selectedLocation = null;
+                        alert(currentLang === 'tr' ? 'Organizasyon başarıyla oluşturuldu!' : 'Organization created successfully!');
+                    } catch (err) {
+                        alert('Error creating organization: ' + err.message);
+                    }
+                }
+            });
+        });e) {
                 e.preventDefault();
                 const email = document.getElementById('loginEmail').value;
                 const password = document.getElementById('loginPassword').value;
