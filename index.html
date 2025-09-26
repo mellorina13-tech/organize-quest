@@ -593,6 +593,48 @@
         let map, userMarker, organizations = [], createMode = false, selectedLocation = null;
         let currentUser = null;
 
+        const translations = {
+            en: {
+                heroTitle: 'Build Your Local Community Network',
+                heroDesc: 'Create, discover, and join organizations in your neighborhood.',
+                startBtn: 'Start Exploring',
+                loginBtn: 'Log In',
+                openMapBtn: 'Open Map',
+                myAccount: 'My Account',
+                logout: 'Logout'
+            },
+            tr: {
+                heroTitle: 'Yerel Topluluk Ağınızı Oluşturun',
+                heroDesc: 'Mahallenizde organizasyonlar oluşturun, keşfedin ve katılın.',
+                startBtn: 'Keşfetmeye Başla',
+                loginBtn: 'Giriş Yap',
+                openMapBtn: 'Haritayı Aç',
+                myAccount: 'Hesabım',
+                logout: 'Çıkış Yap'
+            }
+        };
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+            
+            // Update button states
+            document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+            document.getElementById('btnTR').classList.toggle('active', lang === 'tr');
+            
+            // Update text content
+            const t = translations[lang];
+            document.getElementById('heroTitle').textContent = t.heroTitle;
+            document.getElementById('heroDesc').textContent = t.heroDesc;
+            document.getElementById('heroMapBtn').textContent = t.startBtn;
+            document.getElementById('loginBtn').textContent = t.loginBtn;
+            document.getElementById('openMapBtn').textContent = t.openMapBtn;
+            
+            const userMenuName = document.getElementById('userMenuName');
+            if (userMenuName) {
+                userMenuName.textContent = currentUser ? currentUser.name : t.myAccount;
+            }
+        }
+
         function showUserMenu() {
             document.getElementById('loginBtn').style.display = 'none';
             document.getElementById('userMenu').style.display = 'block';
@@ -725,6 +767,9 @@
             
             document.getElementById('findLocationBtn').addEventListener('click', initMap);
             document.getElementById('createOrgBtn').addEventListener('click', toggleCreateMode);
+            
+            document.getElementById('btnEN').addEventListener('click', () => switchLanguage('en'));
+            document.getElementById('btnTR').addEventListener('click', () => switchLanguage('tr'));
             
             document.getElementById('modalCloseBtn').addEventListener('click', () => {
                 document.getElementById('createModal').classList.remove('show');
