@@ -371,21 +371,21 @@
     <div class="landing-page" id="landingPage">
         <nav>
             <div class="nav-container">
-                <div class="logo" id="logoText">ðŸŒ Organize.Quest</div>
+                <div class="logo" id="logoText">🌍 Organize.Quest</div>
                 <div class="nav-buttons">
                     <div class="lang-switcher">
-                        <button class="lang-btn active" id="btnEN">ðŸ‡¬ðŸ‡§</button>
-                        <button class="lang-btn" id="btnTR">ðŸ‡¹ðŸ‡·</button>
+                        <button class="lang-btn active" id="btnEN">🇬🇧</button>
+                        <button class="lang-btn" id="btnTR">🇹🇷</button>
                     </div>
                     <a href="profile.html" class="btn-login" id="loginBtn">Log In</a>
                     <div class="user-menu" id="userMenu" style="display: none;">
                         <button class="user-menu-btn" id="userMenuBtn">
-                            ðŸ‘¤ <span id="userMenuName">My Account</span> â–¼
+                            👤 <span id="userMenuName">My Account</span> ▼
                         </button>
                         <div class="user-dropdown" id="userDropdown">
-                            <a href="profile.html" class="dropdown-item">ðŸ“ My Account</a>
+                            <a href="profile.html" class="dropdown-item">📝 My Account</a>
                             <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item" id="logoutDropdown">ðŸšª Logout</a>
+                            <a href="#" class="dropdown-item" id="logoutDropdown">🚪 Logout</a>
                         </div>
                     </div>
                     <button class="btn-nav" id="openMapBtn">Open Map</button>
@@ -408,14 +408,14 @@
 
     <div class="map-app" id="mapApp">
         <div class="map-header">
-            <h2>ðŸŒ <span id="mapTitle">Organize.Quest Map</span></h2>
-            <button class="btn-primary" id="closeMapBtn">â† Back</button>
+            <h2>🌍 <span id="mapTitle">Organize.Quest Map</span></h2>
+            <button class="btn-primary" id="closeMapBtn">← Back</button>
         </div>
         <div class="map-container">
             <div id="map"></div>
             <div class="map-sidebar">
-                <button class="map-btn map-btn-primary" id="findLocationBtn">ðŸ“ Find My Location</button>
-                <button class="map-btn map-btn-primary" id="createOrgBtn">âž• Create Organization</button>
+                <button class="map-btn map-btn-primary" id="findLocationBtn">📍 Find My Location</button>
+                <button class="map-btn map-btn-primary" id="createOrgBtn">➕ Create Organization</button>
                 <div id="orgList"></div>
             </div>
         </div>
@@ -434,13 +434,13 @@
                     <label id="orgCategoryLabel">Category *</label>
                     <select id="orgCategory" required>
                         <option value="">Select</option>
-                        <option value="Education">ðŸŽ“ Education</option>
-                        <option value="Healthcare">ðŸ¥ Healthcare</option>
-                        <option value="Technology">ðŸ’» Technology</option>
-                        <option value="Non-Profit">ðŸ¤ Non-Profit</option>
-                        <option value="Sports">âš½ Sports</option>
-                        <option value="Arts">ðŸŽ¨ Arts</option>
-                        <option value="Community">ðŸ™ï¸ Community</option>
+                        <option value="Education">🎓 Education</option>
+                        <option value="Healthcare">🏥 Healthcare</option>
+                        <option value="Technology">💻 Technology</option>
+                        <option value="Non-Profit">🤝 Non-Profit</option>
+                        <option value="Sports">⚽ Sports</option>
+                        <option value="Arts">🎨 Arts</option>
+                        <option value="Community">🏙️ Community</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -517,7 +517,7 @@
                 navigator.geolocation.getCurrentPosition(function(pos) {
                     const loc = [pos.coords.latitude, pos.coords.longitude];
                     map.setView(loc, 14);
-                    userMarker = L.marker(loc).addTo(map).bindPopup('ðŸ“ Your Location').openPopup();
+                    userMarker = L.marker(loc).addTo(map).bindPopup('📍 Your Location').openPopup();
                 });
             }
         }
