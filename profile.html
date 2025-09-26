@@ -568,10 +568,11 @@
             }).join('');
         }
 
-        function editOrganization(orgId) {
+        window.editOrganization = function(orgId) {
             const org = myOrganizations.find(o => o.id === orgId || o.id == orgId);
             if (!org) {
                 console.error('Organization not found:', orgId);
+                alert('Organization not found!');
                 return;
             }
 
@@ -582,8 +583,10 @@
             document.getElementById('editOrgModal').classList.add('show');
         }
 
-        async function deleteOrganization(orgId) {
+        window.deleteOrganization = async function(orgId) {
             if (!confirm('Are you sure you want to delete this organization?')) return;
+
+            console.log('Deleting organization:', orgId);
 
             try {
                 const { error } = await supabase
