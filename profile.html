@@ -299,19 +299,6 @@
             color: white;
         }
 
-        .attendees-list {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .attendee-item {
-            padding: 0.5rem;
-            background: var(--light);
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -480,18 +467,6 @@
                     <label>Description</label>
                     <textarea id="editOrgDescription" rows="3"></textarea>
                 </div>
-                <div class="form-group">
-                    <label>Event Date (Optional)</label>
-                    <input type="date" id="editEventDate">
-                </div>
-                <div class="form-group">
-                    <label>Event Time (Optional)</label>
-                    <input type="time" id="editEventTime">
-                </div>
-                <div class="form-group">
-                    <label>Max Participants</label>
-                    <input type="number" id="editMaxParticipants" min="1">
-                </div>
                 <button type="submit" class="btn btn-primary">Save Changes</button>
             </form>
         </div>
@@ -583,11 +558,10 @@
                         <h3>${icon} ${org.name}</h3>
                         <span class="category">${org.category}</span>
                         <p>${org.description || 'No description'}</p>
-                        ${org.eventDate ? `<p style="margin-top: 0.5rem;"><strong>📅 Event:</strong> ${new Date(org.eventDate).toLocaleDateString()}</p>` : ''}
-                        ${org.maxParticipants ? `<p><strong>👥 Max Participants:</strong> ${org.maxParticipants}</p>` : ''}
+                        ${org.created_at ? `<p style="margin-top: 0.5rem; font-size: 0.85rem; color: #999;">Created: ${new Date(org.created_at).toLocaleDateString()}</p>` : ''}
                         <div class="org-card-actions">
-                            <button class="btn-small btn-edit" onclick="editOrganization(${org.id})">✏️ Edit</button>
-                            <button class="btn-small btn-delete" onclick="deleteOrganization(${org.id})">🗑️ Delete</button>
+                            <button class="btn-small btn-edit" onclick="editOrganization('${org.id}')">✏️ Edit</button>
+                            <button class="btn-small btn-delete" onclick="deleteOrganization('${org.id}')">🗑️ Delete</button>
                         </div>
                     </div>
                 `;
@@ -595,15 +569,15 @@
         }
 
         function editOrganization(orgId) {
-            const org = myOrganizations.find(o => o.id === orgId);
-            if (!org) return;
+            const org = myOrganizations.find(o => o.id === orgId || o.id == orgId);
+            if (!org) {
+                console.error('Organization not found:', orgId);
+                return;
+            }
 
             editingOrgId = orgId;
             document.getElementById('editOrgName').value = org.name;
             document.getElementById('editOrgDescription').value = org.description || '';
-            document.getElementById('editEventDate').value = org.eventDate || '';
-            document.getElementById('editEventTime').value = org.eventTime || '';
-            document.getElementById('editMaxParticipants').value = org.maxParticipants || '';
             
             document.getElementById('editOrgModal').classList.add('show');
         }
@@ -619,6 +593,7 @@
 
                 if (error) {
                     alert('Error deleting organization: ' + error.message);
+                    console.error('Delete error:', error);
                     return;
                 }
 
@@ -626,6 +601,7 @@
                 await loadMyOrganizations();
             } catch (err) {
                 alert('Error: ' + err.message);
+                console.error('Delete error:', err);
             }
         }
 
@@ -778,10 +754,7 @@
 
             const updatedData = {
                 name: document.getElementById('editOrgName').value,
-                description: document.getElementById('editOrgDescription').value,
-                eventDate: document.getElementById('editEventDate').value || null,
-                eventTime: document.getElementById('editEventTime').value || null,
-                maxParticipants: document.getElementById('editMaxParticipants').value || null
+                description: document.getElementById('editOrgDescription').value
             };
 
             try {
@@ -792,6 +765,7 @@
 
                 if (error) {
                     alert('Error updating organization: ' + error.message);
+                    console.error('Update error:', error);
                     return;
                 }
 
@@ -800,6 +774,7 @@
                 await loadMyOrganizations();
             } catch (err) {
                 alert('Error: ' + err.message);
+                console.error('Update error:', err);
             }
         });
 
