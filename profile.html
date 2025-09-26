@@ -206,6 +206,25 @@
             display: none;
         }
 
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #17a2b8;
+            color: #0c5460;
+        }
+
         @media (max-width: 768px) {
             .profile-header {
                 padding: 2rem 1rem;
@@ -216,7 +235,7 @@
 <body>
     <nav>
         <div class="nav-container">
-            <a href="index.html" class="logo">🌍 Organize.Quest</a>
+            <a href="index.html" class="logo">🌐 Organize.Quest</a>
             <button class="btn-secondary" onclick="window.location.href='index.html'">← Back to Home</button>
         </div>
     </nav>
@@ -268,6 +287,10 @@
 
         <!-- Profile Section (shown when logged in) -->
         <div id="profileSection" class="hidden">
+            <div id="verificationAlert" class="alert alert-warning hidden">
+                ⚠️ Your email is not verified. Please check your inbox and verify your email to use all features.
+            </div>
+            
             <div class="profile-header">
                 <div class="profile-avatar">👤</div>
                 <h1 id="userName">My Account</h1>
@@ -343,9 +366,16 @@
         }
 
         // Show profile section
-        function showProfile() {
+        function showProfile(isVerified = true) {
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('profileSection').classList.remove('hidden');
+            
+            // Email doğrulama uyarısını göster/gizle
+            if (!isVerified) {
+                document.getElementById('verificationAlert').classList.remove('hidden');
+            } else {
+                document.getElementById('verificationAlert').classList.add('hidden');
+            }
             
             document.getElementById('userName').textContent = currentUser.name || 'My Account';
             document.getElementById('userEmail').textContent = currentUser.email || '';
@@ -358,10 +388,28 @@
             document.getElementById('profileInterests').value = currentUser.interests || '';
         }
 
-        // Check if user is logged in
-        if (currentUser) {
-            showProfile();
+        // Email doğrulama kontrolü
+        async function checkEmailVerification() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (session && session.user) {
+                    return session.user.email_confirmed_at ? true : false;
+                }
+                return false;
+            } catch (err) {
+                console.error('Error checking email verification:', err);
+                return false;
+            }
         }
+
+        // Check if user is logged in
+        (async function() {
+            if (currentUser) {
+                const isVerified = await checkEmailVerification();
+                showProfile(isVerified);
+            }
+        })();
 
         // Tab switching
         document.getElementById('loginTabBtn').addEventListener('click', () => switchTab('login'));
@@ -384,6 +432,13 @@
                     return;
                 }
 
+                // EMAIL DOĞRULAMA KONTROLÜ
+                if (!data.user.email_confirmed_at) {
+                    await supabase.auth.signOut();
+                    alert('⚠️ Please verify your email before logging in. Check your inbox for the confirmation link.');
+                    return;
+                }
+
                 const { data: profile } = await supabase
                     .from('users')
                     .select('*')
@@ -394,7 +449,7 @@
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
                 alert('Successfully logged in!');
-                showProfile();
+                showProfile(true);
             } catch (err) {
                 alert('Login error: ' + err.message);
             }
@@ -414,88 +469,4 @@
             }
 
             try {
-                const { data, error } = await supabase.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: {
-                        data: { name: name }
-                    }
-                });
-
-                if (error) {
-                    alert('Error: ' + error.message);
-                    return;
-                }
-
-                const { error: profileError } = await supabase
-                    .from('users')
-                    .insert([{ 
-                        id: data.user.id,
-                        email: email, 
-                        name: name 
-                    }]);
-
-                currentUser = { id: data.user.id, email: email, name: name };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                alert('Account created! Please verify your email.');
-                showProfile();
-            } catch (err) {
-                alert('Signup error: ' + err.message);
-            }
-        });
-
-        // Save profile changes
-        document.getElementById('profileForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            currentUser.name = document.getElementById('profileName').value;
-            currentUser.phone = document.getElementById('profilePhone').value;
-            currentUser.bio = document.getElementById('profileBio').value;
-            currentUser.city = document.getElementById('profileCity').value;
-            currentUser.country = document.getElementById('profileCountry').value;
-            currentUser.interests = document.getElementById('profileInterests').value;
-            
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            
-            if (currentUser.id) {
-                try {
-                    const { error } = await supabase
-                        .from('users')
-                        .update({
-                            name: currentUser.name,
-                            phone: currentUser.phone,
-                            bio: currentUser.bio,
-                            city: currentUser.city,
-                            country: currentUser.country,
-                            interests: currentUser.interests
-                        })
-                        .eq('id', currentUser.id);
-                    
-                    if (error) {
-                        console.error('Error updating profile in database:', error);
-                    }
-                } catch (err) {
-                    console.error('Error updating profile:', err);
-                }
-            }
-            
-            alert('Profile updated successfully!');
-            document.getElementById('userName').textContent = currentUser.name || 'My Account';
-        });
-
-        // Logout
-        document.getElementById('logoutBtn').addEventListener('click', async function() {
-            try {
-                await supabase.auth.signOut();
-            } catch (err) {
-                console.error('Error signing out from Supabase:', err);
-            }
-            
-            localStorage.removeItem('currentUser');
-            alert('Logged out successfully!');
-            window.location.href = 'index.html';
-        });
-    </script>
-</body>
-</html>
+                const { data, error
