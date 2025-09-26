@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Organize.Quest - Discover & Create Local Organizations</title>
+    <meta name="description" content="Build your local community network. Create, discover, and join organizations in your neighborhood.">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%235865F2'/%3E%3Cstop offset='100%25' style='stop-color:%234ECDC4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='45' fill='url(%23grad)'/%3E%3Cpath d='M50 20 L65 40 L85 40 L70 55 L75 75 L50 60 L25 75 L30 55 L15 40 L35 40 Z' fill='white'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -408,27 +409,27 @@
         <!-- Features Section -->
         <section style="padding: 4rem 2rem; background: white;">
             <div style="max-width: 1200px; margin: 0 auto;">
-                <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark);">Why Choose Organize.Quest?</h2>
+                <h2 id="featuresTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark);">Why Choose Organize.Quest?</h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
                     <div style="text-align: center; padding: 2rem;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">🗺️</div>
-                        <h3 style="color: var(--primary); margin-bottom: 1rem;">Interactive Map</h3>
-                        <p style="color: var(--gray);">Discover local organizations on an easy-to-use interactive map with real-time updates.</p>
+                        <h3 id="feature1Title" style="color: var(--primary); margin-bottom: 1rem;">Interactive Map</h3>
+                        <p id="feature1Desc" style="color: var(--gray);">Discover local organizations on an easy-to-use interactive map with real-time updates.</p>
                     </div>
                     <div style="text-align: center; padding: 2rem;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">🤝</div>
-                        <h3 style="color: var(--primary); margin-bottom: 1rem;">Community Driven</h3>
-                        <p style="color: var(--gray);">Connect with like-minded people and build meaningful relationships in your area.</p>
+                        <h3 id="feature2Title" style="color: var(--primary); margin-bottom: 1rem;">Community Driven</h3>
+                        <p id="feature2Desc" style="color: var(--gray);">Connect with like-minded people and build meaningful relationships in your area.</p>
                     </div>
                     <div style="text-align: center; padding: 2rem;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
-                        <h3 style="color: var(--primary); margin-bottom: 1rem;">Event Management</h3>
-                        <p style="color: var(--gray);">Create and manage events, track participants, and organize community activities.</p>
+                        <h3 id="feature3Title" style="color: var(--primary); margin-bottom: 1rem;">Event Management</h3>
+                        <p id="feature3Desc" style="color: var(--gray);">Create and manage events, track participants, and organize community activities.</p>
                     </div>
                     <div style="text-align: center; padding: 2rem;">
                         <div style="font-size: 3rem; margin-bottom: 1rem;">🔒</div>
-                        <h3 style="color: var(--primary); margin-bottom: 1rem;">Safe & Secure</h3>
-                        <p style="color: var(--gray);">Your data is protected with enterprise-level security and privacy controls.</p>
+                        <h3 id="feature4Title" style="color: var(--primary); margin-bottom: 1rem;">Safe & Secure</h3>
+                        <p id="feature4Desc" style="color: var(--gray);">Your data is protected with enterprise-level security and privacy controls.</p>
                     </div>
                 </div>
             </div>
@@ -437,27 +438,27 @@
         <!-- How It Works Section -->
         <section style="padding: 4rem 2rem; background: var(--light);">
             <div style="max-width: 1200px; margin: 0 auto;">
-                <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark);">How It Works</h2>
+                <h2 id="howItWorksTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark);">How It Works</h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
                     <div style="text-align: center;">
                         <div style="width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem;">1</div>
-                        <h3 style="color: var(--dark); margin-bottom: 0.5rem;">Create Account</h3>
-                        <p style="color: var(--gray);">Sign up in seconds with just your email</p>
+                        <h3 id="step1Title" style="color: var(--dark); margin-bottom: 0.5rem;">Create Account</h3>
+                        <p id="step1Desc" style="color: var(--gray);">Sign up in seconds with just your email</p>
                     </div>
                     <div style="text-align: center;">
                         <div style="width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem;">2</div>
-                        <h3 style="color: var(--dark); margin-bottom: 0.5rem;">Explore Map</h3>
-                        <p style="color: var(--gray);">Browse organizations in your area</p>
+                        <h3 id="step2Title" style="color: var(--dark); margin-bottom: 0.5rem;">Explore Map</h3>
+                        <p id="step2Desc" style="color: var(--gray);">Browse organizations in your area</p>
                     </div>
                     <div style="text-align: center;">
                         <div style="width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem;">3</div>
-                        <h3 style="color: var(--dark); margin-bottom: 0.5rem;">Create or Join</h3>
-                        <p style="color: var(--gray);">Start your own or join existing groups</p>
+                        <h3 id="step3Title" style="color: var(--dark); margin-bottom: 0.5rem;">Create or Join</h3>
+                        <p id="step3Desc" style="color: var(--gray);">Start your own or join existing groups</p>
                     </div>
                     <div style="text-align: center;">
                         <div style="width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem;">4</div>
-                        <h3 style="color: var(--dark); margin-bottom: 0.5rem;">Connect & Grow</h3>
-                        <p style="color: var(--gray);">Build your community network</p>
+                        <h3 id="step4Title" style="color: var(--dark); margin-bottom: 0.5rem;">Connect & Grow</h3>
+                        <p id="step4Desc" style="color: var(--gray);">Build your community network</p>
                     </div>
                 </div>
             </div>
@@ -466,11 +467,11 @@
         <!-- About Us Section -->
         <section style="padding: 4rem 2rem; background: white;">
             <div style="max-width: 900px; margin: 0 auto; text-align: center;">
-                <h2 style="font-size: 2.5rem; margin-bottom: 2rem; color: var(--dark);">About Organize.Quest</h2>
-                <p style="font-size: 1.2rem; color: var(--gray); line-height: 1.8; margin-bottom: 2rem;">
+                <h2 id="aboutTitle" style="font-size: 2.5rem; margin-bottom: 2rem; color: var(--dark);">About Organize.Quest</h2>
+                <p id="aboutText1" style="font-size: 1.2rem; color: var(--gray); line-height: 1.8; margin-bottom: 2rem;">
                     Organize.Quest is a platform dedicated to strengthening local communities by making it easy to discover, create, and participate in community organizations and events. We believe that strong communities are built on meaningful connections and shared experiences.
                 </p>
-                <p style="font-size: 1.2rem; color: var(--gray); line-height: 1.8;">
+                <p id="aboutText2" style="font-size: 1.2rem; color: var(--gray); line-height: 1.8;">
                     Whether you're looking to volunteer, find a local sports team, attend cultural events, or start your own community initiative, Organize.Quest connects you with opportunities right in your neighborhood.
                 </p>
             </div>
@@ -479,31 +480,31 @@
         <!-- FAQ Section -->
         <section style="padding: 4rem 2rem; background: var(--light);">
             <div style="max-width: 900px; margin: 0 auto;">
-                <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark);">Frequently Asked Questions</h2>
+                <h2 id="faqTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark);">Frequently Asked Questions</h2>
                 <div style="display: flex; flex-direction: column; gap: 1.5rem;">
                     <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Is Organize.Quest free to use?</summary>
-                        <p style="margin-top: 1rem; color: var(--gray);">Yes! Organize.Quest is completely free for users to browse organizations, create their own groups, and participate in community events.</p>
+                        <summary id="faq1Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Is Organize.Quest free to use?</summary>
+                        <p id="faq1A" style="margin-top: 1rem; color: var(--gray);">Yes! Organize.Quest is completely free for users to browse organizations, create their own groups, and participate in community events.</p>
                     </details>
                     <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">How do I create an organization?</summary>
-                        <p style="margin-top: 1rem; color: var(--gray);">Simply sign up for an account, click on the map where you want to place your organization, fill out the details, and publish. Your organization will be visible to everyone in the community.</p>
+                        <summary id="faq2Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">How do I create an organization?</summary>
+                        <p id="faq2A" style="margin-top: 1rem; color: var(--gray);">Simply sign up for an account, click on the map where you want to place your organization, fill out the details, and publish. Your organization will be visible to everyone in the community.</p>
                     </details>
                     <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Can I edit or delete my organization?</summary>
-                        <p style="margin-top: 1rem; color: var(--gray);">Yes! Go to your profile page and click on "My Organizations" to manage all your created organizations. You can edit details or delete them at any time.</p>
+                        <summary id="faq3Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Can I edit or delete my organization?</summary>
+                        <p id="faq3A" style="margin-top: 1rem; color: var(--gray);">Yes! Go to your profile page and click on "My Organizations" to manage all your created organizations. You can edit details or delete them at any time.</p>
                     </details>
                     <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">What types of organizations can I create?</summary>
-                        <p style="margin-top: 1rem; color: var(--gray);">You can create any type of community organization including educational groups, healthcare initiatives, technology communities, non-profits, sports teams, arts collectives, environmental groups, and general community organizations.</p>
+                        <summary id="faq4Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">What types of organizations can I create?</summary>
+                        <p id="faq4A" style="margin-top: 1rem; color: var(--gray);">You can create any type of community organization including educational groups, healthcare initiatives, technology communities, non-profits, sports teams, arts collectives, environmental groups, and general community organizations.</p>
                     </details>
                     <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Is my personal information safe?</summary>
-                        <p style="margin-top: 1rem; color: var(--gray);">We take privacy seriously. Your personal information is encrypted and stored securely. We never share your data with third parties without your explicit consent.</p>
+                        <summary id="faq5Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Is my personal information safe?</summary>
+                        <p id="faq5A" style="margin-top: 1rem; color: var(--gray);">We take privacy seriously. Your personal information is encrypted and stored securely. We never share your data with third parties without your explicit consent.</p>
                     </details>
                     <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">How do I find organizations near me?</summary>
-                        <p style="margin-top: 1rem; color: var(--gray);">Click "Find My Location" on the map and we'll show you all organizations in your area. You can also use filters to search by category, distance, and event type.</p>
+                        <summary id="faq6Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">How do I find organizations near me?</summary>
+                        <p id="faq6A" style="margin-top: 1rem; color: var(--gray);">Click "Find My Location" on the map and we'll show you all organizations in your area. You can also use filters to search by category, distance, and event type.</p>
                     </details>
                 </div>
             </div>
@@ -513,13 +514,13 @@
         <footer style="background: var(--dark); color: white; padding: 3rem 2rem;">
             <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
                 <h3 style="font-size: 1.8rem; margin-bottom: 1rem; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Organize.Quest</h3>
-                <p style="opacity: 0.8; margin-bottom: 2rem;">Building stronger communities, one connection at a time</p>
+                <p id="footerTagline" style="opacity: 0.8; margin-bottom: 2rem;">Building stronger communities, one connection at a time</p>
                 <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 2rem;">
-                    <a href="index.html" style="color: white; text-decoration: none; opacity: 0.8;">Home</a>
-                    <a href="organizations.html" style="color: white; text-decoration: none; opacity: 0.8;">Organizations</a>
-                    <a href="profile.html" style="color: white; text-decoration: none; opacity: 0.8;">Profile</a>
+                    <a id="footerHome" href="index.html" style="color: white; text-decoration: none; opacity: 0.8;">Home</a>
+                    <a id="footerOrgs" href="organizations.html" style="color: white; text-decoration: none; opacity: 0.8;">Organizations</a>
+                    <a id="footerProfile" href="profile.html" style="color: white; text-decoration: none; opacity: 0.8;">Profile</a>
                 </div>
-                <p style="opacity: 0.6; font-size: 0.9rem;">© 2025 Organize.Quest. All rights reserved.</p>
+                <p id="footerCopyright" style="opacity: 0.6; font-size: 0.9rem;">© 2025 Organize.Quest. All rights reserved.</p>
             </div>
         </footer>
     </div>
@@ -602,7 +603,6 @@
                 openMapBtn: 'Open Map',
                 myAccount: 'My Account',
                 logout: 'Logout',
-                // Features
                 featuresTitle: 'Why Choose Organize.Quest?',
                 feature1Title: 'Interactive Map',
                 feature1Desc: 'Discover local organizations on an easy-to-use interactive map with real-time updates.',
@@ -612,7 +612,6 @@
                 feature3Desc: 'Create and manage events, track participants, and organize community activities.',
                 feature4Title: 'Safe & Secure',
                 feature4Desc: 'Your data is protected with enterprise-level security and privacy controls.',
-                // How It Works
                 howItWorksTitle: 'How It Works',
                 step1Title: 'Create Account',
                 step1Desc: 'Sign up in seconds with just your email',
@@ -622,11 +621,9 @@
                 step3Desc: 'Start your own or join existing groups',
                 step4Title: 'Connect & Grow',
                 step4Desc: 'Build your community network',
-                // About
                 aboutTitle: 'About Organize.Quest',
                 aboutText1: 'Organize.Quest is a platform dedicated to strengthening local communities by making it easy to discover, create, and participate in community organizations and events. We believe that strong communities are built on meaningful connections and shared experiences.',
                 aboutText2: 'Whether you\'re looking to volunteer, find a local sports team, attend cultural events, or start your own community initiative, Organize.Quest connects you with opportunities right in your neighborhood.',
-                // FAQ
                 faqTitle: 'Frequently Asked Questions',
                 faq1Q: 'Is Organize.Quest free to use?',
                 faq1A: 'Yes! Organize.Quest is completely free for users to browse organizations, create their own groups, and participate in community events.',
@@ -640,7 +637,6 @@
                 faq5A: 'We take privacy seriously. Your personal information is encrypted and stored securely. We never share your data with third parties without your explicit consent.',
                 faq6Q: 'How do I find organizations near me?',
                 faq6A: 'Click "Find My Location" on the map and we\'ll show you all organizations in your area. You can also use filters to search by category, distance, and event type.',
-                // Footer
                 footerTagline: 'Building stronger communities, one connection at a time',
                 footerHome: 'Home',
                 footerOrgs: 'Organizations',
@@ -655,7 +651,6 @@
                 openMapBtn: 'Haritayı Aç',
                 myAccount: 'Hesabım',
                 logout: 'Çıkış Yap',
-                // Features
                 featuresTitle: 'Neden Organize.Quest?',
                 feature1Title: 'İnteraktif Harita',
                 feature1Desc: 'Kullanımı kolay interaktif haritada gerçek zamanlı güncellemelerle yerel organizasyonları keşfedin.',
@@ -665,7 +660,6 @@
                 feature3Desc: 'Etkinlikler oluşturun ve yönetin, katılımcıları takip edin ve topluluk aktivitelerini organize edin.',
                 feature4Title: 'Güvenli ve Emniyetli',
                 feature4Desc: 'Verileriniz kurumsal düzeyde güvenlik ve gizlilik kontrolleri ile korunur.',
-                // How It Works
                 howItWorksTitle: 'Nasıl Çalışır',
                 step1Title: 'Hesap Oluştur',
                 step1Desc: 'Sadece e-postanızla saniyeler içinde kaydolun',
@@ -675,11 +669,9 @@
                 step3Desc: 'Kendiniz başlatın veya mevcut gruplara katılın',
                 step4Title: 'Bağlan ve Büyüt',
                 step4Desc: 'Topluluk ağınızı oluşturun',
-                // About
                 aboutTitle: 'Organize.Quest Hakkında',
                 aboutText1: 'Organize.Quest, topluluk organizasyonlarını ve etkinlikleri keşfetmeyi, oluşturmayı ve katılmayı kolaylaştırarak yerel toplulukları güçlendirmeye adanmış bir platformdur. Güçlü toplulukların anlamlı bağlantılar ve paylaşılan deneyimler üzerine inşa edildiğine inanıyoruz.',
                 aboutText2: 'İster gönüllü olmak, yerel bir spor takımı bulmak, kültürel etkinliklere katılmak veya kendi topluluk girişiminizi başlatmak isteyin, Organize.Quest sizi mahallenizde bulunan fırsatlarla buluşturur.',
-                // FAQ
                 faqTitle: 'Sıkça Sorulan Sorular',
                 faq1Q: 'Organize.Quest kullanımı ücretsiz mi?',
                 faq1A: 'Evet! Organize.Quest, kullanıcıların organizasyonlara göz atması, kendi gruplarını oluşturması ve topluluk etkinliklerine katılması için tamamen ücretsizdir.',
@@ -693,7 +685,6 @@
                 faq5A: 'Gizliliği ciddiye alıyoruz. Kişisel bilgileriniz şifrelenir ve güvenli bir şekilde saklanır. Verilerinizi açık izniniz olmadan asla üçüncü taraflarla paylaşmayız.',
                 faq6Q: 'Yakınımdaki organizasyonları nasıl bulabilirim?',
                 faq6A: 'Haritada "Konumumu Bul" seçeneğine tıklayın, bölgenizdeki tüm organizasyonları size göstereceğiz. Ayrıca kategoriye, mesafeye ve etkinlik türüne göre arama yapmak için filtreleri kullanabilirsiniz.',
-                // Footer
                 footerTagline: 'Daha güçlü topluluklar inşa ediyoruz, her seferinde bir bağlantı',
                 footerHome: 'Ana Sayfa',
                 footerOrgs: 'Organizasyonlar',
@@ -704,76 +695,60 @@
 
         function switchLanguage(lang) {
             currentLang = lang;
-            
-            // Update button states
             document.getElementById('btnEN').classList.toggle('active', lang === 'en');
             document.getElementById('btnTR').classList.toggle('active', lang === 'tr');
             
-            // Update text content
             const t = translations[lang];
             
-            // Hero section
+            // Update all text
             document.getElementById('heroTitle').textContent = t.heroTitle;
             document.getElementById('heroDesc').textContent = t.heroDesc;
             document.getElementById('heroMapBtn').textContent = t.startBtn;
             document.getElementById('loginBtn').textContent = t.loginBtn;
             document.getElementById('openMapBtn').textContent = t.openMapBtn;
+            document.getElementById('featuresTitle').textContent = t.featuresTitle;
+            document.getElementById('feature1Title').textContent = t.feature1Title;
+            document.getElementById('feature1Desc').textContent = t.feature1Desc;
+            document.getElementById('feature2Title').textContent = t.feature2Title;
+            document.getElementById('feature2Desc').textContent = t.feature2Desc;
+            document.getElementById('feature3Title').textContent = t.feature3Title;
+            document.getElementById('feature3Desc').textContent = t.feature3Desc;
+            document.getElementById('feature4Title').textContent = t.feature4Title;
+            document.getElementById('feature4Desc').textContent = t.feature4Desc;
+            document.getElementById('howItWorksTitle').textContent = t.howItWorksTitle;
+            document.getElementById('step1Title').textContent = t.step1Title;
+            document.getElementById('step1Desc').textContent = t.step1Desc;
+            document.getElementById('step2Title').textContent = t.step2Title;
+            document.getElementById('step2Desc').textContent = t.step2Desc;
+            document.getElementById('step3Title').textContent = t.step3Title;
+            document.getElementById('step3Desc').textContent = t.step3Desc;
+            document.getElementById('step4Title').textContent = t.step4Title;
+            document.getElementById('step4Desc').textContent = t.step4Desc;
+            document.getElementById('aboutTitle').textContent = t.aboutTitle;
+            document.getElementById('aboutText1').textContent = t.aboutText1;
+            document.getElementById('aboutText2').textContent = t.aboutText2;
+            document.getElementById('faqTitle').textContent = t.faqTitle;
+            document.getElementById('faq1Q').textContent = t.faq1Q;
+            document.getElementById('faq1A').textContent = t.faq1A;
+            document.getElementById('faq2Q').textContent = t.faq2Q;
+            document.getElementById('faq2A').textContent = t.faq2A;
+            document.getElementById('faq3Q').textContent = t.faq3Q;
+            document.getElementById('faq3A').textContent = t.faq3A;
+            document.getElementById('faq4Q').textContent = t.faq4Q;
+            document.getElementById('faq4A').textContent = t.faq4A;
+            document.getElementById('faq5Q').textContent = t.faq5Q;
+            document.getElementById('faq5A').textContent = t.faq5A;
+            document.getElementById('faq6Q').textContent = t.faq6Q;
+            document.getElementById('faq6A').textContent = t.faq6A;
+            document.getElementById('footerTagline').textContent = t.footerTagline;
+            document.getElementById('footerHome').textContent = t.footerHome;
+            document.getElementById('footerOrgs').textContent = t.footerOrgs;
+            document.getElementById('footerProfile').textContent = t.footerProfile;
+            document.getElementById('footerCopyright').textContent = t.footerCopyright;
             
-            // User menu
             const userMenuName = document.getElementById('userMenuName');
             if (userMenuName) {
                 userMenuName.textContent = currentUser ? currentUser.name : t.myAccount;
-            }
-            
-            // Get all text elements by ID
-            const elements = {
-                'featuresTitle': t.featuresTitle,
-                'feature1Title': t.feature1Title,
-                'feature1Desc': t.feature1Desc,
-                'feature2Title': t.feature2Title,
-                'feature2Desc': t.feature2Desc,
-                'feature3Title': t.feature3Title,
-                'feature3Desc': t.feature3Desc,
-                'feature4Title': t.feature4Title,
-                'feature4Desc': t.feature4Desc,
-                'howItWorksTitle': t.howItWorksTitle,
-                'step1Title': t.step1Title,
-                'step1Desc': t.step1Desc,
-                'step2Title': t.step2Title,
-                'step2Desc': t.step2Desc,
-                'step3Title': t.step3Title,
-                'step3Desc': t.step3Desc,
-                'step4Title': t.step4Title,
-                'step4Desc': t.step4Desc,
-                'aboutTitle': t.aboutTitle,
-                'aboutText1': t.aboutText1,
-                'aboutText2': t.aboutText2,
-                'faqTitle': t.faqTitle,
-                'faq1Q': t.faq1Q,
-                'faq1A': t.faq1A,
-                'faq2Q': t.faq2Q,
-                'faq2A': t.faq2A,
-                'faq3Q': t.faq3Q,
-                'faq3A': t.faq3A,
-                'faq4Q': t.faq4Q,
-                'faq4A': t.faq4A,
-                'faq5Q': t.faq5Q,
-                'faq5A': t.faq5A,
-                'faq6Q': t.faq6Q,
-                'faq6A': t.faq6A,
-                'footerTagline': t.footerTagline,
-                'footerHome': t.footerHome,
-                'footerOrgs': t.footerOrgs,
-                'footerProfile': t.footerProfile,
-                'footerCopyright': t.footerCopyright
-            };
-            
-            // Apply translations
-            for (const [id, text] of Object.entries(elements)) {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.textContent = text;
-                }
             }
         }
 
@@ -803,8 +778,6 @@
         function initMap() {
             map = L.map('map').setView([40.7128, -74.0060], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-            
-            // Load organizations from Supabase
             loadOrganizations();
             
             map.on('click', function(e) {
@@ -841,7 +814,6 @@
 
                 organizations = data || [];
                 
-                // Display all organizations on map
                 organizations.forEach(org => {
                     const marker = L.marker([org.latitude, org.longitude])
                         .addTo(map)
