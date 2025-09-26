@@ -584,7 +584,6 @@
                     return;
                 }
 
-                // FIXED: Check if user is authenticated with Supabase
                 const { data: { user } } = await supabase.auth.getUser();
                 
                 if (!user) {
@@ -593,13 +592,37 @@
                     return;
                 }
 
+                const { data: userRecord, error: userCheckError } = await supabase
+                    .from('users')
+                    .select('id')
+                    .eq('id', user.id)
+                    .single();
+
+                if (userCheckError && userCheckError.code === 'PGRST116') {
+                    console.log('User not found in users table, creating...');
+                    
+                    const { error: createUserError } = await supabase
+                        .from('users')
+                        .insert([{
+                            id: user.id,
+                            email: user.email,
+                            name: user.user_metadata?.name || user.email.split('@')[0]
+                        }]);
+                    
+                    if (createUserError) {
+                        alert('Error setting up user profile: ' + createUserError.message);
+                        console.error('User creation error:', createUserError);
+                        return;
+                    }
+                }
+
                 const orgData = {
                     name: document.getElementById('orgName').value,
                     category: document.getElementById('orgCategory').value,
                     description: document.getElementById('orgDescription').value,
                     latitude: selectedLocation.lat,
                     longitude: selectedLocation.lng,
-                    created_by: user.id  // FIXED: Use authenticated user ID
+                    created_by: user.id
                 };
 
                 try {
