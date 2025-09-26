@@ -371,7 +371,7 @@
     <div class="landing-page" id="landingPage">
         <nav>
             <div class="nav-container">
-                <div class="logo" id="logoText">🌍 Organize.Quest</div>
+                <div class="logo" id="logoText">🌐 Organize.Quest</div>
                 <div class="nav-buttons">
                     <div class="lang-switcher">
                         <button class="lang-btn active" id="btnEN">🇬🇧</button>
@@ -408,7 +408,7 @@
 
     <div class="map-app" id="mapApp">
         <div class="map-header">
-            <h2>🌍 <span id="mapTitle">Organize.Quest Map</span></h2>
+            <h2>🌐 <span id="mapTitle">Organize.Quest Map</span></h2>
             <button class="btn-primary" id="closeMapBtn">← Back</button>
         </div>
         <div class="map-container">
@@ -440,7 +440,7 @@
                         <option value="Non-Profit">🤝 Non-Profit</option>
                         <option value="Sports">⚽ Sports</option>
                         <option value="Arts">🎨 Arts</option>
-                        <option value="Community">🏙️ Community</option>
+                        <option value="Community">🏘️ Community</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -536,11 +536,47 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        // Email doğrulama kontrolü yapan fonksiyon
+        async function checkEmailVerification() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (session && session.user) {
+                    // Email doğrulanmamışsa çıkış yap
+                    if (!session.user.email_confirmed_at) {
+                        await supabase.auth.signOut();
+                        localStorage.removeItem('currentUser');
+                        currentUser = null;
+                        hideUserMenu();
+                        alert('Your email is not verified. Please check your email and verify your account before using the site.');
+                        return false;
+                    }
+                    return true;
+                }
+                return false;
+            } catch (err) {
+                console.error('Error checking email verification:', err);
+                return false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Sayfa yüklendiğinde email doğrulama kontrolü yap
+            await checkEmailVerification();
+            
             const savedUser = JSON.parse(localStorage.getItem('currentUser'));
             if (savedUser) {
-                currentUser = savedUser;
-                showUserMenu();
+                // Session kontrolü yap
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session && session.user && session.user.email_confirmed_at) {
+                    currentUser = savedUser;
+                    showUserMenu();
+                } else {
+                    // Session yoksa veya email doğrulanmamışsa temizle
+                    localStorage.removeItem('currentUser');
+                    currentUser = null;
+                    hideUserMenu();
+                }
             }
 
             document.getElementById('userMenuBtn')?.addEventListener('click', function(e) {
@@ -578,6 +614,13 @@
 
             document.getElementById('createOrgForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
+                
+                // Organizasyon oluşturmadan önce email doğrulama kontrolü
+                const isVerified = await checkEmailVerification();
+                if (!isVerified) {
+                    return;
+                }
+                
                 if (selectedLocation) {
                     const orgData = {
                         name: document.getElementById('orgName').value,
