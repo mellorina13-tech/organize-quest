@@ -206,25 +206,6 @@
             display: none;
         }
 
-        .alert {
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            font-weight: 500;
-        }
-
-        .alert-warning {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            color: #856404;
-        }
-
-        .alert-info {
-            background: #d1ecf1;
-            border: 1px solid #17a2b8;
-            color: #0c5460;
-        }
-
         @media (max-width: 768px) {
             .profile-header {
                 padding: 2rem 1rem;
@@ -235,8 +216,8 @@
 <body>
     <nav>
         <div class="nav-container">
-            <a href="index.html" class="logo">🌐 Organize.Quest</a>
-            <button class="btn-secondary" onclick="window.location.href='index.html'">← Back to Home</button>
+            <a href="index.html" class="logo">ðŸŒ Organize.Quest</a>
+            <button class="btn-secondary" onclick="window.location.href='index.html'">â† Back to Home</button>
         </div>
     </nav>
 
@@ -258,7 +239,7 @@
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="loginPassword" required placeholder="••••••••">
+                    <input type="password" id="loginPassword" required placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢">
                 </div>
                 <button type="submit" class="btn btn-primary">Sign In</button>
             </form>
@@ -275,11 +256,11 @@
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="signupPassword" required placeholder="••••••••" minlength="6">
+                    <input type="password" id="signupPassword" required placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" minlength="6">
                 </div>
                 <div class="form-group">
                     <label>Confirm Password</label>
-                    <input type="password" id="signupConfirm" required placeholder="••••••••" minlength="6">
+                    <input type="password" id="signupConfirm" required placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" minlength="6">
                 </div>
                 <button type="submit" class="btn btn-primary">Create Account</button>
             </form>
@@ -287,12 +268,8 @@
 
         <!-- Profile Section (shown when logged in) -->
         <div id="profileSection" class="hidden">
-            <div id="verificationAlert" class="alert alert-warning hidden">
-                ⚠️ Your email is not verified. Please check your inbox and verify your email to use all features.
-            </div>
-            
             <div class="profile-header">
-                <div class="profile-avatar">👤</div>
+                <div class="profile-avatar">ðŸ‘¤</div>
                 <h1 id="userName">My Account</h1>
                 <p id="userEmail" style="opacity: 0.7; margin-top: 0.5rem;"></p>
             </div>
@@ -366,16 +343,9 @@
         }
 
         // Show profile section
-        function showProfile(isVerified = true) {
+        function showProfile() {
             document.getElementById('authSection').classList.add('hidden');
             document.getElementById('profileSection').classList.remove('hidden');
-            
-            // Email doğrulama uyarısını göster/gizle
-            if (!isVerified) {
-                document.getElementById('verificationAlert').classList.remove('hidden');
-            } else {
-                document.getElementById('verificationAlert').classList.add('hidden');
-            }
             
             document.getElementById('userName').textContent = currentUser.name || 'My Account';
             document.getElementById('userEmail').textContent = currentUser.email || '';
@@ -388,28 +358,10 @@
             document.getElementById('profileInterests').value = currentUser.interests || '';
         }
 
-        // Email doğrulama kontrolü
-        async function checkEmailVerification() {
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                
-                if (session && session.user) {
-                    return session.user.email_confirmed_at ? true : false;
-                }
-                return false;
-            } catch (err) {
-                console.error('Error checking email verification:', err);
-                return false;
-            }
-        }
-
         // Check if user is logged in
-        (async function() {
-            if (currentUser) {
-                const isVerified = await checkEmailVerification();
-                showProfile(isVerified);
-            }
-        })();
+        if (currentUser) {
+            showProfile();
+        }
 
         // Tab switching
         document.getElementById('loginTabBtn').addEventListener('click', () => switchTab('login'));
@@ -432,13 +384,6 @@
                     return;
                 }
 
-                // EMAIL DOĞRULAMA KONTROLÜ
-                if (!data.user.email_confirmed_at) {
-                    await supabase.auth.signOut();
-                    alert('⚠️ Please verify your email before logging in. Check your inbox for the confirmation link.');
-                    return;
-                }
-
                 const { data: profile } = await supabase
                     .from('users')
                     .select('*')
@@ -449,7 +394,7 @@
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
                 alert('Successfully logged in!');
-                showProfile(true);
+                showProfile();
             } catch (err) {
                 alert('Login error: ' + err.message);
             }
@@ -469,4 +414,88 @@
             }
 
             try {
-                const { data, error
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: { name: name }
+                    }
+                });
+
+                if (error) {
+                    alert('Error: ' + error.message);
+                    return;
+                }
+
+                const { error: profileError } = await supabase
+                    .from('users')
+                    .insert([{ 
+                        id: data.user.id,
+                        email: email, 
+                        name: name 
+                    }]);
+
+                currentUser = { id: data.user.id, email: email, name: name };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                alert('Account created! Please verify your email.');
+                showProfile();
+            } catch (err) {
+                alert('Signup error: ' + err.message);
+            }
+        });
+
+        // Save profile changes
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            currentUser.name = document.getElementById('profileName').value;
+            currentUser.phone = document.getElementById('profilePhone').value;
+            currentUser.bio = document.getElementById('profileBio').value;
+            currentUser.city = document.getElementById('profileCity').value;
+            currentUser.country = document.getElementById('profileCountry').value;
+            currentUser.interests = document.getElementById('profileInterests').value;
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            if (currentUser.id) {
+                try {
+                    const { error } = await supabase
+                        .from('users')
+                        .update({
+                            name: currentUser.name,
+                            phone: currentUser.phone,
+                            bio: currentUser.bio,
+                            city: currentUser.city,
+                            country: currentUser.country,
+                            interests: currentUser.interests
+                        })
+                        .eq('id', currentUser.id);
+                    
+                    if (error) {
+                        console.error('Error updating profile in database:', error);
+                    }
+                } catch (err) {
+                    console.error('Error updating profile:', err);
+                }
+            }
+            
+            alert('Profile updated successfully!');
+            document.getElementById('userName').textContent = currentUser.name || 'My Account';
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            try {
+                await supabase.auth.signOut();
+            } catch (err) {
+                console.error('Error signing out from Supabase:', err);
+            }
+            
+            localStorage.removeItem('currentUser');
+            alert('Logged out successfully!');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
