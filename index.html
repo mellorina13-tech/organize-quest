@@ -584,7 +584,7 @@
                     return;
                 }
 
-                // Check if user is authenticated with Supabase
+                // FIXED: Check if user is authenticated with Supabase
                 const { data: { user } } = await supabase.auth.getUser();
                 
                 if (!user) {
@@ -599,7 +599,7 @@
                     description: document.getElementById('orgDescription').value,
                     latitude: selectedLocation.lat,
                     longitude: selectedLocation.lng,
-                    created_by: user.id
+                    created_by: user.id  // FIXED: Use authenticated user ID
                 };
 
                 try {
