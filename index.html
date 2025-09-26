@@ -578,48 +578,61 @@
 
             document.getElementById('createOrgForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                if (selectedLocation) {
-                    const orgData = {
-                        name: document.getElementById('orgName').value,
-                        category: document.getElementById('orgCategory').value,
-                        description: document.getElementById('orgDescription').value,
-                        latitude: selectedLocation.lat,
-                        longitude: selectedLocation.lng,
-                        created_by: currentUser.id
-                    };
+                
+                if (!selectedLocation) {
+                    alert('Please select a location on the map!');
+                    return;
+                }
 
-                    try {
-                        const { data, error } = await supabase
-                            .from('organizations')
-                            .insert([orgData])
-                            .select();
+                // Check if user is authenticated with Supabase
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    alert('Please log in to create an organization!');
+                    window.location.href = 'profile.html';
+                    return;
+                }
 
-                        if (error) {
-                            alert('Error: ' + error.message);
-                            return;
-                        }
+                const orgData = {
+                    name: document.getElementById('orgName').value,
+                    category: document.getElementById('orgCategory').value,
+                    description: document.getElementById('orgDescription').value,
+                    latitude: selectedLocation.lat,
+                    longitude: selectedLocation.lng,
+                    created_by: user.id
+                };
 
-                        const org = data[0];
-                        organizations.push(org);
-                        
-                        const marker = L.marker([org.latitude, org.longitude])
-                            .addTo(map)
-                            .bindPopup(`
-                                <div style="min-width: 250px;">
-                                    <h3 style="color: var(--primary); margin-bottom: 10px;">${org.name}</h3>
-                                    <p><strong>Category:</strong> ${org.category}</p>
-                                    ${org.description ? `<p>${org.description}</p>` : ''}
-                                </div>
-                            `);
-                        
-                        document.getElementById('createModal').classList.remove('show');
-                        this.reset();
-                        document.getElementById('orgLocationDisplay').value = '';
-                        selectedLocation = null;
-                        alert('Organization created successfully!');
-                    } catch (err) {
-                        alert('Error creating organization: ' + err.message);
+                try {
+                    const { data, error } = await supabase
+                        .from('organizations')
+                        .insert([orgData])
+                        .select();
+
+                    if (error) {
+                        alert('Error: ' + error.message);
+                        return;
                     }
+
+                    const org = data[0];
+                    organizations.push(org);
+                    
+                    const marker = L.marker([org.latitude, org.longitude])
+                        .addTo(map)
+                        .bindPopup(`
+                            <div style="min-width: 250px;">
+                                <h3 style="color: var(--primary); margin-bottom: 10px;">${org.name}</h3>
+                                <p><strong>Category:</strong> ${org.category}</p>
+                                ${org.description ? `<p>${org.description}</p>` : ''}
+                            </div>
+                        `);
+                    
+                    document.getElementById('createModal').classList.remove('show');
+                    this.reset();
+                    document.getElementById('orgLocationDisplay').value = '';
+                    selectedLocation = null;
+                    alert('Organization created successfully!');
+                } catch (err) {
+                    alert('Error creating organization: ' + err.message);
                 }
             });
         });
