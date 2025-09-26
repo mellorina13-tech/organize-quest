@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Organizations & Events - Organize.Quest</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%235865F2'/%3E%3Cstop offset='100%25' style='stop-color:%234ECDC4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='45' fill='url(%23grad)'/%3E%3Cpath d='M50 20 L65 40 L85 40 L70 55 L75 75 L50 60 L25 75 L30 55 L15 40 L35 40 Z' fill='white'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -258,7 +259,7 @@
                 </div>
                 <h2>Nearby Organizations</h2>
                 <div id="orgList" class="org-list">
-                    <p style="text-align: center; color: #999;">Loading organizations...</p>
+                    <p style="text-align: center; color: #999;">Loading...</p>
                 </div>
             </div>
         </div>
@@ -268,7 +269,7 @@
         <div class="modal-content">
             <span class="modal-close" id="modalCloseBtn">&times;</span>
             <div class="modal-header">
-                <h2>Create New Organization & Event</h2>
+                <h2>Create New Organization</h2>
             </div>
             <form id="createOrgForm">
                 <div class="form-section">
@@ -302,7 +303,7 @@
                         </div>
                         <div class="form-group full-width">
                             <label>Description</label>
-                            <textarea id="orgDescription" placeholder="Describe your organization's mission and activities"></textarea>
+                            <textarea id="orgDescription" placeholder="Describe your organization"></textarea>
                         </div>
                     </div>
                 </div>
@@ -415,8 +416,7 @@
                     const lng = position.coords.longitude;
                     map.setView([lat, lng], 14);
                     if (userMarker) map.removeLayer(userMarker);
-                    userMarker = L.marker([lat, lng]).addTo(map);
-                    userMarker.bindPopup('<b>📍 Your Location</b>').openPopup();
+                    userMarker = L.marker([lat, lng]).addTo(map).bindPopup('<b>📍 Your Location</b>').openPopup();
                     updateStats();
                 });
             }
@@ -425,9 +425,7 @@
         function loadOrganizations() {
             organizations = JSON.parse(localStorage.getItem('organizations')) || [];
             map.eachLayer(function(layer) {
-                if (layer instanceof L.Marker && layer !== userMarker) {
-                    map.removeLayer(layer);
-                }
+                if (layer instanceof L.Marker && layer !== userMarker) map.removeLayer(layer);
             });
             organizations.forEach(org => addOrganizationMarker(org));
             updateOrganizationList();
@@ -435,28 +433,19 @@
         }
 
         function addOrganizationMarker(org) {
-            const categoryIcons = {
-                'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
-                'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨',
-                'Environment': '🌱', 'Community': '🏙️'
-            };
-            const icon = categoryIcons[org.category] || '📌';
+            const icons = {'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻', 'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨', 'Environment': '🌱', 'Community': '🏙️'};
+            const icon = icons[org.category] || '📌';
             const marker = L.marker([org.latitude, org.longitude]).addTo(map);
-            let popupContent = `
-                <div style="min-width: 250px;">
-                    <h3 style="color: #5865F2; margin-bottom: 10px;">${icon} ${org.name}</h3>
-                    <p><strong>Category:</strong> ${org.category}</p>
-                    ${org.description ? `<p>${org.description}</p>` : ''}
-            `;
+            let popup = `<div style="min-width: 250px;"><h3 style="color: #5865F2; margin-bottom: 10px;">${icon} ${org.name}</h3><p><strong>Category:</strong> ${org.category}</p>${org.description ? `<p>${org.description}</p>` : ''}`;
             if (org.eventDate) {
                 const eventDate = new Date(org.eventDate);
-                popupContent += `<p><strong>📅 Event:</strong> ${eventDate.toLocaleDateString()}</p>`;
-                if (org.eventTime) popupContent += `<p><strong>🕐 Time:</strong> ${org.eventTime}</p>`;
-                if (org.maxParticipants) popupContent += `<p><strong>👥 Max:</strong> ${org.maxParticipants}</p>`;
+                popup += `<p><strong>📅 Event:</strong> ${eventDate.toLocaleDateString()}</p>`;
+                if (org.eventTime) popup += `<p><strong>🕐 Time:</strong> ${org.eventTime}</p>`;
+                if (org.maxParticipants) popup += `<p><strong>👥 Max:</strong> ${org.maxParticipants}</p>`;
             }
-            if (org.contactEmail) popupContent += `<p><strong>📧 Email:</strong> ${org.contactEmail}</p>`;
-            popupContent += `</div>`;
-            marker.bindPopup(popupContent);
+            if (org.contactEmail) popup += `<p><strong>📧:</strong> ${org.contactEmail}</p>`;
+            popup += `</div>`;
+            marker.bindPopup(popup);
         }
 
         function updateOrganizationList() {
@@ -465,16 +454,13 @@
                 listContainer.innerHTML = '<p style="text-align: center; color: #999;">No organizations yet.</p>';
                 return;
             }
-            const categoryIcons = {'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻', 'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨', 'Environment': '🌱', 'Community': '🏙️'};
+            const icons = {'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻', 'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨', 'Environment': '🌱', 'Community': '🏙️'};
             listContainer.innerHTML = organizations.map(org => {
-                const icon = categoryIcons[org.category] || '📌';
-                let cardHTML = `<div class="org-card"><h3>${icon} ${org.name}</h3><span class="category">${org.category}</span>`;
-                if (org.eventDate) {
-                    const eventDate = new Date(org.eventDate);
-                    cardHTML += `<p style="margin-top: 0.5rem;">📅 ${eventDate.toLocaleDateString()}</p>`;
-                }
-                cardHTML += '</div>';
-                return cardHTML;
+                const icon = icons[org.category] || '📌';
+                let html = `<div class="org-card"><h3>${icon} ${org.name}</h3><span class="category">${org.category}</span>`;
+                if (org.eventDate) html += `<p style="margin-top: 0.5rem;">📅 ${new Date(org.eventDate).toLocaleDateString()}</p>`;
+                html += '</div>';
+                return html;
             }).join('');
         }
 
@@ -500,7 +486,7 @@
 
             document.getElementById('createNewBtn').addEventListener('click', function() {
                 if (!currentUser) {
-                    alert('Please log in to create an organization!');
+                    alert('Please log in!');
                     window.location.href = 'profile.html';
                     return;
                 }
@@ -511,7 +497,7 @@
 
             document.getElementById('createOrgBtn').addEventListener('click', function() {
                 if (!currentUser) {
-                    alert('Please log in to create an organization!');
+                    alert('Please log in!');
                     window.location.href = 'profile.html';
                     return;
                 }
@@ -538,13 +524,36 @@
                     return;
                 }
 
-                // FIXED: Check if user is authenticated with Supabase
                 const { data: { user } } = await supabase.auth.getUser();
                 
                 if (!user) {
-                    alert('Please log in to create an organization!');
+                    alert('Please log in!');
                     window.location.href = 'profile.html';
                     return;
+                }
+
+                const { data: userRecord, error: userCheckError } = await supabase
+                    .from('users')
+                    .select('id')
+                    .eq('id', user.id)
+                    .single();
+
+                if (userCheckError && userCheckError.code === 'PGRST116') {
+                    console.log('User not found in users table, creating...');
+                    
+                    const { error: createUserError } = await supabase
+                        .from('users')
+                        .insert([{
+                            id: user.id,
+                            email: user.email,
+                            name: user.user_metadata?.name || user.email.split('@')[0]
+                        }]);
+                    
+                    if (createUserError) {
+                        alert('Error setting up user profile: ' + createUserError.message);
+                        console.error('User creation error:', createUserError);
+                        return;
+                    }
                 }
 
                 const orgData = {
@@ -565,7 +574,7 @@
                     address: document.getElementById('orgAddress').value,
                     latitude: selectedLocation.lat,
                     longitude: selectedLocation.lng,
-                    createdBy: user.id,  // FIXED: Use authenticated user ID
+                    createdBy: user.id,
                     createdAt: new Date().toISOString(),
                     currentParticipants: 0
                 };
@@ -585,6 +594,7 @@
 
                     if (error) {
                         alert('Error: ' + error.message);
+                        console.error('Organization creation error:', error);
                         return;
                     }
 
@@ -604,6 +614,7 @@
                     alert('Organization created successfully!');
                 } catch (err) {
                     alert('Error creating organization: ' + err.message);
+                    console.error('Unexpected error:', err);
                 }
             });
 
