@@ -423,13 +423,32 @@
         }
 
         function loadOrganizations() {
-            organizations = JSON.parse(localStorage.getItem('organizations')) || [];
-            map.eachLayer(function(layer) {
-                if (layer instanceof L.Marker && layer !== userMarker) map.removeLayer(layer);
-            });
-            organizations.forEach(org => addOrganizationMarker(org));
-            updateOrganizationList();
-            updateStats();
+            // First load from localStorage for backward compatibility
+            const localOrgs = JSON.parse(localStorage.getItem('organizations')) || [];
+            
+            // Then load from Supabase
+            supabase
+                .from('organizations')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .then(({ data, error }) => {
+                    if (error) {
+                        console.error('Error loading from Supabase:', error);
+                        organizations = localOrgs;
+                    } else {
+                        organizations = data || [];
+                        console.log('Loaded', organizations.length, 'organizations from database');
+                    }
+                    
+                    // Clear existing markers
+                    map.eachLayer(function(layer) {
+                        if (layer instanceof L.Marker && layer !== userMarker) map.removeLayer(layer);
+                    });
+                    
+                    organizations.forEach(org => addOrganizationMarker(org));
+                    updateOrganizationList();
+                    updateStats();
+                });
         }
 
         function addOrganizationMarker(org) {
