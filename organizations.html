@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Organizations & Events - Organize.Quest</title>
+    <meta name="description" content="Create and discover local organizations and events. Join community initiatives, volunteer groups, and local events on our interactive map.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%235865F2'/%3E%3Cstop offset='100%25' style='stop-color:%234ECDC4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='45' fill='url(%23grad)'/%3E%3Cpath d='M50 20 L65 40 L85 40 L70 55 L75 75 L50 60 L25 75 L30 55 L15 40 L35 40 Z' fill='white'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * {
@@ -33,6 +35,7 @@
             min-height: 100vh;
         }
 
+        /* Navigation */
         nav {
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px);
@@ -99,6 +102,7 @@
             box-shadow: 0 5px 15px rgba(88, 101, 242, 0.3);
         }
 
+        /* Main Layout */
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -123,6 +127,44 @@
             -webkit-text-fill-color: transparent;
         }
 
+        .page-header p {
+            font-size: 1.2rem;
+            color: var(--gray);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            background: transparent;
+            color: var(--gray);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: var(--light);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Map & Sidebar Layout */
         .main-content {
             display: grid;
             grid-template-columns: 1fr 400px;
@@ -150,6 +192,84 @@
             overflow-y: auto;
         }
 
+        .sidebar h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #3db5ac;
+            transform: translateY(-2px);
+        }
+
+        .btn-join {
+            background: var(--success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn-join:hover {
+            background: #218838;
+        }
+
+        .btn-join:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-leave {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Organization Cards */
+        .org-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
         .org-card {
             background: linear-gradient(135deg, #667eea15, #764ba215);
             padding: 1.5rem;
@@ -157,7 +277,6 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border: 2px solid transparent;
-            margin-bottom: 1rem;
         }
 
         .org-card:hover {
@@ -172,38 +291,32 @@
             font-size: 1.2rem;
         }
 
-        .org-card .members {
+        .org-card .category {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+        }
+
+        .org-card .event-info {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .org-card .event-date {
+            color: var(--danger);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .org-card .participants {
             color: var(--success);
             font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-
-        .btn-join {
-            background: var(--success);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .btn-join:hover {
-            background: #218838;
-            transform: translateY(-2px);
-        }
-
-        .btn-leave {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-leave:hover {
-            background: #c82333;
+            margin-top: 0.3rem;
         }
 
         .joined-badge {
@@ -216,6 +329,47 @@
             margin-left: 0.5rem;
         }
 
+        /* Event Details Modal */
+        .event-details-modal {
+            padding: 1.5rem;
+            background: var(--light);
+            border-radius: 15px;
+            margin-top: 1rem;
+        }
+
+        .event-details-modal h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .event-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .event-detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .participant-list {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+        }
+
+        .participant-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .participant-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -245,22 +399,74 @@
             position: relative;
         }
 
+        .modal-header {
+            margin-bottom: 2rem;
+        }
+
+        .modal-header h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+        }
+
         .modal-close {
             position: absolute;
             right: 20px;
             top: 20px;
             font-size: 1.5rem;
             cursor: pointer;
+            color: var(--gray);
+            background: var(--light);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--danger);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        /* Form Styles */
+        .form-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+        .form-section h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
+            color: var(--dark);
         }
 
         .form-group input,
@@ -271,39 +477,95 @@
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 1rem;
+            transition: all 0.3s ease;
         }
 
-        .member-list {
-            background: var(--light);
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .required {
+            color: var(--danger);
+        }
+
+        /* Stats */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .stat-card .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-card .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            background: white;
             padding: 1rem;
-            border-radius: 10px;
-            margin-top: 1rem;
-        }
-
-        .member-item {
-            padding: 0.5rem;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
+            border-radius: 15px;
+            margin-bottom: 2rem;
             display: flex;
+            gap: 1rem;
             align-items: center;
-            gap: 0.5rem;
+            flex-wrap: wrap;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
 
-        .member-item:last-child {
-            border-bottom: none;
+        .filter-bar select {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
         }
 
         @media (max-width: 968px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
+            
+            .sidebar {
+                order: -1;
+                max-height: 300px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Navigation -->
     <nav>
         <div class="nav-container">
             <a href="index.html" class="logo">
-                <span>🌐</span>
+                <span>🌍</span>
                 <span>Organize.Quest</span>
             </a>
             <div class="nav-links">
@@ -315,256 +577,632 @@
         </div>
     </nav>
 
+    <!-- Main Content -->
     <div class="container">
+        <!-- Page Header -->
         <div class="page-header">
-            <h1>Organizations Hub</h1>
-            <p>Discover local organizations and join community groups</p>
+            <h1>Organizations & Events Hub</h1>
+            <p>Discover local organizations and join community events in your area</p>
         </div>
 
-        <div class="main-content">
+        <!-- Statistics -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-number" id="totalOrgs">0</div>
+                <div class="stat-label">Total Organizations</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="activeEvents">0</div>
+                <div class="stat-label">Active Events</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalParticipants">0</div>
+                <div class="stat-label">Total Participants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="nearbyOrgs">0</div>
+                <div class="stat-label">Nearby (< 5km)</div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <select id="categoryFilter">
+                <option value="">All Categories</option>
+                <option value="Education">🎓 Education</option>
+                <option value="Healthcare">🏥 Healthcare</option>
+                <option value="Technology">💻 Technology</option>
+                <option value="Non-Profit">🤝 Non-Profit</option>
+                <option value="Sports">⚽ Sports</option>
+                <option value="Arts">🎨 Arts</option>
+                <option value="Environment">🌱 Environment</option>
+                <option value="Community">🏙️ Community</option>
+            </select>
+            <select id="distanceFilter">
+                <option value="">Any Distance</option>
+                <option value="1">Within 1 km</option>
+                <option value="5">Within 5 km</option>
+                <option value="10">Within 10 km</option>
+                <option value="25">Within 25 km</option>
+            </select>
+            <select id="eventFilter">
+                <option value="">All Organizations</option>
+                <option value="events">With Events Only</option>
+                <option value="upcoming">Upcoming Events</option>
+                <option value="joined">My Joined Events</option>
+            </select>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="map">🗺️ Map View</button>
+            <button class="tab-btn" data-tab="list">📋 List View</button>
+            <button class="tab-btn" data-tab="calendar">📅 Calendar View</button>
+        </div>
+
+        <!-- Map and Sidebar -->
+        <div class="main-content" id="mapView">
             <div class="map-container">
                 <div id="map"></div>
             </div>
             <div class="sidebar">
-                <h2>Organizations</h2>
-                <div id="orgList"></div>
+                <h2>Quick Actions</h2>
+                <div class="action-buttons">
+                    <button class="btn btn-info" id="findLocationBtn">
+                        📍 Find My Location
+                    </button>
+                    <button class="btn btn-success" id="createOrgBtn">
+                        ➕ Create Organization
+                    </button>
+                </div>
+                
+                <h2>Nearby Organizations</h2>
+                <div id="orgList" class="org-list">
+                    <p style="text-align: center; color: #999;">Loading organizations...</p>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Event Details Modal -->
+    <div id="eventDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" id="eventModalCloseBtn">&times;</span>
+            
+            <div class="modal-header">
+                <h2 id="eventModalTitle">Event Details</h2>
+            </div>
+
+            <div id="eventDetailsContent">
+                <!-- Event details will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Organization/Event Modal -->
     <div id="createModal" class="modal">
         <div class="modal-content">
             <span class="modal-close" id="modalCloseBtn">&times;</span>
-            <h2>Create Organization</h2>
+            
+            <div class="modal-header">
+                <h2>Create New Organization & Event</h2>
+            </div>
+
             <form id="createOrgForm">
-                <div class="form-group">
-                    <label>Organization Name *</label>
-                    <input type="text" id="orgName" required>
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <h3>📋 Basic Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>Organization Name <span class="required">*</span></label>
+                            <input type="text" id="orgName" required placeholder="Enter organization name">
+                        </div>
+                        <div class="form-group">
+                            <label>Category <span class="required">*</span></label>
+                            <select id="orgCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="Education">🎓 Education</option>
+                                <option value="Healthcare">🏥 Healthcare</option>
+                                <option value="Technology">💻 Technology</option>
+                                <option value="Non-Profit">🤝 Non-Profit</option>
+                                <option value="Sports">⚽ Sports</option>
+                                <option value="Arts">🎨 Arts</option>
+                                <option value="Environment">🌱 Environment</option>
+                                <option value="Community">🏙️ Community</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Organization Type</label>
+                            <select id="orgType">
+                                <option value="permanent">Permanent Organization</option>
+                                <option value="temporary">Temporary/Event-based</option>
+                                <option value="recurring">Recurring Events</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Description</label>
+                            <textarea id="orgDescription" placeholder="Describe your organization's mission and activities"></textarea>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Category *</label>
-                    <select id="orgCategory" required>
-                        <option value="">Select</option>
-                        <option value="Education">🎓 Education</option>
-                        <option value="Healthcare">🏥 Healthcare</option>
-                        <option value="Technology">💻 Technology</option>
-                        <option value="Non-Profit">🤝 Non-Profit</option>
-                        <option value="Sports">⚽ Sports</option>
-                        <option value="Arts">🎨 Arts</option>
-                        <option value="Community">🏙️ Community</option>
-                    </select>
+
+                <!-- Event Details -->
+                <div class="form-section">
+                    <h3>📅 Event Details (Optional)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Event Date</label>
+                            <input type="date" id="eventDate">
+                        </div>
+                        <div class="form-group">
+                            <label>Event Time</label>
+                            <input type="time" id="eventTime">
+                        </div>
+                        <div class="form-group">
+                            <label>Duration</label>
+                            <select id="eventDuration">
+                                <option value="">Select Duration</option>
+                                <option value="30">30 minutes</option>
+                                <option value="60">1 hour</option>
+                                <option value="120">2 hours</option>
+                                <option value="180">3 hours</option>
+                                <option value="240">4 hours</option>
+                                <option value="all-day">All Day</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Max Participants</label>
+                            <input type="number" id="maxParticipants" min="1" placeholder="e.g., 50">
+                        </div>
+                        <div class="form-group">
+                            <label>Age Restriction</label>
+                            <select id="ageRestriction">
+                                <option value="all">All Ages</option>
+                                <option value="18+">18+ Only</option>
+                                <option value="21+">21+ Only</option>
+                                <option value="13+">13+ Only</option>
+                                <option value="kids">Kids (Under 13)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Event Fee</label>
+                            <input type="text" id="eventFee" placeholder="Free or amount">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="orgDescription"></textarea>
+
+                <!-- Contact & Location -->
+                <div class="form-section">
+                    <h3>📍 Contact & Location</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Contact Email</label>
+                            <input type="email" id="contactEmail" placeholder="contact@organization.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Phone</label>
+                            <input type="tel" id="contactPhone" placeholder="+90 555 123 4567">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Website/Social Media</label>
+                            <input type="url" id="orgWebsite" placeholder="https://website.com">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Address</label>
+                            <input type="text" id="orgAddress" placeholder="Street address (optional)">
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Location on Map <span class="required">*</span></label>
+                            <input type="text" id="orgLocationDisplay" readonly placeholder="Click on map to select location" style="background: #f0f0f0; cursor: not-allowed;">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Location *</label>
-                    <input type="text" id="orgLocationDisplay" readonly placeholder="Click on map">
-                </div>
-                <button type="submit" class="btn-primary" style="width: 100%;">Create</button>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    Create Organization
+                </button>
             </form>
         </div>
     </div>
 
-    <div id="detailsModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" id="detailsModalClose">&times;</span>
-            <div id="orgDetailsContent"></div>
-        </div>
-    </div>
-
+    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // Initialize variables
+        let map, userMarker, organizations = [], createMode = false, selectedLocation = null;
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        
+        // Supabase configuration
         const SUPABASE_URL = 'https://ymrxfbkghznrosgfqwrh.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltcnhmYmtnaHpucm9zZ2Zxd3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NzQ4MTMsImV4cCI6MjA3NDA1MDgxM30.GyrbrTmWMc6--zCUcfKwc-2qlsBI0z3oly8iv9Fq9-0';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let map, organizations = [], currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        let createMode = false, selectedLocation = null;
-
+        // Initialize map
         function initMap() {
             map = L.map('map').setView([40.7128, -74.0060], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             
-            map.on('click', function(e) {
-                if (createMode) {
-                    selectedLocation = e.latlng;
-                    document.getElementById('orgLocationDisplay').value = 
-                        `Lat: ${e.latlng.lat.toFixed(4)}, Lng: ${e.latlng.lng.toFixed(4)}`;
-                }
-            });
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
 
+            // Load existing organizations
             loadOrganizations();
-        }
 
-        async function loadOrganizations() {
-            try {
-                const { data, error } = await supabase.from('organizations').select('*');
-                if (error) throw error;
-                organizations = data || [];
-                
-                organizations.forEach(org => {
-                    const isMember = org.members && org.members.includes(currentUser?.id);
-                    L.marker([org.latitude, org.longitude]).addTo(map)
-                        .bindPopup(`
-                            <div>
-                                <h3>${org.name}</h3>
-                                <p><strong>Category:</strong> ${org.category}</p>
-                                <p><strong>Members:</strong> ${org.members?.length || 0}</p>
-                                ${isMember ? '<p style="color: green;">✓ You are a member</p>' : ''}
-                                <button onclick="showOrgDetails('${org.id}')" style="margin-top:10px;padding:5px 10px;background:#5865F2;color:white;border:none;border-radius:5px;cursor:pointer;">View Details</button>
-                            </div>
-                        `);
-                });
-
-                updateOrganizationList();
-            } catch (err) {
-                console.error('Error loading organizations:', err);
+            // Map click handler for location selection
+            map.on('click', function(e) {
+                if (org.eventDate) {
+                const eventDate = new Date(org.eventDate);
+                popupContent += `<p><strong>📅 Event:</strong> ${eventDate.toLocaleDateString()}</p>`;
+                if (org.eventTime) {
+                    popupContent += `<p><strong>🕒 Time:</strong> ${org.eventTime}</p>`;
+                }
+                if (org.maxParticipants) {
+                    popupContent += `<p><strong>👥 Participants:</strong> ${org.currentParticipants || 0}/${org.maxParticipants}</p>`;
+                }
             }
+
+            if (org.contactEmail) {
+                popupContent += `<p><strong>📧 Email:</strong> ${org.contactEmail}</p>`;
+            }
+
+            const hasJoined = hasUserJoined(org.id);
+            if (org.eventDate) {
+                popupContent += `
+                    <button onclick="showEventDetails('${org.id}')" 
+                            style="margin-top: 10px; padding: 5px 10px; background: #5865F2; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        View Details ${hasJoined ? '✓' : ''}
+                    </button>
+                `;
+            }
+
+            popupContent += `</div>`;
+            marker.bindPopup(popupContent);
         }
 
+        // Update organization list
         function updateOrganizationList() {
-            const container = document.getElementById('orgList');
-            if (!organizations.length) {
-                container.innerHTML = '<p style="text-align:center;color:#999;">No organizations yet</p>';
+            const listContainer = document.getElementById('orgList');
+            
+            if (organizations.length === 0) {
+                listContainer.innerHTML = '<p style="text-align: center; color: #999;">No organizations yet. Create the first one!</p>';
                 return;
             }
 
-            container.innerHTML = organizations.map(org => {
-                const isMember = org.members && org.members.includes(currentUser?.id);
-                return `
-                    <div class="org-card" onclick="showOrgDetails('${org.id}')">
-                        <h3>${org.name} ${isMember ? '<span class="joined-badge">✓ Joined</span>' : ''}</h3>
-                        <p class="members">👥 ${org.members?.length || 0} members</p>
-                        <button class="btn-join ${isMember ? 'btn-leave' : ''}" 
-                                onclick="event.stopPropagation(); toggleMembership('${org.id}')">
-                            ${isMember ? 'Leave Organization' : 'Join Organization'}
-                        </button>
-                    </div>
+            listContainer.innerHTML = organizations.map(org => {
+                const categoryIcons = {
+                    'Education': '🎓',
+                    'Healthcare': '🏥',
+                    'Technology': '💻',
+                    'Non-Profit': '🤝',
+                    'Sports': '⚽',
+                    'Arts': '🎨',
+                    'Environment': '🌱',
+                    'Community': '🏙️'
+                };
+                const icon = categoryIcons[org.category] || '📌';
+                const hasJoined = hasUserJoined(org.id);
+
+                let cardHTML = `
+                    <div class="org-card" onclick="focusOrganization('${org.id}')">
+                        <h3>${icon} ${org.name} ${hasJoined ? '<span class="joined-badge">✓ Joined</span>' : ''}</h3>
+                        <span class="category">${org.category}</span>
                 `;
+
+                if (org.eventDate) {
+                    const eventDate = new Date(org.eventDate);
+                    const isUpcoming = eventDate > new Date();
+                    const isFull = org.maxParticipants && org.currentParticipants >= org.maxParticipants;
+                    
+                    cardHTML += `
+                        <div class="event-info">
+                            <div class="event-date">📅 ${eventDate.toLocaleDateString()} ${org.eventTime || ''}</div>
+                            ${org.maxParticipants ? `<div class="participants">👥 ${org.currentParticipants || 0}/${org.maxParticipants} participants ${isFull ? '(FULL)' : ''}</div>` : ''}
+                        </div>
+                        ${isUpcoming ? `
+                        <button class="btn ${hasJoined ? 'btn-leave' : 'btn-join'}" 
+                                onclick="event.stopPropagation(); toggleJoinEvent('${org.id}')"
+                                ${!hasJoined && isFull ? 'disabled' : ''}>
+                            ${hasJoined ? 'Leave Event' : (isFull ? 'Event Full' : 'Join Event')}
+                        </button>` : ''}
+                    `;
+                }
+
+                cardHTML += '</div>';
+                return cardHTML;
             }).join('');
         }
 
-        async function toggleMembership(orgId) {
-            if (!currentUser) {
-                alert('Please log in to join organizations!');
-                window.location.href = 'profile.html';
-                return;
-            }
-
+        // Focus on organization
+        function focusOrganization(orgId) {
             const org = organizations.find(o => o.id === orgId);
-            if (!org) return;
-
-            const members = org.members || [];
-            const isMember = members.includes(currentUser.id);
-
-            try {
-                const updatedMembers = isMember 
-                    ? members.filter(id => id !== currentUser.id)
-                    : [...members, currentUser.id];
-
-                const { error } = await supabase
-                    .from('organizations')
-                    .update({ members: updatedMembers })
-                    .eq('id', orgId);
-
-                if (error) throw error;
-
-                alert(isMember ? 'Left organization!' : 'Joined organization!');
-                await loadOrganizations();
-            } catch (err) {
-                alert('Error: ' + err.message);
+            if (org) {
+                map.setView([org.latitude, org.longitude], 16);
+                if (org.eventDate) {
+                    showEventDetails(orgId);
+                }
             }
         }
 
-        window.showOrgDetails = async function(orgId) {
-            const org = organizations.find(o => o.id === orgId);
-            if (!org) return;
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalOrgs').textContent = organizations.length;
+            
+            const now = new Date();
+            const activeEvents = organizations.filter(org => {
+                if (!org.eventDate) return false;
+                return new Date(org.eventDate) > now;
+            }).length;
+            document.getElementById('activeEvents').textContent = activeEvents;
+            
+            const totalParticipants = organizations.reduce((sum, org) => {
+                return sum + (org.currentParticipants || 0);
+            }, 0);
+            document.getElementById('totalParticipants').textContent = totalParticipants;
 
-            const { data: users } = await supabase
-                .from('users')
-                .select('name, email')
-                .in('id', org.members || []);
+            // Nearby organizations (if user location is available)
+            if (userMarker) {
+                const userPos = userMarker.getLatLng();
+                const nearbyCount = organizations.filter(org => {
+                    const distance = map.distance(userPos, [org.latitude, org.longitude]) / 1000; // in km
+                    return distance < 5;
+                }).length;
+                document.getElementById('nearbyOrgs').textContent = nearbyCount;
+            }
+        }
 
-            const isMember = org.members && org.members.includes(currentUser?.id);
-            const membersList = users?.map(u => `
-                <div class="member-item">👤 ${u.name || u.email}</div>
-            `).join('') || '<p>No members yet</p>';
+        // Filter organizations
+        function filterOrganizations() {
+            const category = document.getElementById('categoryFilter').value;
+            const distance = document.getElementById('distanceFilter').value;
+            const eventFilter = document.getElementById('eventFilter').value;
 
-            document.getElementById('orgDetailsContent').innerHTML = `
-                <h2>${org.name}</h2>
-                <p><strong>Category:</strong> ${org.category}</p>
-                <p>${org.description || 'No description'}</p>
-                <div class="member-list">
-                    <h3>Members (${org.members?.length || 0})</h3>
-                    ${membersList}
-                </div>
-                <button class="btn-join ${isMember ? 'btn-leave' : ''}" 
-                        onclick="toggleMembership('${org.id}')" 
-                        style="width:100%;margin-top:1rem;">
-                    ${isMember ? 'Leave Organization' : 'Join Organization'}
-                </button>
-            `;
-            document.getElementById('detailsModal').classList.add('show');
-        };
+            let filtered = [...organizations];
 
+            // Category filter
+            if (category) {
+                filtered = filtered.filter(org => org.category === category);
+            }
+
+            // Distance filter (requires user location)
+            if (distance && userMarker) {
+                const userPos = userMarker.getLatLng();
+                const maxDistance = parseFloat(distance);
+                filtered = filtered.filter(org => {
+                    const dist = map.distance(userPos, [org.latitude, org.longitude]) / 1000;
+                    return dist <= maxDistance;
+                });
+            }
+
+            // Event filter
+            if (eventFilter === 'events') {
+                filtered = filtered.filter(org => org.eventDate);
+            } else if (eventFilter === 'upcoming') {
+                const now = new Date();
+                filtered = filtered.filter(org => {
+                    if (!org.eventDate) return false;
+                    return new Date(org.eventDate) > now;
+                });
+            } else if (eventFilter === 'joined' && currentUser) {
+                filtered = filtered.filter(org => hasUserJoined(org.id));
+            }
+
+            // Update markers on map
+            map.eachLayer(function(layer) {
+                if (layer instanceof L.Marker && layer !== userMarker) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            filtered.forEach(org => {
+                addOrganizationMarker(org);
+            });
+
+            // Update list temporarily
+            const tempOrgs = organizations;
+            organizations = filtered;
+            updateOrganizationList();
+            organizations = tempOrgs; // Reset to all
+        }
+
+        // Event Listeners
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize map
             initMap();
 
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const tab = this.dataset.tab;
+                    if (tab === 'list') {
+                        alert('List view coming soon!');
+                    } else if (tab === 'calendar') {
+                        alert('Calendar view coming soon!');
+                    }
+                });
+            });
+
+            // Create new button
             document.getElementById('createNewBtn').addEventListener('click', function() {
                 if (!currentUser) {
-                    alert('Please log in!');
+                    alert('Please log in to create an organization!');
                     window.location.href = 'profile.html';
                     return;
                 }
                 document.getElementById('createModal').classList.add('show');
                 createMode = true;
-                alert('Click on map to select location');
+                alert('Click on the map to select location for your organization');
             });
 
-            document.getElementById('modalCloseBtn').addEventListener('click', () => {
+            // Create organization button
+            document.getElementById('createOrgBtn').addEventListener('click', function() {
+                if (!currentUser) {
+                    alert('Please log in to create an organization!');
+                    window.location.href = 'profile.html';
+                    return;
+                }
+                document.getElementById('createModal').classList.add('show');
+                createMode = true;
+                alert('Click on the map to select location for your organization');
+            });
+
+            // Find location button
+            document.getElementById('findLocationBtn').addEventListener('click', getCurrentLocation);
+
+            // Close modal buttons
+            document.getElementById('modalCloseBtn').addEventListener('click', function() {
                 document.getElementById('createModal').classList.remove('show');
                 createMode = false;
+                if (window.tempMarker) {
+                    map.removeLayer(window.tempMarker);
+                    window.tempMarker = null;
+                }
             });
 
-            document.getElementById('detailsModalClose').addEventListener('click', () => {
-                document.getElementById('detailsModal').classList.remove('show');
+            document.getElementById('eventModalCloseBtn').addEventListener('click', function() {
+                document.getElementById('eventDetailsModal').classList.remove('show');
             });
 
+            // Form submission
             document.getElementById('createOrgForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
+
                 if (!selectedLocation) {
-                    alert('Select location on map!');
+                    alert('Please select a location on the map!');
+                    return;
+                }
+
+                if (!currentUser) {
+                    alert('Please log in to create an organization!');
+                    window.location.href = 'profile.html';
                     return;
                 }
 
                 const orgData = {
+                    id: Date.now().toString(),
                     name: document.getElementById('orgName').value,
                     category: document.getElementById('orgCategory').value,
+                    type: document.getElementById('orgType').value,
                     description: document.getElementById('orgDescription').value,
+                    eventDate: document.getElementById('eventDate').value,
+                    eventTime: document.getElementById('eventTime').value,
+                    duration: document.getElementById('eventDuration').value,
+                    maxParticipants: parseInt(document.getElementById('maxParticipants').value) || null,
+                    ageRestriction: document.getElementById('ageRestriction').value,
+                    eventFee: document.getElementById('eventFee').value,
+                    contactEmail: document.getElementById('contactEmail').value,
+                    contactPhone: document.getElementById('contactPhone').value,
+                    website: document.getElementById('orgWebsite').value,
+                    address: document.getElementById('orgAddress').value,
                     latitude: selectedLocation.lat,
                     longitude: selectedLocation.lng,
                     created_by: currentUser.id,
-                    members: [currentUser.id]
+                    createdAt: new Date().toISOString(),
+                    currentParticipants: 0,
+                    participants: []
                 };
 
                 try {
-                    const { error } = await supabase.from('organizations').insert([orgData]);
-                    if (error) throw error;
+                    const { data, error } = await supabase
+                        .from('organizations')
+                        .insert([orgData])
+                        .select();
 
-                    alert('Organization created!');
-                    document.getElementById('createModal').classList.remove('show');
+                    if (error) {
+                        console.error('Supabase error:', error);
+                        // Fallback to localStorage
+                        organizations.push(orgData);
+                        localStorage.setItem('organizations', JSON.stringify(organizations));
+                    } else if (data) {
+                        orgData.id = data[0].id;
+                        organizations.push(data[0]);
+                    }
+
+                    // Add marker
+                    addOrganizationMarker(orgData);
+
+                    // Update UI
+                    updateOrganizationList();
+                    updateStats();
+
+                    // Reset form and close modal
                     this.reset();
+                    document.getElementById('createModal').classList.remove('show');
                     createMode = false;
                     selectedLocation = null;
-                    await loadOrganizations();
+                    
+                    if (window.tempMarker) {
+                        map.removeLayer(window.tempMarker);
+                        window.tempMarker = null;
+                    }
+
+                    alert('Organization created successfully!');
                 } catch (err) {
-                    alert('Error: ' + err.message);
+                    console.error('Error creating organization:', err);
+                    // Fallback to localStorage
+                    organizations.push(orgData);
+                    localStorage.setItem('organizations', JSON.stringify(organizations));
+                    
+                    addOrganizationMarker(orgData);
+                    updateOrganizationList();
+                    updateStats();
+                    
+                    this.reset();
+                    document.getElementById('createModal').classList.remove('show');
+                    createMode = false;
+                    selectedLocation = null;
+                    
+                    alert('Organization created successfully!');
                 }
             });
+
+            // Filter handlers
+            document.getElementById('categoryFilter').addEventListener('change', filterOrganizations);
+            document.getElementById('distanceFilter').addEventListener('change', filterOrganizations);
+            document.getElementById('eventFilter').addEventListener('change', filterOrganizations);
         });
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('show');
+                createMode = false;
+                if (window.tempMarker) {
+                    map.removeLayer(window.tempMarker);
+                    window.tempMarker = null;
+                }
+            }
+        }
     </script>
 </body>
-</html>
+</html> (createMode) {
+                    selectedLocation = e.latlng;
+                    document.getElementById('orgLocationDisplay').value = 
+                        `Lat: ${e.latlng.lat.toFixed(4)}, Lng: ${e.latlng.lng.toFixed(4)}`;
+                    
+                    // Add temporary marker
+                    if (window.tempMarker) {
+                        map.removeLayer(window.tempMarker);
+                    }
+                    window.tempMarker = L.marker(e.latlng).addTo(map);
+                }
+            });
+
+            // Try to get user location
+            getCurrentLocation();
+        }
+
+        // Get current location
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    map.setView([lat, lng], 14);
+                    
+                    if (userMarker) {
+                        map.removeLayer(userMarker);
