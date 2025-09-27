@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - Organize.Quest</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%235865F2'/%3E%3Cstop offset='100%25' style='stop-color:%234ECDC4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='45' fill='url(%23grad)'/%3E%3Cpath d='M50 20 L65 40 L85 40 L70 55 L75 75 L50 60 L25 75 L30 55 L15 40 L35 40 Z' fill='white'/%3E%3C/svg%3E">
     <style>
         * {
             margin: 0;
@@ -66,16 +65,10 @@
             text-decoration: none;
         }
 
-        .btn-secondary:hover {
-            background: var(--primary);
-            color: white;
-        }
-
         .profile-container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 3rem 2rem;
-            min-height: calc(100vh - 80px);
         }
 
         .auth-container {
@@ -87,50 +80,13 @@
             margin: 0 auto;
         }
 
-        .auth-tabs {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 1rem;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            font-weight: 600;
-            color: var(--gray);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .tab-btn.active {
-            border-bottom: 3px solid var(--primary);
-            color: var(--primary);
-        }
-
         .profile-header {
             background: white;
             padding: 3rem;
             border-radius: 20px;
-            color: var(--dark);
             text-align: center;
             margin-bottom: 2rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .profile-avatar {
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border-radius: 50%;
-            margin: 0 auto 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
         }
 
         .profile-tabs {
@@ -155,10 +111,6 @@
             transition: all 0.3s ease;
         }
 
-        .profile-tab-btn:hover {
-            background: var(--light);
-        }
-
         .profile-tab-btn.active {
             background: var(--primary);
             color: white;
@@ -179,7 +131,6 @@
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
-            color: var(--dark);
         }
 
         .form-group input,
@@ -189,18 +140,6 @@
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .form-group input[readonly] {
-            background: #f0f0f0;
-            cursor: not-allowed;
         }
 
         .btn {
@@ -220,18 +159,9 @@
             margin-bottom: 0.5rem;
         }
 
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
         .btn-danger {
             background: #dc3545;
             color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
         }
 
         .hidden {
@@ -252,24 +182,27 @@
             transition: all 0.3s ease;
         }
 
-        .org-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-
         .org-card h3 {
             color: var(--primary);
             margin-bottom: 0.5rem;
         }
 
-        .org-card .category {
+        .org-card .badge {
             display: inline-block;
             padding: 0.3rem 0.8rem;
-            background: var(--primary);
-            color: white;
             border-radius: 20px;
             font-size: 0.85rem;
-            margin-bottom: 1rem;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+
+        .badge-owner {
+            background: var(--primary);
+            color: white;
+        }
+
+        .badge-member {
+            background: var(--accent);
+            color: white;
         }
 
         .org-card-actions {
@@ -285,13 +218,12 @@
             font-weight: 600;
             cursor: pointer;
             font-size: 0.9rem;
-            transition: all 0.3s ease;
+            flex: 1;
         }
 
         .btn-edit {
             background: var(--accent);
             color: white;
-            flex: 1;
         }
 
         .btn-delete {
@@ -299,176 +231,73 @@
             color: white;
         }
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 3000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal.show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-close {
-            position: absolute;
-            right: 20px;
-            top: 20px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--gray);
-        }
-
-        @media (max-width: 768px) {
-            .profile-header {
-                padding: 2rem 1rem;
-            }
-            .org-grid {
-                grid-template-columns: 1fr;
-            }
+        .btn-leave {
+            background: #ffc107;
+            color: #333;
         }
     </style>
 </head>
 <body>
     <nav>
         <div class="nav-container">
-            <a href="index.html" class="logo">🌍 Organize.Quest</a>
+            <a href="index.html" class="logo">🌐 Organize.Quest</a>
             <a href="index.html" class="btn-secondary">← Back to Home</a>
         </div>
     </nav>
 
     <div class="profile-container">
         <div id="authSection" class="auth-container">
-            <h2 style="text-align: center; margin-bottom: 2rem;">Welcome to Organize.Quest</h2>
-            
-            <div class="auth-tabs">
-                <button class="tab-btn active" id="loginTabBtn">Sign In</button>
-                <button class="tab-btn" id="signupTabBtn">Sign Up</button>
-            </div>
-
+            <h2 style="text-align: center; margin-bottom: 2rem;">Sign In</h2>
             <form id="loginForm">
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="loginEmail" required placeholder="your@email.com">
+                    <input type="email" id="loginEmail" required>
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="loginPassword" required placeholder="••••••••">
+                    <input type="password" id="loginPassword" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Sign In</button>
-            </form>
-
-            <form id="signupForm" class="hidden">
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" id="signupName" required placeholder="John Doe">
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="signupEmail" required placeholder="your@email.com">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="signupPassword" required placeholder="••••••••" minlength="6">
-                </div>
-                <div class="form-group">
-                    <label>Confirm Password</label>
-                    <input type="password" id="signupConfirm" required placeholder="••••••••" minlength="6">
-                </div>
-                <button type="submit" class="btn btn-primary">Create Account</button>
             </form>
         </div>
 
         <div id="profileSection" class="hidden">
             <div class="profile-header">
-                <div class="profile-avatar">👤</div>
                 <h1 id="userName">My Account</h1>
-                <p id="userEmail" style="opacity: 0.7; margin-top: 0.5rem;"></p>
+                <p id="userEmail"></p>
             </div>
 
             <div class="profile-tabs">
                 <button class="profile-tab-btn active" data-tab="profile">📝 My Profile</button>
-                <button class="profile-tab-btn" data-tab="organizations">🏢 My Organizations</button>
+                <button class="profile-tab-btn" data-tab="created">🏢 Created Organizations</button>
+                <button class="profile-tab-btn" data-tab="joined">👥 Joined Organizations</button>
             </div>
 
             <div id="profileTab" class="profile-form">
-                <h2 style="margin-bottom: 1.5rem;">Edit Profile</h2>
+                <h2>Edit Profile</h2>
                 <form id="profileForm">
                     <div class="form-group">
                         <label>Full Name</label>
-                        <input type="text" id="profileName" placeholder="John Doe">
+                        <input type="text" id="profileName">
                     </div>
                     <div class="form-group">
                         <label>Email</label>
                         <input type="email" id="profileEmail" readonly>
                     </div>
-                    <div class="form-group">
-                        <label>Phone Number</label>
-                        <input type="tel" id="profilePhone" placeholder="+90 555 123 4567">
-                    </div>
-                    <div class="form-group">
-                        <label>Bio</label>
-                        <textarea id="profileBio" placeholder="Tell us about yourself..." rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>City</label>
-                        <input type="text" id="profileCity" placeholder="Istanbul">
-                    </div>
-                    <div class="form-group">
-                        <label>Country</label>
-                        <input type="text" id="profileCountry" placeholder="Turkey">
-                    </div>
-                    <div class="form-group">
-                        <label>Interests (comma separated)</label>
-                        <input type="text" id="profileInterests" placeholder="Technology, Sports, Music">
-                    </div>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
-                    <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">Back to Home</button>
                     <button type="button" class="btn btn-danger" id="logoutBtn">Logout</button>
                 </form>
             </div>
 
-            <div id="organizationsTab" class="profile-form hidden">
-                <h2 style="margin-bottom: 1.5rem;">My Organizations</h2>
-                <div id="myOrgsList" class="org-grid">
-                    <p style="text-align: center; color: #999;">Loading your organizations...</p>
-                </div>
+            <div id="createdTab" class="profile-form hidden">
+                <h2>My Created Organizations</h2>
+                <div id="createdOrgsList" class="org-grid"></div>
             </div>
-        </div>
-    </div>
 
-    <div id="editOrgModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" id="editModalClose">&times;</span>
-            <h2>Edit Organization</h2>
-            <form id="editOrgForm">
-                <div class="form-group">
-                    <label>Organization Name</label>
-                    <input type="text" id="editOrgName" required>
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="editOrgDescription" rows="3"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-            </form>
+            <div id="joinedTab" class="profile-form hidden">
+                <h2>Joined Organizations</h2>
+                <div id="joinedOrgsList" class="org-grid"></div>
+            </div>
         </div>
     </div>
 
@@ -479,26 +308,151 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        let myOrganizations = [];
-        let editingOrgId = null;
+        let createdOrgs = [];
+        let joinedOrgs = [];
 
-        function switchTab(tab) {
-            const loginForm = document.getElementById('loginForm');
-            const signupForm = document.getElementById('signupForm');
-            const loginTabBtn = document.getElementById('loginTabBtn');
-            const signupTabBtn = document.getElementById('signupTabBtn');
+        if (currentUser) {
+            showProfile();
+            loadOrganizations();
+        }
 
-            if (tab === 'login') {
-                loginForm.classList.remove('hidden');
-                signupForm.classList.add('hidden');
-                loginTabBtn.classList.add('active');
-                signupTabBtn.classList.remove('active');
-            } else {
-                loginForm.classList.add('hidden');
-                signupForm.classList.remove('hidden');
-                signupTabBtn.classList.add('active');
-                loginTabBtn.classList.remove('active');
+        async function loadOrganizations() {
+            if (!currentUser) return;
+
+            try {
+                // Load created organizations
+                const { data: created, error: createdError } = await supabase
+                    .from('organizations')
+                    .select('*')
+                    .eq('created_by', currentUser.id);
+
+                if (createdError) throw createdError;
+                createdOrgs = created || [];
+
+                // Load joined organizations
+                const { data: joined, error: joinedError } = await supabase
+                    .from('organizations')
+                    .select('*')
+                    .contains('members', [currentUser.id]);
+
+                if (joinedError) throw joinedError;
+                
+                // Filter out organizations user created (show only ones they joined)
+                joinedOrgs = (joined || []).filter(org => org.created_by !== currentUser.id);
+
+                displayCreatedOrganizations();
+                displayJoinedOrganizations();
+            } catch (err) {
+                console.error('Error loading organizations:', err);
             }
+        }
+
+        function displayCreatedOrganizations() {
+            const container = document.getElementById('createdOrgsList');
+            
+            if (createdOrgs.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t created any organizations yet.</p>';
+                return;
+            }
+
+            const icons = {
+                'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
+                'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨', 'Community': '🏙️'
+            };
+
+            container.innerHTML = createdOrgs.map(org => {
+                const icon = icons[org.category] || '📌';
+                return `
+                    <div class="org-card">
+                        <h3>${icon} ${org.name}</h3>
+                        <span class="badge badge-owner">Owner</span>
+                        <p>${org.description || 'No description'}</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                            👥 ${org.members?.length || 0} members
+                        </p>
+                        <div class="org-card-actions">
+                            <button class="btn-small btn-edit" onclick="editOrg('${org.id}')">✏️ Edit</button>
+                            <button class="btn-small btn-delete" onclick="deleteOrg('${org.id}')">🗑️ Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function displayJoinedOrganizations() {
+            const container = document.getElementById('joinedOrgsList');
+            
+            if (joinedOrgs.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t joined any organizations yet.</p>';
+                return;
+            }
+
+            const icons = {
+                'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
+                'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨', 'Community': '🏙️'
+            };
+
+            container.innerHTML = joinedOrgs.map(org => {
+                const icon = icons[org.category] || '📌';
+                return `
+                    <div class="org-card">
+                        <h3>${icon} ${org.name}</h3>
+                        <span class="badge badge-member">Member</span>
+                        <p>${org.description || 'No description'}</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                            👥 ${org.members?.length || 0} members
+                        </p>
+                        <div class="org-card-actions">
+                            <button class="btn-small btn-leave" onclick="leaveOrg('${org.id}')">👋 Leave</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function leaveOrg(orgId) {
+            if (!confirm('Are you sure you want to leave this organization?')) return;
+
+            try {
+                const org = joinedOrgs.find(o => o.id === orgId);
+                if (!org) return;
+
+                const updatedMembers = (org.members || []).filter(id => id !== currentUser.id);
+
+                const { error } = await supabase
+                    .from('organizations')
+                    .update({ members: updatedMembers })
+                    .eq('id', orgId);
+
+                if (error) throw error;
+
+                alert('Left organization successfully!');
+                await loadOrganizations();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        async function deleteOrg(orgId) {
+            if (!confirm('Are you sure you want to delete this organization?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('organizations')
+                    .delete()
+                    .eq('id', orgId);
+
+                if (error) throw error;
+
+                alert('Organization deleted successfully!');
+                await loadOrganizations();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        function editOrg(orgId) {
+            alert('Edit functionality - redirect to organizations page or open edit modal');
         }
 
         function showProfile() {
@@ -509,145 +463,32 @@
             document.getElementById('userEmail').textContent = currentUser.email || '';
             document.getElementById('profileName').value = currentUser.name || '';
             document.getElementById('profileEmail').value = currentUser.email || '';
-            document.getElementById('profilePhone').value = currentUser.phone || '';
-            document.getElementById('profileBio').value = currentUser.bio || '';
-            document.getElementById('profileCity').value = currentUser.city || '';
-            document.getElementById('profileCountry').value = currentUser.country || '';
-            document.getElementById('profileInterests').value = currentUser.interests || '';
         }
 
-        async function loadMyOrganizations() {
-            if (!currentUser || !currentUser.id) return;
-
-            try {
-                const { data, error } = await supabase
-                    .from('organizations')
-                    .select('*')
-                    .eq('created_by', currentUser.id);
-
-                if (error) {
-                    console.error('Error loading organizations:', error);
-                    return;
-                }
-
-                myOrganizations = data || [];
-                displayMyOrganizations();
-            } catch (err) {
-                console.error('Error:', err);
-            }
-        }
-
-        function displayMyOrganizations() {
-            const container = document.getElementById('myOrgsList');
-            
-            if (myOrganizations.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t created any organizations yet.</p>';
-                return;
-            }
-
-            const icons = {
-                'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
-                'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨',
-                'Environment': '🌱', 'Community': '🏙️'
-            };
-
-            container.innerHTML = myOrganizations.map(org => {
-                const icon = icons[org.category] || '📌';
-                return `
-                    <div class="org-card">
-                        <h3>${icon} ${org.name}</h3>
-                        <span class="category">${org.category}</span>
-                        <p>${org.description || 'No description'}</p>
-                        ${org.created_at ? `<p style="margin-top: 0.5rem; font-size: 0.85rem; color: #999;">Created: ${new Date(org.created_at).toLocaleDateString()}</p>` : ''}
-                        <div class="org-card-actions">
-                            <button class="btn-small btn-edit" data-org-id="${org.id}">✏️ Edit</button>
-                            <button class="btn-small btn-delete" data-org-id="${org.id}">🗑️ Delete</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            // Add event listeners after rendering
-            container.querySelectorAll('.btn-edit').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const orgId = this.getAttribute('data-org-id');
-                    editOrganization(orgId);
-                });
-            });
-
-            container.querySelectorAll('.btn-delete').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const orgId = this.getAttribute('data-org-id');
-                    deleteOrganization(orgId);
-                });
-            });
-        }
-
-        function editOrganization(orgId) {
-            console.log('Edit clicked for org:', orgId);
-            const org = myOrganizations.find(o => o.id === orgId || o.id == orgId);
-            if (!org) {
-                console.error('Organization not found:', orgId);
-                alert('Organization not found!');
-                return;
-            }
-
-            editingOrgId = orgId;
-            document.getElementById('editOrgName').value = org.name;
-            document.getElementById('editOrgDescription').value = org.description || '';
-            
-            document.getElementById('editOrgModal').classList.add('show');
-        }
-
-        async function deleteOrganization(orgId) {
-            console.log('Delete clicked for org:', orgId);
-            if (!confirm('Are you sure you want to delete this organization?')) return;
-
-            try {
-                const { error } = await supabase
-                    .from('organizations')
-                    .delete()
-                    .eq('id', orgId);
-
-                if (error) {
-                    alert('Error deleting organization: ' + error.message);
-                    console.error('Delete error:', error);
-                    return;
-                }
-
-                alert('Organization deleted successfully!');
-                await loadMyOrganizations();
-            } catch (err) {
-                alert('Error: ' + err.message);
-                console.error('Delete error:', err);
-            }
-        }
-
-        if (currentUser) {
-            showProfile();
-            loadMyOrganizations();
-        }
-
-        document.getElementById('loginTabBtn').addEventListener('click', () => switchTab('login'));
-        document.getElementById('signupTabBtn').addEventListener('click', () => switchTab('signup'));
-
+        // Tab switching
         document.querySelectorAll('.profile-tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
 
                 const tab = this.dataset.tab;
+                document.getElementById('profileTab').classList.add('hidden');
+                document.getElementById('createdTab').classList.add('hidden');
+                document.getElementById('joinedTab').classList.add('hidden');
+
                 if (tab === 'profile') {
                     document.getElementById('profileTab').classList.remove('hidden');
-                    document.getElementById('organizationsTab').classList.add('hidden');
-                } else if (tab === 'organizations') {
-                    document.getElementById('profileTab').classList.add('hidden');
-                    document.getElementById('organizationsTab').classList.remove('hidden');
-                    loadMyOrganizations();
+                } else if (tab === 'created') {
+                    document.getElementById('createdTab').classList.remove('hidden');
+                    loadOrganizations();
+                } else if (tab === 'joined') {
+                    document.getElementById('joinedTab').classList.remove('hidden');
+                    loadOrganizations();
                 }
             });
         });
 
+        // Login form
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
@@ -659,10 +500,7 @@
                     password: password
                 });
 
-                if (error) {
-                    alert('Error: ' + error.message);
-                    return;
-                }
+                if (error) throw error;
 
                 const { data: profile } = await supabase
                     .from('users')
@@ -675,131 +513,37 @@
                 
                 alert('Successfully logged in!');
                 showProfile();
-                loadMyOrganizations();
+                loadOrganizations();
             } catch (err) {
                 alert('Login error: ' + err.message);
             }
         });
 
-        document.getElementById('signupForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const name = document.getElementById('signupName').value;
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            const confirm = document.getElementById('signupConfirm').value;
-
-            if (password !== confirm) {
-                alert('Passwords do not match!');
-                return;
-            }
-
-            try {
-                const { data, error } = await supabase.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: {
-                        data: { name: name }
-                    }
-                });
-
-                if (error) {
-                    alert('Error: ' + error.message);
-                    return;
-                }
-
-                const { error: profileError } = await supabase
-                    .from('users')
-                    .insert([{ 
-                        id: data.user.id,
-                        email: email, 
-                        name: name 
-                    }]);
-
-                if (profileError) {
-                    console.error('Error creating user profile:', profileError);
-                }
-
-                currentUser = { id: data.user.id, email: email, name: name };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                alert('Account created successfully!');
-                showProfile();
-            } catch (err) {
-                alert('Signup error: ' + err.message);
-            }
-        });
-
+        // Profile form
         document.getElementById('profileForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             currentUser.name = document.getElementById('profileName').value;
-            currentUser.phone = document.getElementById('profilePhone').value;
-            currentUser.bio = document.getElementById('profileBio').value;
-            currentUser.city = document.getElementById('profileCity').value;
-            currentUser.country = document.getElementById('profileCountry').value;
-            currentUser.interests = document.getElementById('profileInterests').value;
-            
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             
             if (currentUser.id) {
                 try {
                     const { error } = await supabase
                         .from('users')
-                        .update({
-                            name: currentUser.name,
-                            phone: currentUser.phone,
-                            bio: currentUser.bio,
-                            city: currentUser.city,
-                            country: currentUser.country,
-                            interests: currentUser.interests
-                        })
+                        .update({ name: currentUser.name })
                         .eq('id', currentUser.id);
                     
-                    if (error) {
-                        console.error('Error updating profile:', error);
-                    }
+                    if (error) console.error('Error updating profile:', error);
                 } catch (err) {
-                    console.error('Error updating profile:', err);
+                    console.error('Error:', err);
                 }
             }
             
             alert('Profile updated successfully!');
-            document.getElementById('userName').textContent = currentUser.name || 'My Account';
+            document.getElementById('userName').textContent = currentUser.name;
         });
 
-        document.getElementById('editOrgForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const updatedData = {
-                name: document.getElementById('editOrgName').value,
-                description: document.getElementById('editOrgDescription').value
-            };
-
-            try {
-                const { error } = await supabase
-                    .from('organizations')
-                    .update(updatedData)
-                    .eq('id', editingOrgId);
-
-                if (error) {
-                    alert('Error updating organization: ' + error.message);
-                    console.error('Update error:', error);
-                    return;
-                }
-
-                alert('Organization updated successfully!');
-                document.getElementById('editOrgModal').classList.remove('show');
-                await loadMyOrganizations();
-            } catch (err) {
-                alert('Error: ' + err.message);
-                console.error('Update error:', err);
-            }
-        });
-
-        document.getElementById('editModalClose').addEventListener('click', function() {
-            document.getElementById('editOrgModal').classList.remove('show');
-        });
-
+        // Logout
         document.getElementById('logoutBtn').addEventListener('click', async function() {
             try {
                 await supabase.auth.signOut();
