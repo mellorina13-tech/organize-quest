@@ -366,6 +366,30 @@
             border-radius: 10px;
             font-size: 1rem;
         }
+
+        .btn-join {
+            background: var(--accent);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+
+        .btn-leave {
+            background: var(--secondary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -406,7 +430,7 @@
             </div>
         </section>
 
-        <!-- Features Section -->
+        <!-- SEO Sections (Features, How It Works, About, FAQ, Footer) - same as before -->
         <section style="padding: 4rem 2rem; background: white;">
             <div style="max-width: 1200px; margin: 0 auto;">
                 <h2 id="featuresTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark);">Why Choose Organize.Quest?</h2>
@@ -435,7 +459,6 @@
             </div>
         </section>
 
-        <!-- How It Works Section -->
         <section style="padding: 4rem 2rem; background: var(--light);">
             <div style="max-width: 1200px; margin: 0 auto;">
                 <h2 id="howItWorksTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark);">How It Works</h2>
@@ -464,7 +487,6 @@
             </div>
         </section>
 
-        <!-- About Us Section -->
         <section style="padding: 4rem 2rem; background: white;">
             <div style="max-width: 900px; margin: 0 auto; text-align: center;">
                 <h2 id="aboutTitle" style="font-size: 2.5rem; margin-bottom: 2rem; color: var(--dark);">About Organize.Quest</h2>
@@ -477,7 +499,6 @@
             </div>
         </section>
 
-        <!-- FAQ Section -->
         <section style="padding: 4rem 2rem; background: var(--light);">
             <div style="max-width: 900px; margin: 0 auto;">
                 <h2 id="faqTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark);">Frequently Asked Questions</h2>
@@ -510,7 +531,6 @@
             </div>
         </section>
 
-        <!-- Footer -->
         <footer style="background: var(--dark); color: white; padding: 3rem 2rem;">
             <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
                 <h3 style="font-size: 1.8rem; margin-bottom: 1rem; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Organize.Quest</h3>
@@ -670,22 +690,22 @@
                 step4Title: 'Bağlan ve Büyüt',
                 step4Desc: 'Topluluk ağınızı oluşturun',
                 aboutTitle: 'Organize.Quest Hakkında',
-                aboutText1: 'Organize.Quest, topluluk organizasyonlarını ve etkinlikleri keşfetmeyi, oluşturmayı ve katılmayı kolaylaştırarak yerel toplulukları güçlendirmeye adanmış bir platformdur. Güçlü toplulukların anlamlı bağlantılar ve paylaşılan deneyimler üzerine inşa edildiğine inanıyoruz.',
+                aboutText1: 'Organize.Quest, topluluk organizasyonlarını ve etkinlikleri keşfetmeyi, oluşturmayı ve katılmayı kolaylaştırarak yerel toplulukları güçlendirmeye adanmış bir platformdur.',
                 aboutText2: 'İster gönüllü olmak, yerel bir spor takımı bulmak, kültürel etkinliklere katılmak veya kendi topluluk girişiminizi başlatmak isteyin, Organize.Quest sizi mahallenizde bulunan fırsatlarla buluşturur.',
                 faqTitle: 'Sıkça Sorulan Sorular',
                 faq1Q: 'Organize.Quest kullanımı ücretsiz mi?',
-                faq1A: 'Evet! Organize.Quest, kullanıcıların organizasyonlara göz atması, kendi gruplarını oluşturması ve topluluk etkinliklerine katılması için tamamen ücretsizdir.',
+                faq1A: 'Evet! Organize.Quest tamamen ücretsizdir.',
                 faq2Q: 'Nasıl organizasyon oluşturabilirim?',
-                faq2A: 'Sadece bir hesap oluşturun, organizasyonunuzu yerleştirmek istediğiniz haritaya tıklayın, detayları doldurun ve yayınlayın. Organizasyonunuz topluluktaki herkes tarafından görülebilir olacaktır.',
-                faq3Q: 'Organizasyonumu düzenleyebilir veya silebilir miyim?',
-                faq3A: 'Evet! Profil sayfanıza gidin ve oluşturduğunuz tüm organizasyonları yönetmek için "Organizasyonlarım" sekmesine tıklayın. Detayları düzenleyebilir veya istediğiniz zaman silebilirsiniz.',
+                faq2A: 'Sadece bir hesap oluşturun, haritaya tıklayın ve yayınlayın.',
+                faq3Q: 'Organizasyonumu düzenleyebilir miyim?',
+                faq3A: 'Evet! Profil sayfanızdan düzenleyebilirsiniz.',
                 faq4Q: 'Ne tür organizasyonlar oluşturabilirim?',
-                faq4A: 'Eğitim grupları, sağlık girişimleri, teknoloji toplulukları, kar amacı gütmeyen kuruluşlar, spor takımları, sanat kolektifleri, çevre grupları ve genel topluluk organizasyonları dahil olmak üzere her türlü topluluk organizasyonu oluşturabilirsiniz.',
-                faq5Q: 'Kişisel bilgilerim güvende mi?',
-                faq5A: 'Gizliliği ciddiye alıyoruz. Kişisel bilgileriniz şifrelenir ve güvenli bir şekilde saklanır. Verilerinizi açık izniniz olmadan asla üçüncü taraflarla paylaşmayız.',
+                faq4A: 'Her türlü topluluk organizasyonu oluşturabilirsiniz.',
+                faq5Q: 'Bilgilerim güvende mi?',
+                faq5A: 'Evet, gizliliği ciddiye alıyoruz.',
                 faq6Q: 'Yakınımdaki organizasyonları nasıl bulabilirim?',
-                faq6A: 'Haritada "Konumumu Bul" seçeneğine tıklayın, bölgenizdeki tüm organizasyonları size göstereceğiz. Ayrıca kategoriye, mesafeye ve etkinlik türüne göre arama yapmak için filtreleri kullanabilirsiniz.',
-                footerTagline: 'Daha güçlü topluluklar inşa ediyoruz, her seferinde bir bağlantı',
+                faq6A: 'Haritada "Konumumu Bul" seçeneğine tıklayın.',
+                footerTagline: 'Daha güçlü topluluklar inşa ediyoruz',
                 footerHome: 'Ana Sayfa',
                 footerOrgs: 'Organizasyonlar',
                 footerProfile: 'Profil',
@@ -699,8 +719,6 @@
             document.getElementById('btnTR').classList.toggle('active', lang === 'tr');
             
             const t = translations[lang];
-            
-            // Update all text
             document.getElementById('heroTitle').textContent = t.heroTitle;
             document.getElementById('heroDesc').textContent = t.heroDesc;
             document.getElementById('heroMapBtn').textContent = t.startBtn;
@@ -814,21 +832,98 @@
 
                 organizations = data || [];
                 
-                organizations.forEach(org => {
-                    const marker = L.marker([org.latitude, org.longitude])
-                        .addTo(map)
-                        .bindPopup(`
-                            <div style="min-width: 250px;">
-                                <h3 style="color: var(--primary); margin-bottom: 10px;">${org.name}</h3>
-                                <p><strong>Category:</strong> ${org.category}</p>
-                                ${org.description ? `<p>${org.description}</p>` : ''}
-                            </div>
-                        `);
-                });
+                for (const org of organizations) {
+                    await addOrganizationMarker(org);
+                }
 
                 console.log('Loaded', organizations.length, 'organizations');
             } catch (err) {
                 console.error('Error:', err);
+            }
+        }
+
+        async function addOrganizationMarker(org) {
+            // Get attendee count
+            const { data: attendees, error } = await supabase
+                .from('attendees')
+                .select('user_id')
+                .eq('organization_id', org.id);
+
+            const attendeeCount = attendees ? attendees.length : 0;
+            
+            // Check if current user has joined
+            let hasJoined = false;
+            if (currentUser && attendees) {
+                hasJoined = attendees.some(a => a.user_id === currentUser.id);
+            }
+
+            const marker = L.marker([org.latitude, org.longitude])
+                .addTo(map)
+                .bindPopup(`
+                    <div style="min-width: 250px;">
+                        <h3 style="color: var(--primary); margin-bottom: 10px;">${org.name}</h3>
+                        <p><strong>Category:</strong> ${org.category}</p>
+                        ${org.description ? `<p>${org.description}</p>` : ''}
+                        <p><strong>👥 Attendees:</strong> ${attendeeCount}</p>
+                        ${currentUser ? `
+                            <button 
+                                class="${hasJoined ? 'btn-leave' : 'btn-join'}" 
+                                onclick="toggleAttendance('${org.id}', ${hasJoined})"
+                            >
+                                ${hasJoined ? '❌ Leave' : '✅ Join'}
+                            </button>
+                        ` : '<p style="color: #999; margin-top: 10px;">Login to join</p>'}
+                    </div>
+                `);
+        }
+
+        window.toggleAttendance = async function(orgId, hasJoined) {
+            if (!currentUser) {
+                alert('Please log in first!');
+                window.location.href = 'profile.html';
+                return;
+            }
+
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                alert('Please log in!');
+                return;
+            }
+
+            try {
+                if (hasJoined) {
+                    // Leave organization
+                    const { error } = await supabase
+                        .from('attendees')
+                        .delete()
+                        .eq('organization_id', orgId)
+                        .eq('user_id', user.id);
+
+                    if (error) throw error;
+                    alert('You left the organization!');
+                } else {
+                    // Join organization
+                    const { error } = await supabase
+                        .from('attendees')
+                        .insert([{
+                            organization_id: orgId,
+                            user_id: user.id
+                        }]);
+
+                    if (error) throw error;
+                    alert('You joined the organization!');
+                }
+
+                // Reload markers
+                map.eachLayer(layer => {
+                    if (layer instanceof L.Marker && layer !== userMarker) {
+                        map.removeLayer(layer);
+                    }
+                });
+                await loadOrganizations();
+            } catch (err) {
+                alert('Error: ' + err.message);
+                console.error(err);
             }
         }
 
@@ -912,8 +1007,6 @@
                     .single();
 
                 if (userCheckError && userCheckError.code === 'PGRST116') {
-                    console.log('User not found in users table, creating...');
-                    
                     const { error: createUserError } = await supabase
                         .from('users')
                         .insert([{
@@ -924,7 +1017,6 @@
                     
                     if (createUserError) {
                         alert('Error setting up user profile: ' + createUserError.message);
-                        console.error('User creation error:', createUserError);
                         return;
                     }
                 }
@@ -951,16 +1043,7 @@
 
                     const org = data[0];
                     organizations.push(org);
-                    
-                    const marker = L.marker([org.latitude, org.longitude])
-                        .addTo(map)
-                        .bindPopup(`
-                            <div style="min-width: 250px;">
-                                <h3 style="color: var(--primary); margin-bottom: 10px;">${org.name}</h3>
-                                <p><strong>Category:</strong> ${org.category}</p>
-                                ${org.description ? `<p>${org.description}</p>` : ''}
-                            </div>
-                        `);
+                    await addOrganizationMarker(org);
                     
                     document.getElementById('createModal').classList.remove('show');
                     this.reset();
