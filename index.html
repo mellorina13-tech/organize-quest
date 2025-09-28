@@ -22,6 +22,8 @@
             --dark: #1a1a2e;
             --light: #f8f9fa;
             --gray: #6c757d;
+            --success: #28a745;
+            --danger: #dc3545;
         }
 
         body {
@@ -366,13 +368,103 @@
             border-radius: 10px;
             font-size: 1rem;
         }
+
+        .org-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .org-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .org-card h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .org-card .category {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .joined-badge {
+            display: inline-block;
+            background: var(--success);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .btn-join {
+            background: var(--success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-join:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .btn-join:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-leave {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-leave:hover {
+            background: #c82333;
+        }
+
+        .event-info {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .event-date {
+            color: var(--danger);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .participants {
+            color: var(--success);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
     </style>
 </head>
 <body>
     <div class="landing-page" id="landingPage">
         <nav>
             <div class="nav-container">
-                <div class="logo" id="logoText">🌍 Organize.Quest</div>
+                <div class="logo" id="logoText">🌐 Organize.Quest</div>
                 <div class="nav-buttons">
                     <div class="lang-switcher">
                         <button class="lang-btn active" id="btnEN">EN</button>
@@ -384,7 +476,7 @@
                             👤 <span id="userMenuName">My Account</span> ▼
                         </button>
                         <div class="user-dropdown" id="userDropdown">
-                            <a href="profile.html" class="dropdown-item">📝 My Account</a>
+                            <a href="profile.html" class="dropdown-item">📋 My Account</a>
                             <div class="dropdown-divider"></div>
                             <a href="#" class="dropdown-item" id="logoutDropdown">🚪 Logout</a>
                         </div>
@@ -527,7 +619,7 @@
 
     <div class="map-app" id="mapApp">
         <div class="map-header">
-            <h2>🌍 <span id="mapTitle">Organize.Quest Map</span></h2>
+            <h2>🌐 <span id="mapTitle">Organize.Quest Map</span></h2>
             <button class="btn-primary" id="closeMapBtn">← Back</button>
         </div>
         <div class="map-container">
@@ -752,6 +844,112 @@
             }
         }
 
+        // Check if user has joined an organization
+        function hasUserJoined(orgId) {
+            if (!currentUser) return false;
+            const joinedOrgs = JSON.parse(localStorage.getItem('userJoinedOrgs') || '[]');
+            return joinedOrgs.includes(orgId);
+        }
+
+        // Load user's joined organizations
+        async function loadUserJoinedOrgs() {
+            if (!currentUser) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('attendees')
+                    .select('organization_id')
+                    .eq('user_id', currentUser.id);
+
+                if (!error && data) {
+                    const joinedOrgIds = data.map(item => item.organization_id);
+                    localStorage.setItem('userJoinedOrgs', JSON.stringify(joinedOrgIds));
+                }
+            } catch (err) {
+                console.error('Error loading joined orgs:', err);
+            }
+        }
+
+        // Toggle join/leave organization
+        async function toggleJoinEvent(orgId) {
+            if (!currentUser) {
+                alert('Please log in to join organizations!');
+                window.location.href = 'profile.html';
+                return;
+            }
+
+            const org = organizations.find(o => o.id === orgId);
+            if (!org) return;
+
+            const hasJoined = hasUserJoined(orgId);
+
+            try {
+                if (hasJoined) {
+                    // Leave organization
+                    const { error } = await supabase
+                        .from('attendees')
+                        .delete()
+                        .eq('organization_id', orgId)
+                        .eq('user_id', currentUser.id);
+
+                    if (error) throw error;
+
+                    // Update participant count
+                    await supabase
+                        .from('organizations')
+                        .update({ 
+                            currentParticipants: Math.max(0, (org.currentParticipants || 1) - 1)
+                        })
+                        .eq('id', orgId);
+
+                    // Update local cache
+                    const joinedOrgs = JSON.parse(localStorage.getItem('userJoinedOrgs') || '[]');
+                    localStorage.setItem('userJoinedOrgs', 
+                        JSON.stringify(joinedOrgs.filter(id => id !== orgId)));
+                    
+                    alert('You have left the organization!');
+                } else {
+                    // Check if event is full
+                    if (org.maxParticipants && org.currentParticipants >= org.maxParticipants) {
+                        alert('This event is full!');
+                        return;
+                    }
+
+                    // Join organization
+                    const { error } = await supabase
+                        .from('attendees')
+                        .insert({
+                            organization_id: orgId,
+                            user_id: currentUser.id,
+                            joined_at: new Date().toISOString()
+                        });
+
+                    if (error) throw error;
+
+                    // Update participant count
+                    await supabase
+                        .from('organizations')
+                        .update({ 
+                            currentParticipants: (org.currentParticipants || 0) + 1
+                        })
+                        .eq('id', orgId);
+
+                    // Update local cache
+                    const joinedOrgs = JSON.parse(localStorage.getItem('userJoinedOrgs') || '[]');
+                    joinedOrgs.push(orgId);
+                    localStorage.setItem('userJoinedOrgs', JSON.stringify(joinedOrgs));
+                    
+                    alert('Successfully joined the organization!');
+                }
+
+                // Reload organizations
+                await loadOrganizations();
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+
         function showUserMenu() {
             document.getElementById('loginBtn').style.display = 'none';
             document.getElementById('userMenu').style.display = 'block';
@@ -814,21 +1012,134 @@
 
                 organizations = data || [];
                 
-                organizations.forEach(org => {
-                    const marker = L.marker([org.latitude, org.longitude])
-                        .addTo(map)
-                        .bindPopup(`
-                            <div style="min-width: 250px;">
-                                <h3 style="color: var(--primary); margin-bottom: 10px;">${org.name}</h3>
-                                <p><strong>Category:</strong> ${org.category}</p>
-                                ${org.description ? `<p>${org.description}</p>` : ''}
-                            </div>
-                        `);
+                // Load user's joined organizations
+                if (currentUser) {
+                    await loadUserJoinedOrgs();
+                }
+                
+                // Clear existing markers except user marker
+                map.eachLayer(function(layer) {
+                    if (layer instanceof L.Marker && layer !== userMarker) {
+                        map.removeLayer(layer);
+                    }
                 });
-
+                
+                // Add markers for each organization
+                organizations.forEach(org => {
+                    addOrganizationMarker(org);
+                });
+                
+                updateOrganizationList();
                 console.log('Loaded', organizations.length, 'organizations');
             } catch (err) {
                 console.error('Error:', err);
+            }
+        }
+
+        function addOrganizationMarker(org) {
+            const categoryIcons = {
+                'Education': '🎓',
+                'Healthcare': '🏥',
+                'Technology': '💻',
+                'Non-Profit': '🤝',
+                'Sports': '⚽',
+                'Arts': '🎨',
+                'Environment': '🌱',
+                'Community': '🏙️'
+            };
+            const icon = categoryIcons[org.category] || '📌';
+            
+            const marker = L.marker([org.latitude, org.longitude]).addTo(map);
+            
+            let popupContent = `
+                <div style="min-width: 250px;">
+                    <h3 style="color: var(--primary); margin-bottom: 10px;">${icon} ${org.name}</h3>
+                    <p><strong>Category:</strong> ${org.category}</p>
+                    ${org.description ? `<p>${org.description}</p>` : ''}
+            `;
+            
+            if (org.eventDate) {
+                const eventDate = new Date(org.eventDate);
+                popupContent += `<p><strong>📅 Event:</strong> ${eventDate.toLocaleDateString()}</p>`;
+                if (org.eventTime) {
+                    popupContent += `<p><strong>🕒 Time:</strong> ${org.eventTime}</p>`;
+                }
+                if (org.maxParticipants) {
+                    popupContent += `<p><strong>👥 Participants:</strong> ${org.currentParticipants || 0}/${org.maxParticipants}</p>`;
+                }
+            }
+
+            if (org.contactEmail) {
+                popupContent += `<p><strong>📧 Email:</strong> ${org.contactEmail}</p>`;
+            }
+
+            popupContent += `</div>`;
+            marker.bindPopup(popupContent);
+        }
+
+        function updateOrganizationList() {
+            const listContainer = document.getElementById('orgList');
+            
+            if (organizations.length === 0) {
+                listContainer.innerHTML = '<p style="text-align: center; color: #999; padding: 2rem;">No organizations yet. Create the first one!</p>';
+                return;
+            }
+
+            listContainer.innerHTML = '<h3 style="margin-bottom: 1rem;">Nearby Organizations</h3>' + 
+                organizations.map(org => {
+                    const categoryIcons = {
+                        'Education': '🎓',
+                        'Healthcare': '🏥',
+                        'Technology': '💻',
+                        'Non-Profit': '🤝',
+                        'Sports': '⚽',
+                        'Arts': '🎨',
+                        'Environment': '🌱',
+                        'Community': '🏙️'
+                    };
+                    const icon = categoryIcons[org.category] || '📌';
+                    const hasJoined = hasUserJoined(org.id);
+
+                    let cardHTML = `
+                        <div class="org-card" onclick="focusOrganization('${org.id}')">
+                            <h3>${icon} ${org.name} ${hasJoined ? '<span class="joined-badge">✔ Joined</span>' : ''}</h3>
+                            <span class="category">${org.category}</span>
+                    `;
+
+                    if (org.eventDate) {
+                        const eventDate = new Date(org.eventDate);
+                        const isUpcoming = eventDate > new Date();
+                        const isFull = org.maxParticipants && org.currentParticipants >= org.maxParticipants;
+                        
+                        cardHTML += `
+                            <div class="event-info">
+                                <div class="event-date">📅 ${eventDate.toLocaleDateString()} ${org.eventTime || ''}</div>
+                                ${org.maxParticipants ? `<div class="participants">👥 ${org.currentParticipants || 0}/${org.maxParticipants} participants ${isFull ? '(FULL)' : ''}</div>` : ''}
+                            </div>
+                            ${isUpcoming ? `
+                            <button class="map-btn ${hasJoined ? 'btn-leave' : 'btn-join'}" 
+                                    onclick="event.stopPropagation(); toggleJoinEvent('${org.id}')"
+                                    ${!hasJoined && isFull ? 'disabled' : ''}>
+                                ${hasJoined ? 'Leave Event' : (isFull ? 'Event Full' : 'Join Event')}
+                            </button>` : ''}
+                        `;
+                    }
+
+                    cardHTML += '</div>';
+                    return cardHTML;
+                }).join('');
+        }
+
+        function focusOrganization(orgId) {
+            const org = organizations.find(o => o.id === orgId);
+            if (org) {
+                map.setView([org.latitude, org.longitude], 16);
+                // Open the marker popup
+                map.eachLayer(function(layer) {
+                    if (layer instanceof L.Marker && layer.getLatLng().lat === org.latitude && layer.getLatLng().lng === org.longitude) {
+                        layer.openPopup();
+                    }
+                });
             }
         }
 
@@ -871,6 +1182,7 @@
                 }
                 currentUser = null;
                 localStorage.removeItem('currentUser');
+                localStorage.removeItem('userJoinedOrgs');
                 hideUserMenu();
                 alert('Successfully logged out!');
             });
@@ -935,7 +1247,8 @@
                     description: document.getElementById('orgDescription').value,
                     latitude: selectedLocation.lat,
                     longitude: selectedLocation.lng,
-                    created_by: user.id
+                    created_by: user.id,
+                    currentParticipants: 0
                 };
 
                 try {
@@ -952,15 +1265,8 @@
                     const org = data[0];
                     organizations.push(org);
                     
-                    const marker = L.marker([org.latitude, org.longitude])
-                        .addTo(map)
-                        .bindPopup(`
-                            <div style="min-width: 250px;">
-                                <h3 style="color: var(--primary); margin-bottom: 10px;">${org.name}</h3>
-                                <p><strong>Category:</strong> ${org.category}</p>
-                                ${org.description ? `<p>${org.description}</p>` : ''}
-                            </div>
-                        `);
+                    addOrganizationMarker(org);
+                    updateOrganizationList();
                     
                     document.getElementById('createModal').classList.remove('show');
                     this.reset();
@@ -972,6 +1278,10 @@
                 }
             });
         });
+
+        // Make functions globally accessible for onclick handlers
+        window.focusOrganization = focusOrganization;
+        window.toggleJoinEvent = toggleJoinEvent;
     </script>
 </body>
 </html>
