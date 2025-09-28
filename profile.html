@@ -212,12 +212,12 @@
             cursor: pointer;
             font-size: 1rem;
             transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
         }
 
         .btn-primary {
             background: var(--primary);
             color: white;
-            margin-bottom: 0.5rem;
         }
 
         .btn-primary:hover {
@@ -365,6 +365,18 @@
 
             <form id="loginForm">
                 <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+
+            <form id="signupForm" class="hidden">
+                <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" id="signupName" required placeholder="John Doe">
                 </div>
@@ -394,7 +406,7 @@
             <div class="profile-tabs">
                 <button class="profile-tab-btn active" data-tab="profile">📝 My Profile</button>
                 <button class="profile-tab-btn" data-tab="organizations">🏢 My Organizations</button>
-                <button class="profile-tab-btn" data-tab="memberships">👥 My Memberships</button>
+                <button class="profile-tab-btn" data-tab="events">📅 My Events</button>
             </div>
 
             <div id="profileTab" class="profile-form">
@@ -441,10 +453,10 @@
                 </div>
             </div>
 
-            <div id="membershipsTab" class="profile-form hidden">
-                <h2 style="margin-bottom: 1.5rem;">My Memberships</h2>
-                <div id="myMembershipsList" class="org-grid">
-                    <p style="text-align: center; color: #999;">Loading your memberships...</p>
+            <div id="eventsTab" class="profile-form hidden">
+                <h2 style="margin-bottom: 1.5rem;">My Joined Events</h2>
+                <div id="myEventsList" class="org-grid">
+                    <p style="text-align: center; color: #999;">Loading your events...</p>
                 </div>
             </div>
         </div>
@@ -463,10 +475,6 @@
                     <label>Description</label>
                     <textarea id="editOrgDescription" rows="3"></textarea>
                 </div>
-                <div class="form-group">
-                    <label>Max Attendees (Quota)</label>
-                    <input type="number" id="editMaxAttendees" min="1" placeholder="Leave empty for no limit">
-                </div>
                 <button type="submit" class="btn btn-primary">Save Changes</button>
             </form>
         </div>
@@ -480,7 +488,6 @@
 
         let currentUser = JSON.parse(localStorage.getItem('currentUser'));
         let myOrganizations = [];
-        let myMemberships = [];
         let editingOrgId = null;
 
         function switchTab(tab) {
@@ -538,40 +545,17 @@
             }
         }
 
-        async function loadMyMemberships() {
+        function loadMyJoinedEvents() {
             if (!currentUser || !currentUser.id) return;
 
-            try {
-                const { data, error } = await supabase
-                    .from('memberships')
-                    .select(`
-                        id,
-                        joined_at,
-                        organization_id,
-                        organizations (
-                            id,
-                            name,
-                            category,
-                            description,
-                            max_attendees,
-                            current_attendees,
-                            latitude,
-                            longitude
-                        )
-                    `)
-                    .eq('user_id', currentUser.id)
-                    .order('joined_at', { ascending: false });
+            const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents_' + currentUser.id) || '[]');
+            
+            // Filter organizations to show only joined events
+            const myEvents = myOrganizations.filter(org => 
+                org.eventDate && joinedEvents.includes(org.id)
+            );
 
-                if (error) {
-                    console.error('Error loading memberships:', error);
-                    return;
-                }
-
-                myMemberships = data || [];
-                displayMyMemberships();
-            } catch (err) {
-                console.error('Error:', err);
-            }
+            displayMyEvents(myEvents);
         }
 
         function displayMyOrganizations() {
@@ -595,10 +579,11 @@
                         <h3>${icon} ${org.name}</h3>
                         <span class="category">${org.category}</span>
                         <p>${org.description || 'No description'}</p>
-                        ${org.max_attendees ? `
-                            <div style="margin-top: 0.5rem; padding: 8px; background: #e8f5e9; border-radius: 8px;">
-                                <span style="font-size: 0.9rem; color: #2e7d32; font-weight: 600;">
-                                    👥 ${org.current_attendees || 0}/${org.max_attendees} members
+                        ${org.eventDate ? `
+                            <div style="margin-top: 0.5rem; padding: 8px; background: #e3f2fd; border-radius: 8px;">
+                                <span style="font-size: 0.9rem; color: #1976d2; font-weight: 600;">
+                                    📅 Event: ${new Date(org.eventDate).toLocaleDateString()}
+                                    ${org.maxParticipants ? ` | Max: ${org.maxParticipants}` : ''}
                                 </span>
                             </div>
                         ` : ''}
@@ -627,11 +612,11 @@
             });
         }
 
-        function displayMyMemberships() {
-            const container = document.getElementById('myMembershipsList');
+        function displayMyEvents(events) {
+            const container = document.getElementById('myEventsList');
             
-            if (myMemberships.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t joined any organizations yet.</p>';
+            if (events.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t joined any events yet.</p>';
                 return;
             }
 
@@ -641,39 +626,41 @@
                 'Environment': '🌱', 'Community': '🏙️'
             };
 
-            container.innerHTML = myMemberships.map(membership => {
-                const org = membership.organizations;
-                if (!org) return '';
-                
+            container.innerHTML = events.map(org => {
                 const icon = icons[org.category] || '📌';
-                const joinedDate = new Date(membership.joined_at).toLocaleDateString();
+                const eventDate = new Date(org.eventDate);
+                const isUpcoming = eventDate > new Date();
                 
                 return `
                     <div class="org-card">
                         <h3>${icon} ${org.name}</h3>
                         <span class="category">${org.category}</span>
                         <p>${org.description || 'No description'}</p>
-                        ${org.max_attendees ? `
-                            <div style="margin-top: 0.5rem; padding: 8px; background: #e8f5e9; border-radius: 8px;">
-                                <span style="font-size: 0.9rem; color: #2e7d32; font-weight: 600;">
-                                    👥 ${org.current_attendees || 0}/${org.max_attendees} members
-                                </span>
-                            </div>
-                        ` : ''}
-                        <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #999;">
-                            Joined: ${joinedDate}
-                        </p>
+                        <div style="margin-top: 0.5rem; padding: 8px; background: ${isUpcoming ? '#e8f5e9' : '#ffebee'}; border-radius: 8px;">
+                            <span style="font-size: 0.9rem; color: ${isUpcoming ? '#2e7d32' : '#c62828'}; font-weight: 600;">
+                                📅 ${eventDate.toLocaleDateString()} ${org.eventTime || ''}
+                                ${isUpcoming ? ' (Upcoming)' : ' (Past)'}
+                            </span>
+                        </div>
                         <div class="org-card-actions">
-                            <button class="btn-small btn-delete" onclick="leaveMembership('${membership.id}', '${org.id}')">
-                                🚪 Leave
-                            </button>
-                            <button class="btn-small btn-edit" onclick="viewOnMap(${org.latitude}, ${org.longitude})">
-                                🗺️ View on Map
+                            <button class="btn-small btn-delete" onclick="leaveEventFromProfile('${org.id}')">
+                                🚪 Leave Event
                             </button>
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        function leaveEventFromProfile(orgId) {
+            if (!confirm('Are you sure you want to leave this event?')) return;
+
+            const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents_' + currentUser.id) || '[]');
+            const updatedEvents = joinedEvents.filter(id => id !== orgId);
+            localStorage.setItem('joinedEvents_' + currentUser.id, JSON.stringify(updatedEvents));
+            
+            alert('Successfully left the event!');
+            loadMyJoinedEvents();
         }
 
         function editOrganization(orgId) {
@@ -687,7 +674,6 @@
             editingOrgId = orgId;
             document.getElementById('editOrgName').value = org.name;
             document.getElementById('editOrgDescription').value = org.description || '';
-            document.getElementById('editMaxAttendees').value = org.max_attendees || '';
             
             document.getElementById('editOrgModal').classList.add('show');
         }
@@ -715,32 +701,6 @@
             }
         }
 
-        async function leaveMembership(membershipId, orgId) {
-            if (!confirm('Are you sure you want to leave this organization?')) return;
-
-            try {
-                const { error } = await supabase
-                    .from('memberships')
-                    .delete()
-                    .eq('id', membershipId);
-
-                if (error) {
-                    alert('Error leaving organization: ' + error.message);
-                    return;
-                }
-
-                alert('Successfully left organization!');
-                await loadMyMemberships();
-            } catch (err) {
-                alert('Error: ' + err.message);
-            }
-        }
-
-        function viewOnMap(lat, lng) {
-            localStorage.setItem('mapView', JSON.stringify({ lat, lng, zoom: 16 }));
-            window.location.href = 'organizations.html';
-        }
-
         if (currentUser) {
             showProfile();
             loadMyOrganizations();
@@ -759,7 +719,7 @@
                 // Hide all tabs
                 document.getElementById('profileTab').classList.add('hidden');
                 document.getElementById('organizationsTab').classList.add('hidden');
-                document.getElementById('membershipsTab').classList.add('hidden');
+                document.getElementById('eventsTab').classList.add('hidden');
                 
                 // Show selected tab
                 if (tab === 'profile') {
@@ -767,9 +727,9 @@
                 } else if (tab === 'organizations') {
                     document.getElementById('organizationsTab').classList.remove('hidden');
                     loadMyOrganizations();
-                } else if (tab === 'memberships') {
-                    document.getElementById('membershipsTab').classList.remove('hidden');
-                    loadMyMemberships();
+                } else if (tab === 'events') {
+                    document.getElementById('eventsTab').classList.remove('hidden');
+                    loadMyJoinedEvents();
                 }
             });
         });
@@ -790,13 +750,38 @@
                     return;
                 }
 
-                const { data: profile } = await supabase
+                // Check if user exists in users table
+                const { data: profile, error: profileError } = await supabase
                     .from('users')
                     .select('*')
                     .eq('id', data.user.id)
                     .single();
 
-                currentUser = profile || { id: data.user.id, email: email, name: 'User' };
+                if (profileError && profileError.code === 'PGRST116') {
+                    // User doesn't exist in users table, create them
+                    const { error: createError } = await supabase
+                        .from('users')
+                        .insert([{
+                            id: data.user.id,
+                            email: email,
+                            name: data.user.user_metadata?.name || email.split('@')[0]
+                        }]);
+                    
+                    if (createError) {
+                        console.error('Error creating user profile:', createError);
+                    }
+                    
+                    currentUser = { 
+                        id: data.user.id, 
+                        email: email, 
+                        name: data.user.user_metadata?.name || email.split('@')[0] 
+                    };
+                } else if (profile) {
+                    currentUser = profile;
+                } else {
+                    currentUser = { id: data.user.id, email: email, name: 'User' };
+                }
+
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
                 alert('Successfully logged in!');
@@ -833,6 +818,7 @@
                     return;
                 }
 
+                // Create user profile
                 const { error: profileError } = await supabase
                     .from('users')
                     .insert([{ 
@@ -898,8 +884,7 @@
 
             const updatedData = {
                 name: document.getElementById('editOrgName').value,
-                description: document.getElementById('editOrgDescription').value,
-                max_attendees: parseInt(document.getElementById('editMaxAttendees').value) || null
+                description: document.getElementById('editOrgDescription').value
             };
 
             try {
@@ -940,16 +925,4 @@
         });
     </script>
 </body>
-</html>>Email</label>
-                    <input type="email" id="loginEmail" required placeholder="your@email.com">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="loginPassword" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="btn btn-primary">Sign In</button>
-            </form>
-
-            <form id="signupForm" class="hidden">
-                <div class="form-group">
-                    <label
+</html>
