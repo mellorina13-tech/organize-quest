@@ -301,24 +301,6 @@
             margin-right: 0.5rem;
         }
 
-        .org-card .event-info {
-            margin-top: 0.5rem;
-            padding-top: 0.5rem;
-            border-top: 1px solid rgba(0,0,0,0.1);
-        }
-
-        .org-card .event-date {
-            color: var(--danger);
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .org-card .participants {
-            color: var(--success);
-            font-size: 0.9rem;
-            margin-top: 0.3rem;
-        }
-
         .joined-badge {
             display: inline-block;
             background: var(--success);
@@ -327,46 +309,6 @@
             border-radius: 12px;
             font-size: 0.8rem;
             margin-left: 0.5rem;
-        }
-
-        /* Event Details Modal */
-        .event-details-modal {
-            padding: 1.5rem;
-            background: var(--light);
-            border-radius: 15px;
-            margin-top: 1rem;
-        }
-
-        .event-details-modal h4 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-
-        .event-detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-        }
-
-        .event-detail-row:last-child {
-            border-bottom: none;
-        }
-
-        .participant-list {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: white;
-            border-radius: 10px;
-        }
-
-        .participant-item {
-            padding: 0.5rem;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .participant-item:last-child {
-            border-bottom: none;
         }
 
         /* Modal */
@@ -629,7 +571,6 @@
                 <option value="">All Organizations</option>
                 <option value="events">With Events Only</option>
                 <option value="upcoming">Upcoming Events</option>
-                <option value="joined">My Joined Events</option>
             </select>
         </div>
 
@@ -736,7 +677,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Max Attendees (Quota)</label>
+                            <label>Max Attendees</label>
                             <input type="number" id="maxParticipants" min="1" placeholder="e.g., 50">
                         </div>
                         <div class="form-group">
@@ -803,110 +744,79 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltcnhmYmtnaHpucm9zZ2Zxd3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NzQ4MTMsImV4cCI6MjA3NDA1MDgxM30.GyrbrTmWMc6--zCUcfKwc-2qlsBI0z3oly8iv9Fq9-0';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Check if user has joined an organization
-        async function hasUserJoinedOrg(orgId) {
-            if (!currentUser) return false;
-            
-            try {
-                const { data, error } = await supabase
-                    .from('memberships')
-                    .select('id')
-                    .eq('organization_id', orgId)
-                    .eq('user_id', currentUser.id)
-                    .single();
-                
-                return !error && data;
-            } catch (err) {
-                return false;
-            }
+        // Check if user has joined an event
+        function hasUserJoinedEvent(orgId) {
+            if (!currentUser || !currentUser.id) return false;
+            const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents_' + currentUser.id) || '[]');
+            return joinedEvents.includes(orgId);
         }
 
-        // Get membership count for organization
-        async function getMembershipCount(orgId) {
-            try {
-                const { count, error } = await supabase
-                    .from('memberships')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('organization_id', orgId);
-                
-                return error ? 0 : count;
-            } catch (err) {
-                return 0;
-            }
-        }
-
-        // Join organization
-        async function joinOrganization(orgId) {
+        // Join event
+        function joinEvent(orgId) {
             if (!currentUser) {
-                alert('Please log in to join organizations!');
+                alert('Please log in to join events!');
                 window.location.href = 'profile.html';
                 return;
             }
 
             const org = organizations.find(o => o.id === orgId);
-            if (!org) return;
+            if (!org || !org.eventDate) {
+                alert('This organization has no event to join!');
+                return;
+            }
 
-            // Check if organization is full
-            if (org.max_attendees) {
-                const currentCount = await getMembershipCount(orgId);
-                if (currentCount >= org.max_attendees) {
-                    alert('This organization is full!');
+            // Check if event is full
+            if (org.maxParticipants) {
+                const currentParticipants = org.participants ? org.participants.length : 0;
+                if (currentParticipants >= org.maxParticipants) {
+                    alert('This event is full!');
                     return;
                 }
             }
 
-            try {
-                const { error } = await supabase
-                    .from('memberships')
-                    .insert([{
-                        organization_id: orgId,
-                        user_id: currentUser.id
-                    }]);
-
-                if (error) {
-                    if (error.code === '23505') { // Unique violation
-                        alert('You have already joined this organization!');
-                    } else {
-                        alert('Error joining organization: ' + error.message);
-                    }
-                    return;
-                }
-
-                alert('Successfully joined organization!');
-                await loadOrganizations();
-            } catch (err) {
-                alert('Error: ' + err.message);
+            // Add user to joined events
+            const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents_' + currentUser.id) || '[]');
+            if (!joinedEvents.includes(orgId)) {
+                joinedEvents.push(orgId);
+                localStorage.setItem('joinedEvents_' + currentUser.id, JSON.stringify(joinedEvents));
+                
+                // Update organization participants
+                if (!org.participants) org.participants = [];
+                org.participants.push(currentUser.id);
+                
+                alert('Successfully joined the event!');
+                updateOrganizationList();
+                loadOrganizations(); // Refresh markers
+            } else {
+                alert('You have already joined this event!');
             }
         }
 
-        // Leave organization
-        async function leaveOrganization(orgId) {
+        // Leave event
+        function leaveEvent(orgId) {
             if (!currentUser) {
                 alert('Please log in first!');
                 return;
             }
 
-            if (!confirm('Are you sure you want to leave this organization?')) {
+            if (!confirm('Are you sure you want to leave this event?')) {
                 return;
             }
 
-            try {
-                const { error } = await supabase
-                    .from('memberships')
-                    .delete()
-                    .eq('organization_id', orgId)
-                    .eq('user_id', currentUser.id);
-
-                if (error) {
-                    alert('Error leaving organization: ' + error.message);
-                    return;
-                }
-
-                alert('Successfully left organization!');
-                await loadOrganizations();
-            } catch (err) {
-                alert('Error: ' + err.message);
+            // Remove user from joined events
+            const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents_' + currentUser.id) || '[]');
+            const updatedEvents = joinedEvents.filter(id => id !== orgId);
+            localStorage.setItem('joinedEvents_' + currentUser.id, JSON.stringify(updatedEvents));
+            
+            // Update organization participants
+            const org = organizations.find(o => o.id === orgId);
+            if (org && org.participants) {
+                org.participants = org.participants.filter(id => id !== currentUser.id);
             }
+
+            alert('Successfully left the event!');
+            updateOrganizationList();
+            loadOrganizations(); // Refresh markers
         }
 
         // Initialize map
@@ -963,7 +873,7 @@
             }
         }
 
-        // Load organizations with membership info
+        // Load organizations
         async function loadOrganizations() {
             try {
                 const { data, error } = await supabase
@@ -977,14 +887,6 @@
                 }
 
                 organizations = data || [];
-                
-                // Load membership status for each organization
-                if (currentUser) {
-                    for (let org of organizations) {
-                        org.userIsMember = await hasUserJoinedOrg(org.id);
-                        org.current_attendees = await getMembershipCount(org.id);
-                    }
-                }
 
                 // Clear existing markers
                 map.eachLayer(function(layer) {
@@ -1005,7 +907,7 @@
             }
         }
 
-        // Add organization marker with join/leave functionality
+        // Add organization marker
         function addOrganizationMarker(org) {
             const categoryIcons = {
                 'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
@@ -1021,54 +923,51 @@
                     ${org.description ? `<p>${org.description}</p>` : ''}
             `;
 
-            // Show attendee info if quota is set
-            if (org.max_attendees) {
-                const currentCount = org.current_attendees || 0;
-                const isFull = currentCount >= org.max_attendees;
-                const spotsLeft = org.max_attendees - currentCount;
-                
+            // Show event details if it's an event
+            if (org.eventDate) {
+                const eventDate = new Date(org.eventDate);
+                const isUpcoming = eventDate > new Date();
                 popupContent += `
-                    <div style="margin-top: 10px; padding: 10px; background: ${isFull ? '#ffebee' : '#e8f5e9'}; border-radius: 5px;">
-                        <strong>👥 Attendees:</strong> ${currentCount}/${org.max_attendees}
-                        ${isFull ? 
-                            '<br><span style="color: #c62828;">⚠️ Full</span>' : 
-                            `<br><span style="color: #2e7d32;">✓ ${spotsLeft} spots available</span>`
-                        }
+                    <div style="margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 5px;">
+                        <strong>📅 Event:</strong> ${eventDate.toLocaleDateString()}
+                        ${org.eventTime ? `<br><strong>🕐 Time:</strong> ${org.eventTime}` : ''}
+                        ${org.maxParticipants ? `<br><strong>👥 Max Attendees:</strong> ${org.maxParticipants}` : ''}
+                        ${org.participants ? `<br><strong>✅ Current:</strong> ${org.participants.length}` : ''}
                     </div>
                 `;
+
+                // Add join/leave button only for events
+                if (currentUser && isUpcoming) {
+                    const hasJoined = hasUserJoinedEvent(org.id);
+                    const isFull = org.maxParticipants && org.participants && org.participants.length >= org.maxParticipants;
+                    
+                    if (hasJoined) {
+                        popupContent += `
+                            <button onclick="leaveEvent('${org.id}')" 
+                                    style="width: 100%; margin-top: 10px; padding: 8px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                                Leave Event
+                            </button>
+                        `;
+                    } else if (!isFull) {
+                        popupContent += `
+                            <button onclick="joinEvent('${org.id}')" 
+                                    style="width: 100%; margin-top: 10px; padding: 8px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                                Join Event
+                            </button>
+                        `;
+                    } else {
+                        popupContent += `
+                            <button disabled
+                                    style="width: 100%; margin-top: 10px; padding: 8px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: not-allowed; font-weight: 600;">
+                                Event Full
+                            </button>
+                        `;
+                    }
+                }
             }
 
             if (org.contactEmail) {
                 popupContent += `<p><strong>📧 Email:</strong> ${org.contactEmail}</p>`;
-            }
-
-            // Add join/leave button
-            if (currentUser) {
-                const isFull = org.max_attendees && (org.current_attendees || 0) >= org.max_attendees;
-                const isMember = org.userIsMember;
-                
-                if (isMember) {
-                    popupContent += `
-                        <button onclick="leaveOrganization('${org.id}')" 
-                                style="width: 100%; margin-top: 10px; padding: 8px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
-                            Leave Organization
-                        </button>
-                    `;
-                } else if (!isFull) {
-                    popupContent += `
-                        <button onclick="joinOrganization('${org.id}')" 
-                                style="width: 100%; margin-top: 10px; padding: 8px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
-                            Join Organization
-                        </button>
-                    `;
-                } else {
-                    popupContent += `
-                        <button disabled
-                                style="width: 100%; margin-top: 10px; padding: 8px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: not-allowed; font-weight: 600;">
-                            Organization Full
-                        </button>
-                    `;
-                }
             }
 
             popupContent += `</div>`;
@@ -1102,43 +1001,49 @@
                     'Environment': '🌱', 'Community': '🏙️'
                 };
                 const icon = categoryIcons[org.category] || '📌';
-                const isMember = org.userIsMember;
-                const isFull = org.max_attendees && (org.current_attendees || 0) >= org.max_attendees;
 
                 let cardHTML = `
                     <div class="org-card" onclick="focusOrganization('${org.id}')">
-                        <h3>${icon} ${org.name} ${isMember ? '<span class="joined-badge">✓ Member</span>' : ''}</h3>
+                        <h3>${icon} ${org.name}</h3>
                         <span class="category">${org.category}</span>
                 `;
 
-                if (org.max_attendees) {
+                // Show event info if it's an event
+                if (org.eventDate) {
+                    const eventDate = new Date(org.eventDate);
+                    const isUpcoming = eventDate > new Date();
+                    const hasJoined = hasUserJoinedEvent(org.id);
+                    const isFull = org.maxParticipants && org.participants && org.participants.length >= org.maxParticipants;
+
                     cardHTML += `
-                        <div style="margin-top: 10px; padding: 8px; background: ${isFull ? '#ffebee' : '#e8f5e9'}; border-radius: 8px;">
-                            <div style="font-size: 0.9rem; color: ${isFull ? '#c62828' : '#2e7d32'}; font-weight: 600;">
-                                👥 ${org.current_attendees || 0}/${org.max_attendees} members
-                                ${isFull ? ' (FULL)' : ''}
+                        <div style="margin-top: 10px; padding: 8px; background: #e3f2fd; border-radius: 8px;">
+                            <div style="font-size: 0.9rem; color: #1976d2; font-weight: 600;">
+                                📅 ${eventDate.toLocaleDateString()} ${org.eventTime || ''}
+                                ${hasJoined ? '<span class="joined-badge">✓ Joined</span>' : ''}
                             </div>
+                            ${org.maxParticipants ? `<div style="font-size: 0.85rem; color: #666; margin-top: 4px;">👥 ${org.participants ? org.participants.length : 0}/${org.maxParticipants} attendees</div>` : ''}
                         </div>
                     `;
-                }
 
-                if (currentUser) {
-                    if (isMember) {
-                        cardHTML += `
-                            <button class="btn btn-leave" 
-                                    onclick="event.stopPropagation(); leaveOrganization('${org.id}')"
-                                    style="margin-top: 10px; width: 100%;">
-                                Leave Organization
-                            </button>
-                        `;
-                    } else if (!isFull) {
-                        cardHTML += `
-                            <button class="btn btn-join" 
-                                    onclick="event.stopPropagation(); joinOrganization('${org.id}')"
-                                    style="margin-top: 10px; width: 100%;">
-                                Join Organization
-                            </button>
-                        `;
+                    // Add join/leave button for events
+                    if (currentUser && isUpcoming) {
+                        if (hasJoined) {
+                            cardHTML += `
+                                <button class="btn btn-leave" 
+                                        onclick="event.stopPropagation(); leaveEvent('${org.id}')"
+                                        style="margin-top: 10px; width: 100%;">
+                                    Leave Event
+                                </button>
+                            `;
+                        } else if (!isFull) {
+                            cardHTML += `
+                                <button class="btn btn-join" 
+                                        onclick="event.stopPropagation(); joinEvent('${org.id}')"
+                                        style="margin-top: 10px; width: 100%;">
+                                    Join Event
+                                </button>
+                            `;
+                        }
                     }
                 }
 
@@ -1159,7 +1064,7 @@
             document.getElementById('activeEvents').textContent = activeEvents;
             
             const totalParticipants = organizations.reduce((sum, org) => {
-                return sum + (org.current_attendees || 0);
+                return sum + (org.participants ? org.participants.length : 0);
             }, 0);
             document.getElementById('totalParticipants').textContent = totalParticipants;
 
@@ -1172,60 +1077,6 @@
                 }).length;
                 document.getElementById('nearbyOrgs').textContent = nearbyCount;
             }
-        }
-
-        // Filter organizations
-        function filterOrganizations() {
-            const category = document.getElementById('categoryFilter').value;
-            const distance = document.getElementById('distanceFilter').value;
-            const eventFilter = document.getElementById('eventFilter').value;
-
-            let filtered = [...organizations];
-
-            // Category filter
-            if (category) {
-                filtered = filtered.filter(org => org.category === category);
-            }
-
-            // Distance filter (requires user location)
-            if (distance && userMarker) {
-                const userPos = userMarker.getLatLng();
-                const maxDistance = parseFloat(distance);
-                filtered = filtered.filter(org => {
-                    const dist = map.distance(userPos, [org.latitude, org.longitude]) / 1000;
-                    return dist <= maxDistance;
-                });
-            }
-
-            // Event filter
-            if (eventFilter === 'events') {
-                filtered = filtered.filter(org => org.eventDate);
-            } else if (eventFilter === 'upcoming') {
-                const now = new Date();
-                filtered = filtered.filter(org => {
-                    if (!org.eventDate) return false;
-                    return new Date(org.eventDate) > now;
-                });
-            } else if (eventFilter === 'joined' && currentUser) {
-                filtered = filtered.filter(org => org.userIsMember);
-            }
-
-            // Update markers on map
-            map.eachLayer(function(layer) {
-                if (layer instanceof L.Marker && layer !== userMarker) {
-                    map.removeLayer(layer);
-                }
-            });
-
-            filtered.forEach(org => {
-                addOrganizationMarker(org);
-            });
-
-            // Update list temporarily
-            const tempOrgs = organizations;
-            organizations = filtered;
-            updateOrganizationList();
-            organizations = tempOrgs; // Reset to all
         }
 
         // Event Listeners
@@ -1305,14 +1156,20 @@
                     category: document.getElementById('orgCategory').value,
                     type: document.getElementById('orgType').value,
                     description: document.getElementById('orgDescription').value,
-                    max_attendees: parseInt(document.getElementById('maxParticipants').value) || null,
+                    eventDate: document.getElementById('eventDate').value || null,
+                    eventTime: document.getElementById('eventTime').value || null,
+                    duration: document.getElementById('eventDuration').value || null,
+                    maxParticipants: parseInt(document.getElementById('maxParticipants').value) || null,
+                    ageRestriction: document.getElementById('ageRestriction').value || null,
+                    eventFee: document.getElementById('eventFee').value || null,
                     contactEmail: document.getElementById('contactEmail').value,
                     contactPhone: document.getElementById('contactPhone').value,
                     website: document.getElementById('orgWebsite').value,
                     address: document.getElementById('orgAddress').value,
                     latitude: selectedLocation.lat,
                     longitude: selectedLocation.lng,
-                    created_by: currentUser.id
+                    created_by: currentUser.id,
+                    participants: []
                 };
 
                 try {
@@ -1343,11 +1200,6 @@
                     alert('Error creating organization: ' + err.message);
                 }
             });
-
-            // Filter handlers
-            document.getElementById('categoryFilter').addEventListener('change', filterOrganizations);
-            document.getElementById('distanceFilter').addEventListener('change', filterOrganizations);
-            document.getElementById('eventFilter').addEventListener('change', filterOrganizations);
         });
 
         // Close modal on outside click
