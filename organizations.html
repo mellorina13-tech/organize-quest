@@ -565,7 +565,7 @@
     <nav>
         <div class="nav-container">
             <a href="index.html" class="logo">
-                <span>🌐</span>
+                <span>🌍</span>
                 <span>Organize.Quest</span>
             </a>
             <div class="nav-links">
@@ -818,236 +818,6 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltcnhmYmtnaHpucm9zZ2Zxd3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NzQ4MTMsImV4cCI6MjA3NDA1MDgxM30.GyrbrTmWMc6--zCUcfKwc-2qlsBI0z3oly8iv9Fq9-0';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Check if user has joined an organization
-        function hasUserJoined(orgId) {
-            if (!currentUser) return false;
-            const joinedOrgs = JSON.parse(localStorage.getItem('userJoinedOrgs') || '[]');
-            return joinedOrgs.includes(orgId);
-        }
-
-        // Load user's joined organizations
-        async function loadUserJoinedOrgs() {
-            if (!currentUser) return;
-
-            try {
-                const { data, error } = await supabase
-                    .from('attendees')
-                    .select('organization_id')
-                    .eq('user_id', currentUser.id);
-
-                if (!error && data) {
-                    const joinedOrgIds = data.map(item => item.organization_id);
-                    localStorage.setItem('userJoinedOrgs', JSON.stringify(joinedOrgIds));
-                }
-            } catch (err) {
-                console.error('Error loading joined orgs:', err);
-            }
-        }
-
-        // Toggle join/leave organization
-        async function toggleJoinEvent(orgId) {
-            if (!currentUser) {
-                alert('Please log in to join organizations!');
-                window.location.href = 'profile.html';
-                return;
-            }
-
-            const org = organizations.find(o => o.id === orgId);
-            if (!org) return;
-
-            const hasJoined = hasUserJoined(orgId);
-
-            try {
-                if (hasJoined) {
-                    // Leave organization
-                    const { error } = await supabase
-                        .from('attendees')
-                        .delete()
-                        .eq('organization_id', orgId)
-                        .eq('user_id', currentUser.id);
-
-                    if (error) throw error;
-
-                    // Update participant count
-                    await supabase
-                        .from('organizations')
-                        .update({ 
-                            currentParticipants: Math.max(0, (org.currentParticipants || 1) - 1)
-                        })
-                        .eq('id', orgId);
-
-                    // Update local cache
-                    const joinedOrgs = JSON.parse(localStorage.getItem('userJoinedOrgs') || '[]');
-                    localStorage.setItem('userJoinedOrgs', 
-                        JSON.stringify(joinedOrgs.filter(id => id !== orgId)));
-                    
-                    alert('You have left the organization!');
-                } else {
-                    // Check if event is full
-                    if (org.maxParticipants && org.currentParticipants >= org.maxParticipants) {
-                        alert('This event is full!');
-                        return;
-                    }
-
-                    // Join organization
-                    const { error } = await supabase
-                        .from('attendees')
-                        .insert({
-                            organization_id: orgId,
-                            user_id: currentUser.id,
-                            joined_at: new Date().toISOString()
-                        });
-
-                    if (error) throw error;
-
-                    // Update participant count
-                    await supabase
-                        .from('organizations')
-                        .update({ 
-                            currentParticipants: (org.currentParticipants || 0) + 1
-                        })
-                        .eq('id', orgId);
-
-                    // Update local cache
-                    const joinedOrgs = JSON.parse(localStorage.getItem('userJoinedOrgs') || '[]');
-                    joinedOrgs.push(orgId);
-                    localStorage.setItem('userJoinedOrgs', JSON.stringify(joinedOrgs));
-                    
-                    alert('Successfully joined the organization!');
-                }
-
-                // Reload organizations to update UI
-                await loadOrganizations();
-                updateOrganizationList();
-                updateStats();
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error: ' + error.message);
-            }
-        }
-
-        // Show event details with participants
-        async function showEventDetails(orgId) {
-            const org = organizations.find(o => o.id === orgId);
-            if (!org) return;
-
-            const modalContent = document.getElementById('eventDetailsContent');
-            const hasJoined = hasUserJoined(orgId);
-
-            let detailsHTML = `
-                <div class="event-details-modal">
-                    <h4>${org.name}</h4>
-                    <div class="event-detail-row">
-                        <span>Category:</span>
-                        <span>${org.category}</span>
-                    </div>
-                    <div class="event-detail-row">
-                        <span>Description:</span>
-                        <span>${org.description || 'No description'}</span>
-                    </div>
-            `;
-
-            if (org.eventDate) {
-                const eventDate = new Date(org.eventDate);
-                detailsHTML += `
-                    <div class="event-detail-row">
-                        <span>Date:</span>
-                        <span>${eventDate.toLocaleDateString()}</span>
-                    </div>
-                    <div class="event-detail-row">
-                        <span>Time:</span>
-                        <span>${org.eventTime || 'Not specified'}</span>
-                    </div>
-                    <div class="event-detail-row">
-                        <span>Duration:</span>
-                        <span>${org.duration || 'Not specified'}</span>
-                    </div>
-                    <div class="event-detail-row">
-                        <span>Participants:</span>
-                        <span>${org.currentParticipants || 0}${org.maxParticipants ? '/' + org.maxParticipants : ''}</span>
-                    </div>
-                    <div class="event-detail-row">
-                        <span>Age Restriction:</span>
-                        <span>${org.ageRestriction || 'All ages'}</span>
-                    </div>
-                    <div class="event-detail-row">
-                        <span>Fee:</span>
-                        <span>${org.eventFee || 'Free'}</span>
-                    </div>
-                `;
-            }
-
-            if (org.contactEmail) {
-                detailsHTML += `
-                    <div class="event-detail-row">
-                        <span>Email:</span>
-                        <span>${org.contactEmail}</span>
-                    </div>
-                `;
-            }
-
-            if (org.contactPhone) {
-                detailsHTML += `
-                    <div class="event-detail-row">
-                        <span>Phone:</span>
-                        <span>${org.contactPhone}</span>
-                    </div>
-                `;
-            }
-
-            // Load and display participants
-            try {
-                const { data: attendees, error } = await supabase
-                    .from('attendees')
-                    .select(`
-                        user_id,
-                        joined_at,
-                        users (
-                            name,
-                            email
-                        )
-                    `)
-                    .eq('organization_id', orgId);
-
-                if (!error && attendees && attendees.length > 0) {
-                    detailsHTML += `
-                        <h4 style="margin-top: 1.5rem;">Participants (${attendees.length})</h4>
-                        <div class="participant-list">
-                    `;
-                    
-                    attendees.forEach(attendee => {
-                        const userName = attendee.users?.name || 'Anonymous';
-                        const joinedDate = new Date(attendee.joined_at).toLocaleDateString();
-                        detailsHTML += `
-                            <div class="participant-item">
-                                👤 ${userName} - Joined: ${joinedDate}
-                            </div>
-                        `;
-                    });
-                    
-                    detailsHTML += `</div>`;
-                }
-            } catch (err) {
-                console.error('Error loading participants:', err);
-            }
-
-            const isFull = org.maxParticipants && org.currentParticipants >= org.maxParticipants;
-            if (org.eventDate && new Date(org.eventDate) > new Date()) {
-                detailsHTML += `
-                    <button class="btn ${hasJoined ? 'btn-danger' : 'btn-success'}" 
-                            onclick="toggleJoinEvent('${orgId}')" 
-                            style="width: 100%; margin-top: 1.5rem;"
-                            ${!hasJoined && isFull ? 'disabled' : ''}>
-                        ${hasJoined ? '🚪 Leave Organization' : (isFull ? 'Event Full' : '✨ Join Organization')}
-                    </button>
-                `;
-            }
-
-            detailsHTML += `</div>`;
-            modalContent.innerHTML = detailsHTML;
-            document.getElementById('eventDetailsModal').classList.add('show');
-        }
-
         // Initialize map
         function initMap() {
             map = L.map('map').setView([40.7128, -74.0060], 13);
@@ -1061,111 +831,7 @@
 
             // Map click handler for location selection
             map.on('click', function(e) {
-                if (createMode) {
-                    selectedLocation = e.latlng;
-                    document.getElementById('orgLocationDisplay').value = 
-                        `Lat: ${e.latlng.lat.toFixed(4)}, Lng: ${e.latlng.lng.toFixed(4)}`;
-                    
-                    // Add temporary marker
-                    if (window.tempMarker) {
-                        map.removeLayer(window.tempMarker);
-                    }
-                    window.tempMarker = L.marker(e.latlng).addTo(map);
-                }
-            });
-
-            // Try to get user location
-            getCurrentLocation();
-        }
-
-        // Get current location
-        function getCurrentLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    
-                    map.setView([lat, lng], 14);
-                    
-                    if (userMarker) {
-                        map.removeLayer(userMarker);
-                    }
-                    
-                    userMarker = L.marker([lat, lng]).addTo(map);
-                    userMarker.bindPopup('📍 Your Location').openPopup();
-                    
-                    updateStats();
-                }, function(error) {
-                    console.error('Geolocation error:', error);
-                });
-            } else {
-                alert('Geolocation is not supported by your browser.');
-            }
-        }
-
-        // Load organizations from database
-        async function loadOrganizations() {
-            try {
-                const { data, error } = await supabase
-                    .from('organizations')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) {
-                    console.error('Error loading organizations:', error);
-                    return;
-                }
-
-                organizations = data || [];
-                
-                // Load user's joined organizations
-                if (currentUser) {
-                    await loadUserJoinedOrgs();
-                }
-                
-                // Clear existing markers except user marker
-                map.eachLayer(function(layer) {
-                    if (layer instanceof L.Marker && layer !== userMarker && layer !== window.tempMarker) {
-                        map.removeLayer(layer);
-                    }
-                });
-                
-                // Add markers for each organization
-                organizations.forEach(org => {
-                    addOrganizationMarker(org);
-                });
-                
-                updateOrganizationList();
-                updateStats();
-            } catch (err) {
-                console.error('Error:', err);
-            }
-        }
-
-        // Add organization marker to map
-        function addOrganizationMarker(org) {
-            const categoryIcons = {
-                'Education': '🎓',
-                'Healthcare': '🏥',
-                'Technology': '💻',
-                'Non-Profit': '🤝',
-                'Sports': '⚽',
-                'Arts': '🎨',
-                'Environment': '🌱',
-                'Community': '🏙️'
-            };
-            const icon = categoryIcons[org.category] || '📌';
-            
-            const marker = L.marker([org.latitude, org.longitude]).addTo(map);
-            
-            let popupContent = `
-                <div style="min-width: 250px;">
-                    <h3 style="color: var(--primary); margin-bottom: 10px;">${icon} ${org.name}</h3>
-                    <p><strong>Category:</strong> ${org.category}</p>
-                    ${org.description ? `<p>${org.description}</p>` : ''}
-            `;
-            
-            if (org.eventDate) {
+                if (org.eventDate) {
                 const eventDate = new Date(org.eventDate);
                 popupContent += `<p><strong>📅 Event:</strong> ${eventDate.toLocaleDateString()}</p>`;
                 if (org.eventTime) {
@@ -1185,7 +851,7 @@
                 popupContent += `
                     <button onclick="showEventDetails('${org.id}')" 
                             style="margin-top: 10px; padding: 5px 10px; background: #5865F2; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                        View Details ${hasJoined ? '✔' : ''}
+                        View Details ${hasJoined ? '✓' : ''}
                     </button>
                 `;
             }
@@ -1219,7 +885,7 @@
 
                 let cardHTML = `
                     <div class="org-card" onclick="focusOrganization('${org.id}')">
-                        <h3>${icon} ${org.name} ${hasJoined ? '<span class="joined-badge">✔ Joined</span>' : ''}</h3>
+                        <h3>${icon} ${org.name} ${hasJoined ? '<span class="joined-badge">✓ Joined</span>' : ''}</h3>
                         <span class="category">${org.category}</span>
                 `;
 
@@ -1416,6 +1082,7 @@
                 }
 
                 const orgData = {
+                    id: Date.now().toString(),
                     name: document.getElementById('orgName').value,
                     category: document.getElementById('orgCategory').value,
                     type: document.getElementById('orgType').value,
@@ -1433,7 +1100,9 @@
                     latitude: selectedLocation.lat,
                     longitude: selectedLocation.lng,
                     created_by: currentUser.id,
-                    currentParticipants: 0
+                    createdAt: new Date().toISOString(),
+                    currentParticipants: 0,
+                    participants: []
                 };
 
                 try {
@@ -1443,37 +1112,50 @@
                         .select();
 
                     if (error) {
-                        alert('Error: ' + error.message);
                         console.error('Supabase error:', error);
-                        return;
-                    }
-
-                    if (data && data[0]) {
+                        // Fallback to localStorage
+                        organizations.push(orgData);
+                        localStorage.setItem('organizations', JSON.stringify(organizations));
+                    } else if (data) {
+                        orgData.id = data[0].id;
                         organizations.push(data[0]);
-                        
-                        // Add marker
-                        addOrganizationMarker(data[0]);
-
-                        // Update UI
-                        updateOrganizationList();
-                        updateStats();
-
-                        // Reset form and close modal
-                        this.reset();
-                        document.getElementById('createModal').classList.remove('show');
-                        createMode = false;
-                        selectedLocation = null;
-                        
-                        if (window.tempMarker) {
-                            map.removeLayer(window.tempMarker);
-                            window.tempMarker = null;
-                        }
-
-                        alert('Organization created successfully!');
                     }
+
+                    // Add marker
+                    addOrganizationMarker(orgData);
+
+                    // Update UI
+                    updateOrganizationList();
+                    updateStats();
+
+                    // Reset form and close modal
+                    this.reset();
+                    document.getElementById('createModal').classList.remove('show');
+                    createMode = false;
+                    selectedLocation = null;
+                    
+                    if (window.tempMarker) {
+                        map.removeLayer(window.tempMarker);
+                        window.tempMarker = null;
+                    }
+
+                    alert('Organization created successfully!');
                 } catch (err) {
                     console.error('Error creating organization:', err);
-                    alert('Error creating organization: ' + err.message);
+                    // Fallback to localStorage
+                    organizations.push(orgData);
+                    localStorage.setItem('organizations', JSON.stringify(organizations));
+                    
+                    addOrganizationMarker(orgData);
+                    updateOrganizationList();
+                    updateStats();
+                    
+                    this.reset();
+                    document.getElementById('createModal').classList.remove('show');
+                    createMode = false;
+                    selectedLocation = null;
+                    
+                    alert('Organization created successfully!');
                 }
             });
 
@@ -1494,11 +1176,33 @@
                 }
             }
         }
-
-        // Make functions globally accessible
-        window.showEventDetails = showEventDetails;
-        window.toggleJoinEvent = toggleJoinEvent;
-        window.focusOrganization = focusOrganization;
     </script>
 </body>
-</html>
+</html> (createMode) {
+                    selectedLocation = e.latlng;
+                    document.getElementById('orgLocationDisplay').value = 
+                        `Lat: ${e.latlng.lat.toFixed(4)}, Lng: ${e.latlng.lng.toFixed(4)}`;
+                    
+                    // Add temporary marker
+                    if (window.tempMarker) {
+                        map.removeLayer(window.tempMarker);
+                    }
+                    window.tempMarker = L.marker(e.latlng).addTo(map);
+                }
+            });
+
+            // Try to get user location
+            getCurrentLocation();
+        }
+
+        // Get current location
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    map.setView([lat, lng], 14);
+                    
+                    if (userMarker) {
+                        map.removeLayer(userMarker);
