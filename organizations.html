@@ -335,8 +335,8 @@
             padding: 2.5rem;
             border-radius: 20px;
             width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
+            max-width: 500px;
+            max-height: 85vh;
             overflow-y: auto;
             position: relative;
         }
@@ -374,34 +374,8 @@
         }
 
         /* Form Styles */
-        .form-section {
-            margin-bottom: 1.5rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .form-section:last-child {
-            border-bottom: none;
-        }
-
-        .form-section h3 {
-            color: var(--primary);
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
         .form-group {
             margin-bottom: 1rem;
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
         }
 
         .form-group label {
@@ -494,10 +468,6 @@
             .sidebar {
                 order: -1;
                 max-height: 300px;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -605,126 +575,71 @@
         </div>
     </div>
 
-    <!-- Create Organization/Event Modal -->
+    <!-- Create Organization Modal - FIXED -->
     <div id="createModal" class="modal">
         <div class="modal-content">
             <span class="modal-close" id="modalCloseBtn">&times;</span>
             
             <div class="modal-header">
-                <h2>Create New Organization & Event</h2>
+                <h2>Create Organization & Event</h2>
             </div>
 
             <form id="createOrgForm">
-                <!-- Basic Information -->
-                <div class="form-section">
-                    <h3>📋 Basic Information</h3>
-                    <div class="form-grid">
-                        <div class="form-group full-width">
-                            <label>Organization Name <span class="required">*</span></label>
-                            <input type="text" id="orgName" required placeholder="Enter organization name">
-                        </div>
-                        <div class="form-group">
-                            <label>Category <span class="required">*</span></label>
-                            <select id="orgCategory" required>
-                                <option value="">Select Category</option>
-                                <option value="Education">🎓 Education</option>
-                                <option value="Healthcare">🏥 Healthcare</option>
-                                <option value="Technology">💻 Technology</option>
-                                <option value="Non-Profit">🤝 Non-Profit</option>
-                                <option value="Sports">⚽ Sports</option>
-                                <option value="Arts">🎨 Arts</option>
-                                <option value="Environment">🌱 Environment</option>
-                                <option value="Community">🏙️ Community</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Organization Type</label>
-                            <select id="orgType">
-                                <option value="permanent">Permanent Organization</option>
-                                <option value="temporary">Temporary/Event-based</option>
-                                <option value="recurring">Recurring Events</option>
-                            </select>
-                        </div>
-                        <div class="form-group full-width">
-                            <label>Description</label>
-                            <textarea id="orgDescription" placeholder="Describe your organization's mission and activities"></textarea>
-                        </div>
+                <div class="form-group">
+                    <label>Organization Name <span class="required">*</span></label>
+                    <input type="text" id="orgName" required placeholder="Enter organization name">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Category <span class="required">*</span></label>
+                        <select id="orgCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="Education">🎓 Education</option>
+                            <option value="Healthcare">🏥 Healthcare</option>
+                            <option value="Technology">💻 Technology</option>
+                            <option value="Non-Profit">🤝 Non-Profit</option>
+                            <option value="Sports">⚽ Sports</option>
+                            <option value="Arts">🎨 Arts</option>
+                            <option value="Environment">🌱 Environment</option>
+                            <option value="Community">🏙️ Community</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Event Date (Optional)</label>
+                        <input type="date" id="eventDate">
                     </div>
                 </div>
 
-                <!-- Event Details -->
-                <div class="form-section">
-                    <h3>📅 Event Details (Optional)</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Event Date</label>
-                            <input type="date" id="eventDate">
-                        </div>
-                        <div class="form-group">
-                            <label>Event Time</label>
-                            <input type="time" id="eventTime">
-                        </div>
-                        <div class="form-group">
-                            <label>Duration</label>
-                            <select id="eventDuration">
-                                <option value="">Select Duration</option>
-                                <option value="30">30 minutes</option>
-                                <option value="60">1 hour</option>
-                                <option value="120">2 hours</option>
-                                <option value="180">3 hours</option>
-                                <option value="240">4 hours</option>
-                                <option value="all-day">All Day</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Max Attendees</label>
-                            <input type="number" id="maxParticipants" min="1" placeholder="e.g., 50">
-                        </div>
-                        <div class="form-group">
-                            <label>Age Restriction</label>
-                            <select id="ageRestriction">
-                                <option value="all">All Ages</option>
-                                <option value="18+">18+ Only</option>
-                                <option value="21+">21+ Only</option>
-                                <option value="13+">13+ Only</option>
-                                <option value="kids">Kids (Under 13)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Event Fee</label>
-                            <input type="text" id="eventFee" placeholder="Free or amount">
-                        </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Event Time</label>
+                        <input type="time" id="eventTime">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Max Attendees</label>
+                        <input type="number" id="maxParticipants" min="1" placeholder="e.g., 50">
                     </div>
                 </div>
 
-                <!-- Contact & Location -->
-                <div class="form-section">
-                    <h3>📍 Contact & Location</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Contact Email</label>
-                            <input type="email" id="contactEmail" placeholder="contact@organization.com">
-                        </div>
-                        <div class="form-group">
-                            <label>Contact Phone</label>
-                            <input type="tel" id="contactPhone" placeholder="+90 555 123 4567">
-                        </div>
-                        <div class="form-group full-width">
-                            <label>Website/Social Media</label>
-                            <input type="url" id="orgWebsite" placeholder="https://website.com">
-                        </div>
-                        <div class="form-group full-width">
-                            <label>Address</label>
-                            <input type="text" id="orgAddress" placeholder="Street address (optional)">
-                        </div>
-                        <div class="form-group full-width">
-                            <label>Location on Map <span class="required">*</span></label>
-                            <input type="text" id="orgLocationDisplay" readonly placeholder="Click on map to select location" style="background: #f0f0f0; cursor: not-allowed;">
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="orgDescription" placeholder="Describe your organization and event" rows="3"></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <div class="form-group">
+                    <label>Contact Email</label>
+                    <input type="email" id="contactEmail" placeholder="contact@organization.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Location on Map <span class="required">*</span></label>
+                    <input type="text" id="orgLocationDisplay" readonly placeholder="Click on map to select location" style="background: #f0f0f0; cursor: not-allowed;">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
                     Create Organization
                 </button>
             </form>
@@ -1154,18 +1069,11 @@
                 const orgData = {
                     name: document.getElementById('orgName').value,
                     category: document.getElementById('orgCategory').value,
-                    type: document.getElementById('orgType').value,
                     description: document.getElementById('orgDescription').value,
                     eventDate: document.getElementById('eventDate').value || null,
                     eventTime: document.getElementById('eventTime').value || null,
-                    duration: document.getElementById('eventDuration').value || null,
                     maxParticipants: parseInt(document.getElementById('maxParticipants').value) || null,
-                    ageRestriction: document.getElementById('ageRestriction').value || null,
-                    eventFee: document.getElementById('eventFee').value || null,
                     contactEmail: document.getElementById('contactEmail').value,
-                    contactPhone: document.getElementById('contactPhone').value,
-                    website: document.getElementById('orgWebsite').value,
-                    address: document.getElementById('orgAddress').value,
                     latitude: selectedLocation.lat,
                     longitude: selectedLocation.lng,
                     created_by: currentUser.id,
