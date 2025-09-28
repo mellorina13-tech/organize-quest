@@ -365,18 +365,6 @@
 
             <form id="loginForm">
                 <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="loginEmail" required placeholder="your@email.com">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="loginPassword" required placeholder="••••••••">
-                </div>
-                <button type="submit" class="btn btn-primary">Sign In</button>
-            </form>
-
-            <form id="signupForm" class="hidden">
-                <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" id="signupName" required placeholder="John Doe">
                 </div>
@@ -406,6 +394,7 @@
             <div class="profile-tabs">
                 <button class="profile-tab-btn active" data-tab="profile">📝 My Profile</button>
                 <button class="profile-tab-btn" data-tab="organizations">🏢 My Organizations</button>
+                <button class="profile-tab-btn" data-tab="memberships">👥 My Memberships</button>
             </div>
 
             <div id="profileTab" class="profile-form">
@@ -451,6 +440,13 @@
                     <p style="text-align: center; color: #999;">Loading your organizations...</p>
                 </div>
             </div>
+
+            <div id="membershipsTab" class="profile-form hidden">
+                <h2 style="margin-bottom: 1.5rem;">My Memberships</h2>
+                <div id="myMembershipsList" class="org-grid">
+                    <p style="text-align: center; color: #999;">Loading your memberships...</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -467,6 +463,10 @@
                     <label>Description</label>
                     <textarea id="editOrgDescription" rows="3"></textarea>
                 </div>
+                <div class="form-group">
+                    <label>Max Attendees (Quota)</label>
+                    <input type="number" id="editMaxAttendees" min="1" placeholder="Leave empty for no limit">
+                </div>
                 <button type="submit" class="btn btn-primary">Save Changes</button>
             </form>
         </div>
@@ -480,6 +480,7 @@
 
         let currentUser = JSON.parse(localStorage.getItem('currentUser'));
         let myOrganizations = [];
+        let myMemberships = [];
         let editingOrgId = null;
 
         function switchTab(tab) {
@@ -537,6 +538,42 @@
             }
         }
 
+        async function loadMyMemberships() {
+            if (!currentUser || !currentUser.id) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('memberships')
+                    .select(`
+                        id,
+                        joined_at,
+                        organization_id,
+                        organizations (
+                            id,
+                            name,
+                            category,
+                            description,
+                            max_attendees,
+                            current_attendees,
+                            latitude,
+                            longitude
+                        )
+                    `)
+                    .eq('user_id', currentUser.id)
+                    .order('joined_at', { ascending: false });
+
+                if (error) {
+                    console.error('Error loading memberships:', error);
+                    return;
+                }
+
+                myMemberships = data || [];
+                displayMyMemberships();
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        }
+
         function displayMyOrganizations() {
             const container = document.getElementById('myOrgsList');
             
@@ -558,6 +595,13 @@
                         <h3>${icon} ${org.name}</h3>
                         <span class="category">${org.category}</span>
                         <p>${org.description || 'No description'}</p>
+                        ${org.max_attendees ? `
+                            <div style="margin-top: 0.5rem; padding: 8px; background: #e8f5e9; border-radius: 8px;">
+                                <span style="font-size: 0.9rem; color: #2e7d32; font-weight: 600;">
+                                    👥 ${org.current_attendees || 0}/${org.max_attendees} members
+                                </span>
+                            </div>
+                        ` : ''}
                         ${org.created_at ? `<p style="margin-top: 0.5rem; font-size: 0.85rem; color: #999;">Created: ${new Date(org.created_at).toLocaleDateString()}</p>` : ''}
                         <div class="org-card-actions">
                             <button class="btn-small btn-edit" data-org-id="${org.id}">✏️ Edit</button>
@@ -583,8 +627,56 @@
             });
         }
 
+        function displayMyMemberships() {
+            const container = document.getElementById('myMembershipsList');
+            
+            if (myMemberships.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t joined any organizations yet.</p>';
+                return;
+            }
+
+            const icons = {
+                'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
+                'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨',
+                'Environment': '🌱', 'Community': '🏙️'
+            };
+
+            container.innerHTML = myMemberships.map(membership => {
+                const org = membership.organizations;
+                if (!org) return '';
+                
+                const icon = icons[org.category] || '📌';
+                const joinedDate = new Date(membership.joined_at).toLocaleDateString();
+                
+                return `
+                    <div class="org-card">
+                        <h3>${icon} ${org.name}</h3>
+                        <span class="category">${org.category}</span>
+                        <p>${org.description || 'No description'}</p>
+                        ${org.max_attendees ? `
+                            <div style="margin-top: 0.5rem; padding: 8px; background: #e8f5e9; border-radius: 8px;">
+                                <span style="font-size: 0.9rem; color: #2e7d32; font-weight: 600;">
+                                    👥 ${org.current_attendees || 0}/${org.max_attendees} members
+                                </span>
+                            </div>
+                        ` : ''}
+                        <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #999;">
+                            Joined: ${joinedDate}
+                        </p>
+                        <div class="org-card-actions">
+                            <button class="btn-small btn-delete" onclick="leaveMembership('${membership.id}', '${org.id}')">
+                                🚪 Leave
+                            </button>
+                            <button class="btn-small btn-edit" onclick="viewOnMap(${org.latitude}, ${org.longitude})">
+                                🗺️ View on Map
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         function editOrganization(orgId) {
-            console.log('Edit clicked for org:', orgId);
             const org = myOrganizations.find(o => o.id === orgId || o.id == orgId);
             if (!org) {
                 console.error('Organization not found:', orgId);
@@ -595,12 +687,12 @@
             editingOrgId = orgId;
             document.getElementById('editOrgName').value = org.name;
             document.getElementById('editOrgDescription').value = org.description || '';
+            document.getElementById('editMaxAttendees').value = org.max_attendees || '';
             
             document.getElementById('editOrgModal').classList.add('show');
         }
 
         async function deleteOrganization(orgId) {
-            console.log('Delete clicked for org:', orgId);
             if (!confirm('Are you sure you want to delete this organization?')) return;
 
             try {
@@ -623,6 +715,32 @@
             }
         }
 
+        async function leaveMembership(membershipId, orgId) {
+            if (!confirm('Are you sure you want to leave this organization?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('memberships')
+                    .delete()
+                    .eq('id', membershipId);
+
+                if (error) {
+                    alert('Error leaving organization: ' + error.message);
+                    return;
+                }
+
+                alert('Successfully left organization!');
+                await loadMyMemberships();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        function viewOnMap(lat, lng) {
+            localStorage.setItem('mapView', JSON.stringify({ lat, lng, zoom: 16 }));
+            window.location.href = 'organizations.html';
+        }
+
         if (currentUser) {
             showProfile();
             loadMyOrganizations();
@@ -637,13 +755,21 @@
                 this.classList.add('active');
 
                 const tab = this.dataset.tab;
+                
+                // Hide all tabs
+                document.getElementById('profileTab').classList.add('hidden');
+                document.getElementById('organizationsTab').classList.add('hidden');
+                document.getElementById('membershipsTab').classList.add('hidden');
+                
+                // Show selected tab
                 if (tab === 'profile') {
                     document.getElementById('profileTab').classList.remove('hidden');
-                    document.getElementById('organizationsTab').classList.add('hidden');
                 } else if (tab === 'organizations') {
-                    document.getElementById('profileTab').classList.add('hidden');
                     document.getElementById('organizationsTab').classList.remove('hidden');
                     loadMyOrganizations();
+                } else if (tab === 'memberships') {
+                    document.getElementById('membershipsTab').classList.remove('hidden');
+                    loadMyMemberships();
                 }
             });
         });
@@ -772,7 +898,8 @@
 
             const updatedData = {
                 name: document.getElementById('editOrgName').value,
-                description: document.getElementById('editOrgDescription').value
+                description: document.getElementById('editOrgDescription').value,
+                max_attendees: parseInt(document.getElementById('editMaxAttendees').value) || null
             };
 
             try {
@@ -813,4 +940,16 @@
         });
     </script>
 </body>
-</html>
+</html>>Email</label>
+                    <input type="email" id="loginEmail" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+
+            <form id="signupForm" class="hidden">
+                <div class="form-group">
+                    <label
