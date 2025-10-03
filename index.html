@@ -593,6 +593,7 @@
         let currentLang = 'en';
         let map, userMarker, organizations = [], createMode = false, selectedLocation = null;
         let currentUser = null;
+        let joinedOrgIds = new Set();
 
         const translations = {
             en: {
@@ -813,6 +814,9 @@
                 }
 
                 organizations = data || [];
+
+                // refresh membership state from attendees before rendering
+                await refreshJoinedOrgs();
                 
                 organizations.forEach(org => {
                     let popupContent = `
@@ -833,8 +837,7 @@
 
                     // Organization membership buttons
                     if (currentUser) {
-                        const joinedOrgs = JSON.parse(localStorage.getItem('joinedOrgs_' + currentUser.id) || '[]');
-                        const hasJoinedOrg = joinedOrgs.includes(org.id);
+                        const hasJoinedOrg = joinedOrgIds.has(org.id);
                         if (hasJoinedOrg) {
                             popupContent += `
                                 <button onclick=\"leaveOrganization('${org.id}')\"
@@ -859,6 +862,18 @@
                 console.log('Loaded', organizations.length, 'organizations');
             } catch (err) {
                 console.error('Error:', err);
+            }
+        }
+
+        async function refreshJoinedOrgs() {
+            joinedOrgIds = new Set();
+            if (!currentUser) return;
+            const { data, error } = await supabase
+                .from('attendees')
+                .select('org_id')
+                .eq('user_id', currentUser.id);
+            if (!error && Array.isArray(data)) {
+                data.forEach(r => joinedOrgIds.add(r.org_id));
             }
         }
 
@@ -1002,35 +1017,45 @@
                 }
             });
 
-            // Global join/leave handlers for organization membership (landing map)
+            // Global join/leave handlers for organization membership via Supabase attendees
             window.joinOrganization = function(orgId) {
-                if (!currentUser) {
-                    alert('Please log in to join organizations!');
-                    window.location.href = 'profile.html';
-                    return;
-                }
-                const key = 'joinedOrgs_' + currentUser.id;
-                const joined = JSON.parse(localStorage.getItem(key) || '[]');
-                if (!joined.includes(orgId)) {
-                    joined.push(orgId);
-                    localStorage.setItem(key, JSON.stringify(joined));
+                (async () => {
+                    if (!currentUser) {
+                        alert('Please log in to join organizations!');
+                        window.location.href = 'profile.html';
+                        return;
+                    }
+                    const { error } = await supabase
+                        .from('attendees')
+                        .insert([{ org_id: orgId, user_id: currentUser.id }]);
+                    if (error) {
+                        alert('Join failed: ' + error.message);
+                        return;
+                    }
+                    joinedOrgIds.add(orgId);
                     alert('Joined organization successfully!');
-                } else {
-                    alert('You have already joined this organization!');
-                }
+                })();
             };
 
             window.leaveOrganization = function(orgId) {
-                if (!currentUser) {
-                    alert('Please log in first!');
-                    return;
-                }
-                if (!confirm('Are you sure you want to leave this organization?')) return;
-                const key = 'joinedOrgs_' + currentUser.id;
-                const joined = JSON.parse(localStorage.getItem(key) || '[]');
-                const updated = joined.filter(id => id !== orgId);
-                localStorage.setItem(key, JSON.stringify(updated));
-                alert('Left organization successfully!');
+                (async () => {
+                    if (!currentUser) {
+                        alert('Please log in first!');
+                        return;
+                    }
+                    if (!confirm('Are you sure you want to leave this organization?')) return;
+                    const { error } = await supabase
+                        .from('attendees')
+                        .delete()
+                        .eq('org_id', orgId)
+                        .eq('user_id', currentUser.id);
+                    if (error) {
+                        alert('Leave failed: ' + error.message);
+                        return;
+                    }
+                    joinedOrgIds.delete(orgId);
+                    alert('Left organization successfully!');
+                })();
             };
         });
     </script>
