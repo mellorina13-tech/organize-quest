@@ -624,6 +624,7 @@
         // Initialize variables
         let map, userMarker, organizations = [], createMode = false, selectedLocation = null;
         let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        let joinedOrgIds = new Set(); // from Supabase attendees
         
         // Supabase configuration
         const SUPABASE_URL = 'https://ymrxfbkghznrosgfqwrh.supabase.co';
@@ -637,47 +638,62 @@
             return joinedEvents.includes(orgId);
         }
 
+        // Fetch joined orgs for current user from Supabase attendees
+        async function refreshJoinedOrgs() {
+            joinedOrgIds = new Set();
+            if (!currentUser || !currentUser.id) return;
+            const { data, error } = await supabase
+                .from('attendees')
+                .select('org_id')
+                .eq('user_id', currentUser.id);
+            if (!error && Array.isArray(data)) {
+                data.forEach(r => joinedOrgIds.add(r.org_id));
+            }
+        }
+
         // Check if user has joined an organization
         function hasUserJoinedOrg(orgId) {
             if (!currentUser || !currentUser.id) return false;
-            const joinedOrgs = JSON.parse(localStorage.getItem('joinedOrgs_' + currentUser.id) || '[]');
-            return joinedOrgs.includes(orgId);
+            return joinedOrgIds.has(orgId);
         }
 
         // Join organization
-        function joinOrg(orgId) {
+        async function joinOrg(orgId) {
             if (!currentUser) {
                 alert('Please log in to join organizations!');
                 window.location.href = 'profile.html';
                 return;
             }
-
-            const joinedOrgs = JSON.parse(localStorage.getItem('joinedOrgs_' + currentUser.id) || '[]');
-            if (!joinedOrgs.includes(orgId)) {
-                joinedOrgs.push(orgId);
-                localStorage.setItem('joinedOrgs_' + currentUser.id, JSON.stringify(joinedOrgs));
-                alert('Joined organization successfully!');
-                updateOrganizationList();
-                loadOrganizations();
-            } else {
-                alert('You have already joined this organization!');
+            const { error } = await supabase
+                .from('attendees')
+                .insert([{ org_id: orgId, user_id: currentUser.id }]);
+            if (error) {
+                alert('Join failed: ' + error.message);
+                return;
             }
+            joinedOrgIds.add(orgId);
+            alert('Joined organization successfully!');
+            updateOrganizationList();
+            loadOrganizations();
         }
 
         // Leave organization
-        function leaveOrg(orgId) {
+        async function leaveOrg(orgId) {
             if (!currentUser) {
                 alert('Please log in first!');
                 return;
             }
-
-            if (!confirm('Are you sure you want to leave this organization?')) {
+            if (!confirm('Are you sure you want to leave this organization?')) return;
+            const { error } = await supabase
+                .from('attendees')
+                .delete()
+                .eq('org_id', orgId)
+                .eq('user_id', currentUser.id);
+            if (error) {
+                alert('Leave failed: ' + error.message);
                 return;
             }
-
-            const joinedOrgs = JSON.parse(localStorage.getItem('joinedOrgs_' + currentUser.id) || '[]');
-            const updated = joinedOrgs.filter(id => id !== orgId);
-            localStorage.setItem('joinedOrgs_' + currentUser.id, JSON.stringify(updated));
+            joinedOrgIds.delete(orgId);
             alert('Left organization successfully!');
             updateOrganizationList();
             loadOrganizations();
@@ -819,6 +835,9 @@
                 }
 
                 organizations = data || [];
+
+                // refresh membership state from attendees before rendering
+                await refreshJoinedOrgs();
 
                 // Clear existing markers
                 map.eachLayer(function(layer) {
