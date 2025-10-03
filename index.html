@@ -817,6 +817,13 @@
 
                 // refresh membership state from attendees before rendering
                 await refreshJoinedOrgs();
+
+                // Clear existing non-user markers before re-adding
+                map.eachLayer(function(layer) {
+                    if (layer instanceof L.Marker && layer !== userMarker) {
+                        map.removeLayer(layer);
+                    }
+                });
                 
                 organizations.forEach(org => {
                     let popupContent = `
@@ -1034,6 +1041,8 @@
                     }
                     joinedOrgIds.add(orgId);
                     alert('Joined organization successfully!');
+                    await refreshJoinedOrgs();
+                    await loadOrganizations();
                 })();
             };
 
@@ -1055,6 +1064,8 @@
                     }
                     joinedOrgIds.delete(orgId);
                     alert('Left organization successfully!');
+                    await refreshJoinedOrgs();
+                    await loadOrganizations();
                 })();
             };
         });
