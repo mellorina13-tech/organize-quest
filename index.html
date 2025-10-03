@@ -815,15 +815,45 @@
                 organizations = data || [];
                 
                 organizations.forEach(org => {
+                    let popupContent = `
+                        <div style="min-width: 250px;">
+                            <h3 style=\"color: var(--primary); margin-bottom: 10px;\">${org.name}</h3>
+                            <p><strong>Category:</strong> ${org.category}</p>
+                            ${org.description ? `<p>${org.description}</p>` : ''}
+                    `;
+
+                    // Event details if present
+                    if (org.eventDate) {
+                        const eventDate = new Date(org.eventDate);
+                        popupContent += `
+                            <div style=\"margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 5px;\">\n<strong>📅 Event:</strong> ${eventDate.toLocaleDateString()}\n${org.eventTime ? `<br><strong>🕐 Time:</strong> ${org.eventTime}` : ''}\n${org.maxParticipants ? `<br><strong>👥 Max Attendees:</strong> ${org.maxParticipants}` : ''}\n${org.participants ? `<br><strong>✅ Current:</strong> ${org.participants.length}` : ''}
+                            </div>
+                        `;
+                    }
+
+                    // Organization membership buttons
+                    if (currentUser) {
+                        const joinedOrgs = JSON.parse(localStorage.getItem('joinedOrgs_' + currentUser.id) || '[]');
+                        const hasJoinedOrg = joinedOrgs.includes(org.id);
+                        if (hasJoinedOrg) {
+                            popupContent += `
+                                <button onclick=\"leaveOrganization('${org.id}')\"
+                                        style=\"width: 100%; margin-top: 10px; padding: 8px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;\">\nLeave Organization\n                                </button>
+                            `;
+                        } else {
+                            popupContent += `
+                                <button onclick=\"joinOrganization('${org.id}')\"
+                                        style=\"width: 100%; margin-top: 10px; padding: 8px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;\">\nJoin Organization\n                                </button>
+                            `;
+                        }
+                    }
+
+                    // Close content
+                    popupContent += `</div>`;
+
                     const marker = L.marker([org.latitude, org.longitude])
                         .addTo(map)
-                        .bindPopup(`
-                            <div style="min-width: 250px;">
-                                <h3 style="color: var(--primary); margin-bottom: 10px;">${org.name}</h3>
-                                <p><strong>Category:</strong> ${org.category}</p>
-                                ${org.description ? `<p>${org.description}</p>` : ''}
-                            </div>
-                        `);
+                        .bindPopup(popupContent);
                 });
 
                 console.log('Loaded', organizations.length, 'organizations');
@@ -971,6 +1001,37 @@
                     alert('Error creating organization: ' + err.message);
                 }
             });
+
+            // Global join/leave handlers for organization membership (landing map)
+            window.joinOrganization = function(orgId) {
+                if (!currentUser) {
+                    alert('Please log in to join organizations!');
+                    window.location.href = 'profile.html';
+                    return;
+                }
+                const key = 'joinedOrgs_' + currentUser.id;
+                const joined = JSON.parse(localStorage.getItem(key) || '[]');
+                if (!joined.includes(orgId)) {
+                    joined.push(orgId);
+                    localStorage.setItem(key, JSON.stringify(joined));
+                    alert('Joined organization successfully!');
+                } else {
+                    alert('You have already joined this organization!');
+                }
+            };
+
+            window.leaveOrganization = function(orgId) {
+                if (!currentUser) {
+                    alert('Please log in first!');
+                    return;
+                }
+                if (!confirm('Are you sure you want to leave this organization?')) return;
+                const key = 'joinedOrgs_' + currentUser.id;
+                const joined = JSON.parse(localStorage.getItem(key) || '[]');
+                const updated = joined.filter(id => id !== orgId);
+                localStorage.setItem(key, JSON.stringify(updated));
+                alert('Left organization successfully!');
+            };
         });
     </script>
 </body>
