@@ -870,10 +870,10 @@
             if (!currentUser) return;
             const { data, error } = await supabase
                 .from('attendees')
-                .select('org_id')
+                .select('organization_id')
                 .eq('user_id', currentUser.id);
             if (!error && Array.isArray(data)) {
-                data.forEach(r => joinedOrgIds.add(r.org_id));
+                data.forEach(r => joinedOrgIds.add(r.organization_id));
             }
         }
 
@@ -1027,7 +1027,7 @@
                     }
                     const { error } = await supabase
                         .from('attendees')
-                        .insert([{ org_id: orgId, user_id: currentUser.id }]);
+                        .insert([{ organization_id: orgId, user_id: currentUser.id }]);
                     if (error) {
                         alert('Join failed: ' + error.message);
                         return;
@@ -1047,7 +1047,7 @@
                     const { error } = await supabase
                         .from('attendees')
                         .delete()
-                        .eq('org_id', orgId)
+                        .eq('organization_id', orgId)
                         .eq('user_id', currentUser.id);
                     if (error) {
                         alert('Leave failed: ' + error.message);
