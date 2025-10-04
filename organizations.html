@@ -605,8 +605,7 @@
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <input type="date" id="orgDeadline" required placeholder="Organization Deadline *" style="padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px;">
-                    <input type="time" id="orgDeadlineTime" placeholder="Deadline Time" style="padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px;">
+                    <input type="date" id="orgDeadline" required placeholder="Organization Date *" style="padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px;">
                 </div>
 
                 <textarea id="orgDescription" placeholder="Description (optional)" rows="2" style="width: 100%; padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 1rem; resize: none;"></textarea>
@@ -841,12 +840,13 @@
 
                 organizations = data || [];
 
-                // Filter out expired organizations (past deadline)
+                // Filter out expired organizations (past date)
                 const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Today at 00:00:00
                 organizations = organizations.filter(org => {
-                    if (!org.deadline) return true; // No deadline = never expires
-                    const deadline = new Date(org.deadline + (org.deadlineTime ? 'T' + org.deadlineTime : 'T23:59:59'));
-                    return deadline > now;
+                    if (!org.deadline) return true; // No date = never expires
+                    const orgDate = new Date(org.deadline);
+                    return orgDate >= today; // Show if date is today or future
                 });
 
                 // refresh membership state from attendees before rendering
@@ -1160,7 +1160,7 @@
                 // Validate required fields
                 const deadline = document.getElementById('orgDeadline').value;
                 if (!deadline) {
-                    alert('Please select an organization deadline date!');
+                    alert('Please select an organization date!');
                     return;
                 }
 
@@ -1189,7 +1189,7 @@
                     maxParticipants: parseInt(document.getElementById('maxParticipants').value) || null,
                     contactEmail: document.getElementById('contactEmail').value,
                     deadline: document.getElementById('orgDeadline').value,
-                    deadlineTime: document.getElementById('orgDeadlineTime').value || null,
+                    deadlineTime: null,
                     latitude: selectedLocation.lat,
                     longitude: selectedLocation.lng,
                     created_by: currentUser.id,
