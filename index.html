@@ -844,6 +844,7 @@
                             <h3 style=\"color: var(--primary); margin-bottom: 10px;\">${org.name}</h3>
                             <p><strong>Category:</strong> ${org.category}</p>
                             ${org.description ? `<p>${org.description}</p>` : ''}
+                            ${org.deadline ? `<p><strong>📅 Date:</strong> ${new Date(org.deadline).toLocaleDateString()}</p>` : ''}
                     `;
 
                     // Event details if present
