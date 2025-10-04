@@ -1157,6 +1157,13 @@
                     return;
                 }
 
+                // Validate required fields
+                const deadline = document.getElementById('orgDeadline').value;
+                if (!deadline) {
+                    alert('Please select an organization deadline date!');
+                    return;
+                }
+
                 // Check user's organization limit (max 3)
                 const { data: userOrgs, error: countError } = await supabase
                     .from('organizations')
