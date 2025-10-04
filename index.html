@@ -567,6 +567,14 @@
                     <textarea id="orgDescription" placeholder="Describe your organization"></textarea>
                 </div>
                 <div class="form-group">
+                    <label id="orgDeadlineLabel">Organization Deadline *</label>
+                    <input type="date" id="orgDeadline" required>
+                </div>
+                <div class="form-group">
+                    <label id="orgDeadlineTimeLabel">Deadline Time (optional)</label>
+                    <input type="time" id="orgDeadlineTime">
+                </div>
+                <div class="form-group">
                     <label id="orgLocationLabel">Location on Map *</label>
                     <input type="text" id="orgLocationDisplay" readonly placeholder="Click on map to select location" style="background: #f0f0f0; cursor: not-allowed;">
                 </div>
@@ -815,6 +823,14 @@
 
                 organizations = data || [];
 
+                // Filter out expired organizations (past deadline)
+                const now = new Date();
+                organizations = organizations.filter(org => {
+                    if (!org.deadline) return true; // No deadline = never expires
+                    const deadline = new Date(org.deadline + (org.deadlineTime ? 'T' + org.deadlineTime : 'T23:59:59'));
+                    return deadline > now;
+                });
+
                 // refresh membership state from attendees before rendering
                 await refreshJoinedOrgs();
 
@@ -957,6 +973,22 @@
                     return;
                 }
 
+                // Check user's organization limit (max 3)
+                const { data: userOrgs, error: countError } = await supabase
+                    .from('organizations')
+                    .select('id')
+                    .eq('created_by', user.id);
+
+                if (countError) {
+                    alert('Error checking organization limit: ' + countError.message);
+                    return;
+                }
+
+                if (userOrgs && userOrgs.length >= 3) {
+                    alert('You can create maximum 3 organizations. Please delete one before creating a new one.');
+                    return;
+                }
+
                 const { data: userRecord, error: userCheckError } = await supabase
                     .from('users')
                     .select('id')
@@ -985,6 +1017,8 @@
                     name: document.getElementById('orgName').value,
                     category: document.getElementById('orgCategory').value,
                     description: document.getElementById('orgDescription').value,
+                    deadline: document.getElementById('orgDeadline').value,
+                    deadlineTime: document.getElementById('orgDeadlineTime').value || null,
                     latitude: selectedLocation.lat,
                     longitude: selectedLocation.lng,
                     created_by: user.id
