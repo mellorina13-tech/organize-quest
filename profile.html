@@ -548,14 +548,41 @@
         function loadMyJoinedEvents() {
             if (!currentUser || !currentUser.id) return;
 
-            const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents_' + currentUser.id) || '[]');
-            
-            // Filter organizations to show only joined events
-            const myEvents = myOrganizations.filter(org => 
-                org.eventDate && joinedEvents.includes(org.id)
-            );
+            // Get joined organization IDs from Supabase attendees table
+            (async () => {
+                try {
+                    const { data: joinedOrgs, error } = await supabase
+                        .from('attendees')
+                        .select('organization_id')
+                        .eq('user_id', currentUser.id);
 
-            displayMyEvents(myEvents);
+                    if (error) {
+                        console.error('Error loading joined events:', error);
+                        return;
+                    }
+
+                    if (!joinedOrgs || joinedOrgs.length === 0) {
+                        displayMyEvents([]);
+                        return;
+                    }
+
+                    // Get full organization details for joined orgs
+                    const orgIds = joinedOrgs.map(item => item.organization_id);
+                    const { data: organizations, error: orgError } = await supabase
+                        .from('organizations')
+                        .select('*')
+                        .in('id', orgIds);
+
+                    if (orgError) {
+                        console.error('Error loading organization details:', orgError);
+                        return;
+                    }
+
+                    displayMyEvents(organizations || []);
+                } catch (err) {
+                    console.error('Error:', err);
+                }
+            })();
         }
 
         function displayMyOrganizations() {
@@ -616,7 +643,7 @@
             const container = document.getElementById('myEventsList');
             
             if (events.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t joined any events yet.</p>';
+                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t joined any organizations yet.</p>';
                 return;
             }
 
@@ -628,23 +655,25 @@
 
             container.innerHTML = events.map(org => {
                 const icon = icons[org.category] || '📌';
-                const eventDate = new Date(org.eventDate);
-                const isUpcoming = eventDate > new Date();
+                const orgDate = org.deadline ? new Date(org.deadline) : null;
+                const isUpcoming = orgDate ? orgDate >= new Date() : true;
                 
                 return `
                     <div class="org-card">
                         <h3>${icon} ${org.name}</h3>
                         <span class="category">${org.category}</span>
                         <p>${org.description || 'No description'}</p>
-                        <div style="margin-top: 0.5rem; padding: 8px; background: ${isUpcoming ? '#e8f5e9' : '#ffebee'}; border-radius: 8px;">
-                            <span style="font-size: 0.9rem; color: ${isUpcoming ? '#2e7d32' : '#c62828'}; font-weight: 600;">
-                                📅 ${eventDate.toLocaleDateString()} ${org.eventTime || ''}
-                                ${isUpcoming ? ' (Upcoming)' : ' (Past)'}
-                            </span>
-                        </div>
+                        ${orgDate ? `
+                            <div style="margin-top: 0.5rem; padding: 8px; background: ${isUpcoming ? '#e8f5e9' : '#ffebee'}; border-radius: 8px;">
+                                <span style="font-size: 0.9rem; color: ${isUpcoming ? '#2e7d32' : '#c62828'}; font-weight: 600;">
+                                    📅 ${orgDate.toLocaleDateString()}
+                                    ${isUpcoming ? ' (Active)' : ' (Expired)'}
+                                </span>
+                            </div>
+                        ` : ''}
                         <div class="org-card-actions">
-                            <button class="btn-small btn-delete" onclick="leaveEventFromProfile('${org.id}')">
-                                🚪 Leave Event
+                            <button class="btn-small btn-delete" onclick="leaveOrgFromProfile('${org.id}')">
+                                🚪 Leave Organization
                             </button>
                         </div>
                     </div>
@@ -652,15 +681,26 @@
             }).join('');
         }
 
-        function leaveEventFromProfile(orgId) {
-            if (!confirm('Are you sure you want to leave this event?')) return;
+        async function leaveOrgFromProfile(orgId) {
+            if (!confirm('Are you sure you want to leave this organization?')) return;
 
-            const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents_' + currentUser.id) || '[]');
-            const updatedEvents = joinedEvents.filter(id => id !== orgId);
-            localStorage.setItem('joinedEvents_' + currentUser.id, JSON.stringify(updatedEvents));
-            
-            alert('Successfully left the event!');
-            loadMyJoinedEvents();
+            try {
+                const { error } = await supabase
+                    .from('attendees')
+                    .delete()
+                    .eq('organization_id', orgId)
+                    .eq('user_id', currentUser.id);
+
+                if (error) {
+                    alert('Error leaving organization: ' + error.message);
+                    return;
+                }
+
+                alert('Successfully left the organization!');
+                loadMyJoinedEvents();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
         }
 
         function editOrganization(orgId) {
