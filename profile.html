@@ -131,6 +131,8 @@
             align-items: center;
             justify-content: center;
             font-size: 3rem;
+            position: relative;
+            overflow: hidden;
         }
 
         .profile-tabs {
@@ -308,7 +310,6 @@
             background: #218838;
         }
 
-        /* Chat Modal Styles */
         .chat-modal {
             display: none;
             position: fixed;
@@ -493,7 +494,7 @@
 <body>
     <nav>
         <div class="nav-container">
-            <a href="index.html" class="logo">🌍 Organize.Quest</a>
+            <a href="index.html" class="logo">🌐 Organize.Quest</a>
             <a href="index.html" class="btn-secondary">← Back to Home</a>
         </div>
     </nav>
@@ -542,7 +543,7 @@
 
         <div id="profileSection" class="hidden">
             <div class="profile-header">
-                <div class="profile-avatar">👤</div>
+                <div class="profile-avatar" id="headerAvatar">👤</div>
                 <h1 id="userName">My Account</h1>
                 <p id="userEmail" style="opacity: 0.7; margin-top: 0.5rem;"></p>
             </div>
@@ -556,6 +557,28 @@
             <div id="profileTab" class="profile-form">
                 <h2 style="margin-bottom: 1.5rem;">Edit Profile</h2>
                 <form id="profileForm">
+                    <!-- Profil Fotoğrafı Bölümü -->
+                    <div class="form-group">
+                        <label>Profile Picture</label>
+                        <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1rem;">
+                            <div style="position: relative;">
+                                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; overflow: hidden; position: relative;">
+                                    <span id="profileAvatarPreview">👤</span>
+                                    <img id="profileImagePreview" src="" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; display: none; position: absolute; top: 0; left: 0;">
+                                </div>
+                            </div>
+                            <div style="flex: 1;">
+                                <input type="file" id="profilePhoto" accept="image/*" style="margin-bottom: 0.5rem;">
+                                <p style="font-size: 0.85rem; color: var(--gray); margin-top: 0.5rem;">
+                                    Upload JPG, PNG or GIF. Max 2MB.
+                                </p>
+                                <button type="button" id="removePhotoBtn" class="btn-small btn-delete" style="display: none; margin-top: 0.5rem;">
+                                    Remove Photo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label>Full Name</label>
                         <input type="text" id="profileName" placeholder="John Doe">
@@ -624,16 +647,13 @@
         </div>
     </div>
 
-    <!-- Chat Modal -->
     <div id="chatModal" class="chat-modal">
         <div class="chat-modal-content">
             <div class="chat-header">
                 <h3 id="chatOrgName">Organization Chat</h3>
                 <button class="chat-close" id="chatClose">&times;</button>
             </div>
-            <div class="chat-messages" id="chatMessages">
-                <!-- Messages will be loaded here -->
-            </div>
+            <div class="chat-messages" id="chatMessages"></div>
             <div class="chat-input-container">
                 <input type="text" id="chatInput" class="chat-input" placeholder="Type your message...">
                 <button id="chatSend" class="chat-send">📤</button>
@@ -641,610 +661,712 @@
         </div>
     </div>
 
-  <!-- Mevcut script etiketinin içindeki tüm JavaScript kodunu silin ve aşağıdakiyle değiştirin -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-    const SUPABASE_URL = 'https://ymrxfbkghznrosgfqwrh.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltcnhmYmtnaHpucm9zZ2Zxd3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NzQ4MTMsImV4cCI6MjA3NDA1MDgxM30.GyrbrTmWMc6--zCUcfKwc-2qlsBI0z3oly8iv9Fq9-0';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://ymrxfbkghznrosgfqwrh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltcnhmYmtnaHpucm9zZ2Zxd3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NzQ4MTMsImV4cCI6MjA3NDA1MDgxM30.GyrbrTmWMc6--zCUcfKwc-2qlsBI0z3oly8iv9Fq9-0';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    let myOrganizations = [];
-    let editingOrgId = null;
-    let currentChatOrgId = null;
+        let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        let myOrganizations = [];
+        let editingOrgId = null;
+        let currentChatOrgId = null;
 
-    function switchTab(tab) {
-        const loginForm = document.getElementById('loginForm');
-        const signupForm = document.getElementById('signupForm');
-        const loginTabBtn = document.getElementById('loginTabBtn');
-        const signupTabBtn = document.getElementById('signupTabBtn');
+        function switchTab(tab) {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const loginTabBtn = document.getElementById('loginTabBtn');
+            const signupTabBtn = document.getElementById('signupTabBtn');
 
-        if (tab === 'login') {
-            loginForm.classList.remove('hidden');
-            signupForm.classList.add('hidden');
-            loginTabBtn.classList.add('active');
-            signupTabBtn.classList.remove('active');
-        } else {
-            loginForm.classList.add('hidden');
-            signupForm.classList.remove('hidden');
-            signupTabBtn.classList.add('active');
-            loginTabBtn.classList.remove('active');
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                loginTabBtn.classList.add('active');
+                signupTabBtn.classList.remove('active');
+            } else {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                signupTabBtn.classList.add('active');
+                loginTabBtn.classList.remove('active');
+            }
         }
-    }
 
-    async function showProfile() {
-        document.getElementById('authSection').classList.add('hidden');
-        document.getElementById('profileSection').classList.remove('hidden');
-        
-        if (!currentUser || !currentUser.id) return;
-        
-        try {
-            // Supabase'den en güncel profil verilerini çek
-            const { data, error } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', currentUser.id)
-                .single();
+        async function showProfile() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('profileSection').classList.remove('hidden');
             
-            if (!error && data) {
-                currentUser = data;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            }
-        } catch (err) {
-            console.error('Error loading profile:', err);
-        }
-        
-        // UI'ı doldur
-        document.getElementById('userName').textContent = currentUser.name || 'My Account';
-        document.getElementById('userEmail').textContent = currentUser.email || '';
-        document.getElementById('profileName').value = currentUser.name || '';
-        document.getElementById('profileEmail').value = currentUser.email || '';
-        document.getElementById('profilePhone').value = currentUser.phone || '';
-        document.getElementById('profileBio').value = currentUser.bio || '';
-        document.getElementById('profileCity').value = currentUser.city || '';
-        document.getElementById('profileCountry').value = currentUser.country || '';
-        document.getElementById('profileInterests').value = currentUser.interests || '';
-    }
-
-    async function loadMyOrganizations() {
-        if (!currentUser || !currentUser.id) return;
-
-        try {
-            const { data, error } = await supabase
-                .from('organizations')
-                .select('*')
-                .eq('created_by', currentUser.id);
-
-            if (error) {
-                console.error('Error loading organizations:', error);
-                return;
-            }
-
-            myOrganizations = data || [];
-            displayMyOrganizations();
-        } catch (err) {
-            console.error('Error:', err);
-        }
-    }
-
-    function loadMyJoinedEvents() {
-        if (!currentUser || !currentUser.id) return;
-
-        (async () => {
+            if (!currentUser || !currentUser.id) return;
+            
             try {
-                const { data: joinedOrgs, error } = await supabase
-                    .from('attendees')
-                    .select('organization_id')
-                    .eq('user_id', currentUser.id);
-
-                if (error) {
-                    console.error('Error loading joined events:', error);
-                    return;
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', currentUser.id)
+                    .single();
+                
+                if (!error && data) {
+                    currentUser = data;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 }
+            } catch (err) {
+                console.error('Error loading profile:', err);
+            }
+            
+            document.getElementById('userName').textContent = currentUser.name || 'My Account';
+            document.getElementById('userEmail').textContent = currentUser.email || '';
+            document.getElementById('profileName').value = currentUser.name || '';
+            document.getElementById('profileEmail').value = currentUser.email || '';
+            document.getElementById('profilePhone').value = currentUser.phone || '';
+            document.getElementById('profileBio').value = currentUser.bio || '';
+            document.getElementById('profileCity').value = currentUser.city || '';
+            document.getElementById('profileCountry').value = currentUser.country || '';
+            document.getElementById('profileInterests').value = currentUser.interests || '';
+            
+            if (currentUser.avatar_url) {
+                document.getElementById('profileImagePreview').src = currentUser.avatar_url;
+                document.getElementById('profileImagePreview').style.display = 'block';
+                document.getElementById('profileAvatarPreview').style.display = 'none';
+                document.getElementById('removePhotoBtn').style.display = 'inline-block';
+                updateHeaderAvatar();
+            }
+        }
 
-                if (!joinedOrgs || joinedOrgs.length === 0) {
-                    displayMyEvents([]);
-                    return;
+        function updateHeaderAvatar() {
+            const headerAvatar = document.getElementById('headerAvatar');
+            if (headerAvatar) {
+                if (currentUser.avatar_url) {
+                    headerAvatar.style.backgroundImage = `url(${currentUser.avatar_url})`;
+                    headerAvatar.style.backgroundSize = 'cover';
+                    headerAvatar.style.backgroundPosition = 'center';
+                    headerAvatar.innerHTML = '';
+                } else {
+                    headerAvatar.style.backgroundImage = 'none';
+                    headerAvatar.innerHTML = '👤';
                 }
+            }
+        }
 
-                const orgIds = joinedOrgs.map(item => item.organization_id);
-                const { data: organizations, error: orgError } = await supabase
+        async function loadMyOrganizations() {
+            if (!currentUser || !currentUser.id) return;
+
+            try {
+                const { data, error } = await supabase
                     .from('organizations')
                     .select('*')
-                    .in('id', orgIds);
+                    .eq('created_by', currentUser.id);
 
-                if (orgError) {
-                    console.error('Error loading organization details:', orgError);
+                if (error) {
+                    console.error('Error loading organizations:', error);
                     return;
                 }
 
-                displayMyEvents(organizations || []);
+                myOrganizations = data || [];
+                displayMyOrganizations();
             } catch (err) {
                 console.error('Error:', err);
             }
-        })();
-    }
-
-    function displayMyOrganizations() {
-        const container = document.getElementById('myOrgsList');
-        
-        if (myOrganizations.length === 0) {
-            container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t created any organizations yet.</p>';
-            return;
         }
 
-        const icons = {
-            'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
-            'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨',
-            'Environment': '🌱', 'Community': '🏙️'
-        };
+        function loadMyJoinedEvents() {
+            if (!currentUser || !currentUser.id) return;
 
-        container.innerHTML = myOrganizations.map(org => {
-            const icon = icons[org.category] || '📌';
-            return `
-                <div class="org-card">
-                    <h3>${icon} ${org.name}</h3>
-                    <span class="category">${org.category}</span>
-                    <p>${org.description || 'No description'}</p>
-                    ${org.eventDate ? `
-                        <div style="margin-top: 0.5rem; padding: 8px; background: #e3f2fd; border-radius: 8px;">
-                            <span style="font-size: 0.9rem; color: #1976d2; font-weight: 600;">
-                                📅 Event: ${new Date(org.eventDate).toLocaleDateString()}
-                                ${org.maxParticipants ? ` | Max: ${org.maxParticipants}` : ''}
-                            </span>
-                        </div>
-                    ` : ''}
-                    ${org.created_at ? `<p style="margin-top: 0.5rem; font-size: 0.85rem; color: #999;">Created: ${new Date(org.created_at).toLocaleDateString()}</p>` : ''}
-                    <div class="org-card-actions">
-                        <button class="btn-small btn-edit" data-org-id="${org.id}">✏️ Edit</button>
-                        <button class="btn-small btn-delete" data-org-id="${org.id}">🗑️ Delete</button>
-                    </div>
-                </div>
-            `;
-        }).join('');
+            (async () => {
+                try {
+                    const { data: joinedOrgs, error } = await supabase
+                        .from('attendees')
+                        .select('organization_id')
+                        .eq('user_id', currentUser.id);
 
-        container.querySelectorAll('.btn-edit').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const orgId = this.getAttribute('data-org-id');
-                editOrganization(orgId);
-            });
-        });
+                    if (error) {
+                        console.error('Error loading joined events:', error);
+                        return;
+                    }
 
-        container.querySelectorAll('.btn-delete').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const orgId = this.getAttribute('data-org-id');
-                deleteOrganization(orgId);
-            });
-        });
-    }
+                    if (!joinedOrgs || joinedOrgs.length === 0) {
+                        displayMyEvents([]);
+                        return;
+                    }
 
-    function displayMyEvents(events) {
-        const container = document.getElementById('myEventsList');
-        
-        if (events.length === 0) {
-            container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t joined any organizations yet.</p>';
-            return;
+                    const orgIds = joinedOrgs.map(item => item.organization_id);
+                    const { data: organizations, error: orgError } = await supabase
+                        .from('organizations')
+                        .select('*')
+                        .in('id', orgIds);
+
+                    if (orgError) {
+                        console.error('Error loading organization details:', orgError);
+                        return;
+                    }
+
+                    displayMyEvents(organizations || []);
+                } catch (err) {
+                    console.error('Error:', err);
+                }
+            })();
         }
 
-        const icons = {
-            'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
-            'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨',
-            'Environment': '🌱', 'Community': '🏙️'
-        };
-
-        container.innerHTML = events.map(org => {
-            const icon = icons[org.category] || '📌';
-            const orgDate = org.deadline ? new Date(org.deadline) : null;
-            const isUpcoming = orgDate ? orgDate >= new Date() : true;
+        function displayMyOrganizations() {
+            const container = document.getElementById('myOrgsList');
             
-            return `
-                <div class="org-card">
-                    <h3>${icon} ${org.name}</h3>
-                    <span class="category">${org.category}</span>
-                    <p>${org.description || 'No description'}</p>
-                    ${orgDate ? `
-                        <div style="margin-top: 0.5rem; padding: 8px; background: ${isUpcoming ? '#e8f5e9' : '#ffebee'}; border-radius: 8px;">
-                            <span style="font-size: 0.9rem; color: ${isUpcoming ? '#2e7d32' : '#c62828'}; font-weight: 600;">
-                                📅 ${orgDate.toLocaleDateString()}
-                                ${isUpcoming ? ' (Active)' : ' (Expired)'}
-                            </span>
-                        </div>
-                    ` : ''}
-                    <div class="org-card-actions">
-                        <button class="btn-small btn-chat" onclick="openChat('${org.id}', '${org.name}')">
-                            💬 Chat
-                        </button>
-                        <button class="btn-small btn-delete" onclick="leaveOrgFromProfile('${org.id}')">
-                            🚪 Leave Organization
-                        </button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-
-    async function openChat(orgId, orgName) {
-        currentChatOrgId = orgId;
-        document.getElementById('chatOrgName').textContent = `${orgName} - Chat`;
-        document.getElementById('chatModal').classList.add('show');
-        await loadChatMessages(orgId);
-    }
-
-    async function loadChatMessages(orgId) {
-        const messagesContainer = document.getElementById('chatMessages');
-        messagesContainer.innerHTML = '<p style="text-align: center; color: #999;">Loading messages...</p>';
-
-        try {
-            const { data: messages, error } = await supabase
-                .from('organization_messages')
-                .select(`
-                    *,
-                    users!organization_messages_user_id_fkey(name, email)
-                `)
-                .eq('organization_id', orgId)
-                .order('created_at', { ascending: true });
-
-            if (error) {
-                console.error('Error loading messages:', error);
-                messagesContainer.innerHTML = '<p style="text-align: center; color: #dc3545;">Error loading messages</p>';
+            if (myOrganizations.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t created any organizations yet.</p>';
                 return;
             }
 
-            if (!messages || messages.length === 0) {
-                messagesContainer.innerHTML = '<p style="text-align: center; color: #999;">No messages yet. Start the conversation!</p>';
-                return;
-            }
+            const icons = {
+                'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
+                'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨',
+                'Environment': '🌱', 'Community': '🏙️'
+            };
 
-            messagesContainer.innerHTML = messages.map(msg => {
-                const isOwn = msg.user_id === currentUser.id;
-                const senderName = msg.users?.name || msg.users?.email || 'Unknown';
-                const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                
+            container.innerHTML = myOrganizations.map(org => {
+                const icon = icons[org.category] || '📌';
                 return `
-                    <div class="message ${isOwn ? 'own' : 'other'}">
-                        <div class="message-info">${isOwn ? 'You' : senderName} • ${time}</div>
-                        <div>${msg.message}</div>
+                    <div class="org-card">
+                        <h3>${icon} ${org.name}</h3>
+                        <span class="category">${org.category}</span>
+                        <p>${org.description || 'No description'}</p>
+                        ${org.eventDate ? `
+                            <div style="margin-top: 0.5rem; padding: 8px; background: #e3f2fd; border-radius: 8px;">
+                                <span style="font-size: 0.9rem; color: #1976d2; font-weight: 600;">
+                                    📅 Event: ${new Date(org.eventDate).toLocaleDateString()}
+                                    ${org.maxParticipants ? ` | Max: ${org.maxParticipants}` : ''}
+                                </span>
+                                </div>
+                        ` : ''}
+                        ${org.created_at ? `<p style="margin-top: 0.5rem; font-size: 0.85rem; color: #999;">Created: ${new Date(org.created_at).toLocaleDateString()}</p>` : ''}
+                        <div class="org-card-actions">
+                            <button class="btn-small btn-edit" data-org-id="${org.id}">✏️ Edit</button>
+                            <button class="btn-small btn-delete" data-org-id="${org.id}">🗑️ Delete</button>
+                        </div>
                     </div>
                 `;
             }).join('');
 
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        } catch (err) {
-            console.error('Error:', err);
-            messagesContainer.innerHTML = '<p style="text-align: center; color: #dc3545;">Error loading messages</p>';
+            container.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orgId = this.getAttribute('data-org-id');
+                    editOrganization(orgId);
+                });
+            });
+
+            container.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orgId = this.getAttribute('data-org-id');
+                    deleteOrganization(orgId);
+                });
+            });
         }
-    }
 
-    async function sendMessage() {
-        const input = document.getElementById('chatInput');
-        const message = input.value.trim();
-        
-        if (!message || !currentChatOrgId) return;
-
-        try {
-            const { error } = await supabase
-                .from('organization_messages')
-                .insert([{
-                    organization_id: currentChatOrgId,
-                    user_id: currentUser.id,
-                    message: message
-                }]);
-
-            if (error) {
-                alert('Error sending message: ' + error.message);
+        function displayMyEvents(events) {
+            const container = document.getElementById('myEventsList');
+            
+            if (events.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t joined any organizations yet.</p>';
                 return;
             }
 
-            input.value = '';
-            await loadChatMessages(currentChatOrgId);
-        } catch (err) {
-            alert('Error: ' + err.message);
+            const icons = {
+                'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
+                'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨',
+                'Environment': '🌱', 'Community': '🏙️'
+            };
+
+            container.innerHTML = events.map(org => {
+                const icon = icons[org.category] || '📌';
+                const orgDate = org.deadline ? new Date(org.deadline) : null;
+                const isUpcoming = orgDate ? orgDate >= new Date() : true;
+                
+                return `
+                    <div class="org-card">
+                        <h3>${icon} ${org.name}</h3>
+                        <span class="category">${org.category}</span>
+                        <p>${org.description || 'No description'}</p>
+                        ${orgDate ? `
+                            <div style="margin-top: 0.5rem; padding: 8px; background: ${isUpcoming ? '#e8f5e9' : '#ffebee'}; border-radius: 8px;">
+                                <span style="font-size: 0.9rem; color: ${isUpcoming ? '#2e7d32' : '#c62828'}; font-weight: 600;">
+                                    📅 ${orgDate.toLocaleDateString()}
+                                    ${isUpcoming ? ' (Active)' : ' (Expired)'}
+                                </span>
+                            </div>
+                        ` : ''}
+                        <div class="org-card-actions">
+                            <button class="btn-small btn-chat" onclick="openChat('${org.id}', '${org.name}')">
+                                💬 Chat
+                            </button>
+                            <button class="btn-small btn-delete" onclick="leaveOrgFromProfile('${org.id}')">
+                                🚪 Leave
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
-    }
 
-    function closeChat() {
-        document.getElementById('chatModal').classList.remove('show');
-        currentChatOrgId = null;
-    }
-
-    function editOrganization(orgId) {
-        const org = myOrganizations.find(o => o.id === orgId || o.id == orgId);
-        if (!org) {
-            console.error('Organization not found:', orgId);
-            alert('Organization not found!');
-            return;
+        async function openChat(orgId, orgName) {
+            currentChatOrgId = orgId;
+            document.getElementById('chatOrgName').textContent = `${orgName} - Chat`;
+            document.getElementById('chatModal').classList.add('show');
+            await loadChatMessages(orgId);
         }
 
-        editingOrgId = orgId;
-        document.getElementById('editOrgName').value = org.name;
-        document.getElementById('editOrgDescription').value = org.description || '';
-        
-        document.getElementById('editOrgModal').classList.add('show');
-    }
+        async function loadChatMessages(orgId) {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.innerHTML = '<p style="text-align: center; color: #999;">Loading messages...</p>';
 
-    async function deleteOrganization(orgId) {
-        if (!confirm('Are you sure you want to delete this organization?')) return;
+            try {
+                const { data: messages, error } = await supabase
+                    .from('organization_messages')
+                    .select(`
+                        *,
+                        users!organization_messages_user_id_fkey(name, email)
+                    `)
+                    .eq('organization_id', orgId)
+                    .order('created_at', { ascending: true });
 
-        try {
-            const { error } = await supabase
-                .from('organizations')
-                .delete()
-                .eq('id', orgId);
+                if (error) {
+                    console.error('Error loading messages:', error);
+                    messagesContainer.innerHTML = '<p style="text-align: center; color: #dc3545;">Error loading messages</p>';
+                    return;
+                }
 
-            if (error) {
-                alert('Error deleting organization: ' + error.message);
-                console.error('Delete error:', error);
+                if (!messages || messages.length === 0) {
+                    messagesContainer.innerHTML = '<p style="text-align: center; color: #999;">No messages yet. Start the conversation!</p>';
+                    return;
+                }
+
+                messagesContainer.innerHTML = messages.map(msg => {
+                    const isOwn = msg.user_id === currentUser.id;
+                    const senderName = msg.users?.name || msg.users?.email || 'Unknown';
+                    const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    
+                    return `
+                        <div class="message ${isOwn ? 'own' : 'other'}">
+                            <div class="message-info">${isOwn ? 'You' : senderName} • ${time}</div>
+                            <div>${msg.message}</div>
+                        </div>
+                    `;
+                }).join('');
+
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } catch (err) {
+                console.error('Error:', err);
+                messagesContainer.innerHTML = '<p style="text-align: center; color: #dc3545;">Error loading messages</p>';
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message || !currentChatOrgId) return;
+
+            try {
+                const { error } = await supabase
+                    .from('organization_messages')
+                    .insert([{
+                        organization_id: currentChatOrgId,
+                        user_id: currentUser.id,
+                        message: message
+                    }]);
+
+                if (error) {
+                    alert('Error sending message: ' + error.message);
+                    return;
+                }
+
+                input.value = '';
+                await loadChatMessages(currentChatOrgId);
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        function closeChat() {
+            document.getElementById('chatModal').classList.remove('show');
+            currentChatOrgId = null;
+        }
+
+        function editOrganization(orgId) {
+            const org = myOrganizations.find(o => o.id === orgId || o.id == orgId);
+            if (!org) {
+                console.error('Organization not found:', orgId);
+                alert('Organization not found!');
                 return;
             }
 
-            alert('Organization deleted successfully!');
-            await loadMyOrganizations();
-        } catch (err) {
-            alert('Error: ' + err.message);
-            console.error('Delete error:', err);
+            editingOrgId = orgId;
+            document.getElementById('editOrgName').value = org.name;
+            document.getElementById('editOrgDescription').value = org.description || '';
+            
+            document.getElementById('editOrgModal').classList.add('show');
         }
-    }
 
-    // Sayfa yüklendiğinde
-    if (currentUser) {
-        showProfile();
-        loadMyOrganizations();
-    }
+        async function deleteOrganization(orgId) {
+            if (!confirm('Are you sure you want to delete this organization?')) return;
 
-    // Event Listeners
-    document.getElementById('loginTabBtn').addEventListener('click', () => switchTab('login'));
-    document.getElementById('signupTabBtn').addEventListener('click', () => switchTab('signup'));
+            try {
+                const { error } = await supabase
+                    .from('organizations')
+                    .delete()
+                    .eq('id', orgId);
 
-    document.querySelectorAll('.profile-tab-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
+                if (error) {
+                    alert('Error deleting organization: ' + error.message);
+                    console.error('Delete error:', error);
+                    return;
+                }
 
-            const tab = this.dataset.tab;
+                alert('Organization deleted successfully!');
+                await loadMyOrganizations();
+            } catch (err) {
+                alert('Error: ' + err.message);
+                console.error('Delete error:', err);
+            }
+        }
+
+        // Profil fotoğrafı yükleme
+        document.getElementById('profilePhoto').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
             
-            document.getElementById('profileTab').classList.add('hidden');
-            document.getElementById('organizationsTab').classList.add('hidden');
-            document.getElementById('eventsTab').classList.add('hidden');
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size must be less than 2MB');
+                this.value = '';
+                return;
+            }
             
-            if (tab === 'profile') {
-                document.getElementById('profileTab').classList.remove('hidden');
-            } else if (tab === 'organizations') {
-                document.getElementById('organizationsTab').classList.remove('hidden');
-                loadMyOrganizations();
-            } else if (tab === 'events') {
-                document.getElementById('eventsTab').classList.remove('hidden');
-                loadMyJoinedEvents();
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file');
+                this.value = '';
+                return;
+            }
+            
+            try {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('profileImagePreview').src = event.target.result;
+                    document.getElementById('profileImagePreview').style.display = 'block';
+                    document.getElementById('profileAvatarPreview').style.display = 'none';
+                    document.getElementById('removePhotoBtn').style.display = 'inline-block';
+                };
+                reader.readAsDataURL(file);
+                
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
+                
+                const { data, error } = await supabase.storage
+                    .from('avatars')
+                    .upload(fileName, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+                
+                if (error) throw error;
+                
+                const { data: { publicUrl } } = supabase.storage
+                    .from('avatars')
+                    .getPublicUrl(fileName);
+                
+                const { error: updateError } = await supabase
+                    .from('users')
+                    .update({ avatar_url: publicUrl })
+                    .eq('id', currentUser.id);
+                
+                if (updateError) throw updateError;
+                
+                currentUser.avatar_url = publicUrl;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                updateHeaderAvatar();
+                
+                alert('Profile photo uploaded successfully!');
+            } catch (err) {
+                console.error('Upload error:', err);
+                alert('Error uploading photo: ' + err.message);
             }
         });
-    });
 
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-        
-        try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
-
-            if (error) {
-                alert('Error: ' + error.message);
-                return;
-            }
-
-            const { data: profile, error: profileError } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', data.user.id)
-                .single();
-
-            if (profileError && profileError.code === 'PGRST116') {
-                const { error: createError } = await supabase
-                    .from('users')
-                    .insert([{
-                        id: data.user.id,
-                        email: email,
-                        name: data.user.user_metadata?.name || email.split('@')[0]
-                    }]);
-                
-                if (createError) {
-                    console.error('Error creating user profile:', createError);
-                }
-                
-                currentUser = { 
-                    id: data.user.id, 
-                    email: email, 
-                    name: data.user.user_metadata?.name || email.split('@')[0] 
-                };
-            } else if (profile) {
-                currentUser = profile;
-            } else {
-                currentUser = { id: data.user.id, email: email, name: 'User' };
-            }
-
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        document.getElementById('removePhotoBtn').addEventListener('click', async function() {
+            if (!confirm('Are you sure you want to remove your profile photo?')) return;
             
-            alert('Successfully logged in!');
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .update({ avatar_url: null })
+                    .eq('id', currentUser.id);
+                
+                if (error) throw error;
+                
+                currentUser.avatar_url = null;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                document.getElementById('profileImagePreview').style.display = 'none';
+                document.getElementById('profileAvatarPreview').style.display = 'flex';
+                document.getElementById('removePhotoBtn').style.display = 'none';
+                document.getElementById('profilePhoto').value = '';
+                
+                updateHeaderAvatar();
+                
+                alert('Profile photo removed successfully!');
+            } catch (err) {
+                alert('Error removing photo: ' + err.message);
+            }
+        });
+
+        if (currentUser) {
             showProfile();
             loadMyOrganizations();
-        } catch (err) {
-            alert('Login error: ' + err.message);
-        }
-    });
-
-    document.getElementById('signupForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const name = document.getElementById('signupName').value;
-        const email = document.getElementById('signupEmail').value;
-        const password = document.getElementById('signupPassword').value;
-        const confirm = document.getElementById('signupConfirm').value;
-
-        if (password !== confirm) {
-            alert('Passwords do not match!');
-            return;
         }
 
-        try {
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password,
-                options: {
-                    data: { name: name }
+        document.getElementById('loginTabBtn').addEventListener('click', () => switchTab('login'));
+        document.getElementById('signupTabBtn').addEventListener('click', () => switchTab('signup'));
+
+        document.querySelectorAll('.profile-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const tab = this.dataset.tab;
+                
+                document.getElementById('profileTab').classList.add('hidden');
+                document.getElementById('organizationsTab').classList.add('hidden');
+                document.getElementById('eventsTab').classList.add('hidden');
+                
+                if (tab === 'profile') {
+                    document.getElementById('profileTab').classList.remove('hidden');
+                } else if (tab === 'organizations') {
+                    document.getElementById('organizationsTab').classList.remove('hidden');
+                    loadMyOrganizations();
+                } else if (tab === 'events') {
+                    document.getElementById('eventsTab').classList.remove('hidden');
+                    loadMyJoinedEvents();
                 }
             });
+        });
 
-            if (error) {
-                alert('Error: ' + error.message);
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) {
+                    alert('Error: ' + error.message);
+                    return;
+                }
+
+                const { data: profile, error: profileError } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('id', data.user.id)
+                    .single();
+
+                if (profileError && profileError.code === 'PGRST116') {
+                    const { error: createError } = await supabase
+                        .from('users')
+                        .insert([{
+                            id: data.user.id,
+                            email: email,
+                            name: data.user.user_metadata?.name || email.split('@')[0]
+                        }]);
+                    
+                    if (createError) {
+                        console.error('Error creating user profile:', createError);
+                    }
+                    
+                    currentUser = { 
+                        id: data.user.id, 
+                        email: email, 
+                        name: data.user.user_metadata?.name || email.split('@')[0] 
+                    };
+                } else if (profile) {
+                    currentUser = profile;
+                } else {
+                    currentUser = { id: data.user.id, email: email, name: 'User' };
+                }
+
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                alert('Successfully logged in!');
+                showProfile();
+                loadMyOrganizations();
+            } catch (err) {
+                alert('Login error: ' + err.message);
+            }
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirm = document.getElementById('signupConfirm').value;
+
+            if (password !== confirm) {
+                alert('Passwords do not match!');
                 return;
             }
 
-            const { error: profileError } = await supabase
-                .from('users')
-                .insert([{ 
-                    id: data.user.id,
-                    email: email, 
-                    name: name 
-                }]);
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: { name: name }
+                    }
+                });
 
-            if (profileError) {
-                console.error('Error creating user profile:', profileError);
+                if (error) {
+                    alert('Error: ' + error.message);
+                    return;
+                }
+
+                const { error: profileError } = await supabase
+                    .from('users')
+                    .insert([{ 
+                        id: data.user.id,
+                        email: email, 
+                        name: name 
+                    }]);
+
+                if (profileError) {
+                    console.error('Error creating user profile:', profileError);
+                }
+
+                currentUser = { id: data.user.id, email: email, name: name };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                alert('Account created successfully!');
+                showProfile();
+            } catch (err) {
+                alert('Signup error: ' + err.message);
             }
+        });
 
-            currentUser = { id: data.user.id, email: email, name: name };
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            alert('Account created successfully!');
-            showProfile();
-        } catch (err) {
-            alert('Signup error: ' + err.message);
-        }
-    });
-
-    // GÜNCELLENMIŞ PROFIL FORMU - SUPABASE SYNC İLE
-    document.getElementById('profileForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        if (!currentUser || !currentUser.id) {
-            alert('Please log in first!');
-            return;
-        }
-        
-        const profileData = {
-            name: document.getElementById('profileName').value,
-            phone: document.getElementById('profilePhone').value,
-            bio: document.getElementById('profileBio').value,
-            city: document.getElementById('profileCity').value,
-            country: document.getElementById('profileCountry').value,
-            interests: document.getElementById('profileInterests').value
-        };
-        
-        try {
-            // Supabase'e kaydet
-            const { error } = await supabase
-                .from('users')
-                .update(profileData)
-                .eq('id', currentUser.id);
-            
-            if (error) {
-                console.error('Supabase error:', error);
-                alert('Error updating profile: ' + error.message);
+            if (!currentUser || !currentUser.id) {
+                alert('Please log in first!');
                 return;
             }
             
-            // LocalStorage'ı güncelle
-            Object.assign(currentUser, profileData);
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            const profileData = {
+                name: document.getElementById('profileName').value,
+                phone: document.getElementById('profilePhone').value,
+                bio: document.getElementById('profileBio').value,
+                city: document.getElementById('profileCity').value,
+                country: document.getElementById('profileCountry').value,
+                interests: document.getElementById('profileInterests').value
+            };
             
-            // UI'ı güncelle
-            document.getElementById('userName').textContent = profileData.name || 'My Account';
-            
-            alert('Profile updated successfully!');
-        } catch (err) {
-            console.error('Update error:', err);
-            alert('Error: ' + err.message);
-        }
-    });
-
-    document.getElementById('editOrgForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        const updatedData = {
-            name: document.getElementById('editOrgName').value,
-            description: document.getElementById('editOrgDescription').value
-        };
-
-        try {
-            const { error } = await supabase
-                .from('organizations')
-                .update(updatedData)
-                .eq('id', editingOrgId);
-
-            if (error) {
-                alert('Error updating organization: ' + error.message);
-                console.error('Update error:', error);
-                return;
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .update(profileData)
+                    .eq('id', currentUser.id);
+                
+                if (error) {
+                    console.error('Supabase error:', error);
+                    alert('Error updating profile: ' + error.message);
+                    return;
+                }
+                
+                Object.assign(currentUser, profileData);
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                document.getElementById('userName').textContent = profileData.name || 'My Account';
+                
+                alert('Profile updated successfully!');
+            } catch (err) {
+                console.error('Update error:', err);
+                alert('Error: ' + err.message);
             }
+        });
 
-            alert('Organization updated successfully!');
+        document.getElementById('editOrgForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const updatedData = {
+                name: document.getElementById('editOrgName').value,
+                description: document.getElementById('editOrgDescription').value
+            };
+
+            try {
+                const { error } = await supabase
+                    .from('organizations')
+                    .update(updatedData)
+                    .eq('id', editingOrgId);
+
+                if (error) {
+                    alert('Error updating organization: ' + error.message);
+                    console.error('Update error:', error);
+                    return;
+                }
+
+                alert('Organization updated successfully!');
+                document.getElementById('editOrgModal').classList.remove('show');
+                await loadMyOrganizations();
+            } catch (err) {
+                alert('Error: ' + err.message);
+                console.error('Update error:', err);
+            }
+        });
+
+        document.getElementById('editModalClose').addEventListener('click', function() {
             document.getElementById('editOrgModal').classList.remove('show');
-            await loadMyOrganizations();
-        } catch (err) {
-            alert('Error: ' + err.message);
-            console.error('Update error:', err);
-        }
-    });
+        });
 
-    document.getElementById('editModalClose').addEventListener('click', function() {
-        document.getElementById('editOrgModal').classList.remove('show');
-    });
+        document.getElementById('chatClose').addEventListener('click', closeChat);
+        document.getElementById('chatSend').addEventListener('click', sendMessage);
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
 
-    document.getElementById('chatClose').addEventListener('click', closeChat);
-    document.getElementById('chatSend').addEventListener('click', sendMessage);
-    document.getElementById('chatInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            sendMessage();
-        }
-    });
+        document.getElementById('chatModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeChat();
+            }
+        });
 
-    document.getElementById('chatModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeChat();
-        }
-    });
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            try {
+                await supabase.auth.signOut();
+            } catch (err) {
+                console.error('Error signing out:', err);
+            }
+            
+            localStorage.removeItem('currentUser');
+            alert('Logged out successfully!');
+            window.location.href = 'index.html';
+        });
 
-    document.getElementById('logoutBtn').addEventListener('click', async function() {
-        try {
-            await supabase.auth.signOut();
-        } catch (err) {
-            console.error('Error signing out:', err);
-        }
-        
-        localStorage.removeItem('currentUser');
-        alert('Logged out successfully!');
-        window.location.href = 'index.html';
-    });
-
-    // Global fonksiyonlar (HTML'den çağrılabilsin diye)
-    window.leaveOrgFromProfile = async function(orgId) {
-        if (!currentUser) {
-            alert('Please log in first!');
-            return;
-        }
-        if (!confirm('Are you sure you want to leave this organization?')) return;
-        const { error } = await supabase
-            .from('attendees')
-            .delete()
-            .eq('organization_id', orgId)
-            .eq('user_id', currentUser.id);
-        if (error) {
-            alert('Leave failed: ' + error.message);
-            return;
-        }
-        alert('Left organization successfully!');
-        loadMyJoinedEvents();
-    };
-</script>
+        window.leaveOrgFromProfile = async function(orgId) {
+            if (!currentUser) {
+                alert('Please log in first!');
+                return;
+            }
+            if (!confirm('Are you sure you want to leave this organization?')) return;
+            const { error } = await supabase
+                .from('attendees')
+                .delete()
+                .eq('organization_id', orgId)
+                .eq('user_id', currentUser.id);
+            if (error) {
+                alert('Leave failed: ' + error.message);
+                return;
+            }
+            alert('Left organization successfully!');
+            loadMyJoinedEvents();
+        };
+    </script>
 </body>
 </html>
