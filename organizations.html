@@ -35,7 +35,6 @@
             min-height: 100vh;
         }
 
-        /* Navigation */
         nav {
             background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px);
@@ -102,7 +101,6 @@
             box-shadow: 0 5px 15px rgba(88, 101, 242, 0.3);
         }
 
-        /* Main Layout */
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -132,7 +130,6 @@
             color: var(--gray);
         }
 
-        /* Tabs */
         .tabs {
             display: flex;
             gap: 1rem;
@@ -164,7 +161,6 @@
             color: white;
         }
 
-        /* Map & Sidebar Layout */
         .main-content {
             display: grid;
             grid-template-columns: 1fr 400px;
@@ -198,7 +194,6 @@
             color: var(--dark);
         }
 
-        /* Action Buttons */
         .action-buttons {
             display: flex;
             flex-direction: column;
@@ -263,7 +258,6 @@
             color: white;
         }
 
-        /* Organization Cards */
         .org-list {
             display: flex;
             flex-direction: column;
@@ -311,7 +305,6 @@
             margin-left: 0.5rem;
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -373,7 +366,6 @@
             transform: rotate(90deg);
         }
 
-        /* Form Styles */
         .form-group {
             margin-bottom: 1rem;
         }
@@ -413,7 +405,6 @@
             color: var(--danger);
         }
 
-        /* Stats */
         .stats-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -440,7 +431,6 @@
             font-size: 0.9rem;
         }
 
-        /* Filter Bar */
         .filter-bar {
             background: white;
             padding: 1rem;
@@ -473,11 +463,10 @@
     </style>
 </head>
 <body>
-    <!-- Navigation -->
     <nav>
         <div class="nav-container">
             <a href="index.html" class="logo">
-                <span>🌍</span>
+                <span>🌐</span>
                 <span>Organize.Quest</span>
             </a>
             <div class="nav-links">
@@ -489,15 +478,12 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <div class="container">
-        <!-- Page Header -->
         <div class="page-header">
             <h1>Organizations & Events Hub</h1>
             <p>Discover local organizations and join community events in your area</p>
         </div>
 
-        <!-- Statistics -->
         <div class="stats-container">
             <div class="stat-card">
                 <div class="stat-number" id="totalOrgs">0</div>
@@ -517,7 +503,6 @@
             </div>
         </div>
 
-        <!-- Filter Bar -->
         <div class="filter-bar">
             <select id="categoryFilter">
                 <option value="">All Categories</option>
@@ -544,14 +529,12 @@
             </select>
         </div>
 
-        <!-- Tabs -->
         <div class="tabs">
             <button class="tab-btn active" data-tab="map">🗺️ Map View</button>
             <button class="tab-btn" data-tab="list">📋 List View</button>
             <button class="tab-btn" data-tab="calendar">📅 Calendar View</button>
         </div>
 
-        <!-- Map and Sidebar -->
         <div class="main-content" id="mapView">
             <div class="map-container">
                 <div id="map"></div>
@@ -575,7 +558,6 @@
         </div>
     </div>
 
-    <!-- Create Organization Modal - SUPER COMPACT -->
     <div id="createModal" class="modal">
         <div class="modal-content" style="max-width: 600px; max-height: 90vh; padding: 1.5rem;">
             <span class="modal-close" id="modalCloseBtn">&times;</span>
@@ -621,28 +603,23 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Initialize variables
         let map, userMarker, organizations = [], createMode = false, selectedLocation = null;
         let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        let joinedOrgIds = new Set(); // from Supabase attendees
+        let joinedOrgIds = new Set();
         
-        // Supabase configuration
         const SUPABASE_URL = 'https://ymrxfbkghznrosgfqwrh.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltcnhmYmtnaHpucm9zZ2Zxd3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NzQ4MTMsImV4cCI6MjA3NDA1MDgxM30.GyrbrTmWMc6--zCUcfKwc-2qlsBI0z3oly8iv9Fq9-0';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Check if user has joined an event
         function hasUserJoinedEvent(orgId) {
             if (!currentUser || !currentUser.id) return false;
             const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents_' + currentUser.id) || '[]');
             return joinedEvents.includes(orgId);
         }
 
-        // Fetch joined orgs for current user from Supabase attendees
         async function refreshJoinedOrgs() {
             joinedOrgIds = new Set();
             if (!currentUser || !currentUser.id) return;
@@ -655,13 +632,11 @@
             }
         }
 
-        // Check if user has joined an organization
         function hasUserJoinedOrg(orgId) {
             if (!currentUser || !currentUser.id) return false;
             return joinedOrgIds.has(orgId);
         }
 
-        // Join organization
         async function joinOrg(orgId) {
             if (!currentUser) {
                 alert('Please log in to join organizations!');
@@ -681,7 +656,6 @@
             loadOrganizations();
         }
 
-        // Leave organization
         async function leaveOrg(orgId) {
             if (!currentUser) {
                 alert('Please log in first!');
@@ -703,7 +677,6 @@
             loadOrganizations();
         }
 
-        // Join event
         function joinEvent(orgId) {
             if (!currentUser) {
                 alert('Please log in to join events!');
@@ -717,7 +690,6 @@
                 return;
             }
 
-            // Check if event is full
             if (org.maxParticipants) {
                 const currentParticipants = org.participants ? org.participants.length : 0;
                 if (currentParticipants >= org.maxParticipants) {
@@ -726,25 +698,22 @@
                 }
             }
 
-            // Add user to joined events
             const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents_' + currentUser.id) || '[]');
             if (!joinedEvents.includes(orgId)) {
                 joinedEvents.push(orgId);
                 localStorage.setItem('joinedEvents_' + currentUser.id, JSON.stringify(joinedEvents));
                 
-                // Update organization participants
                 if (!org.participants) org.participants = [];
                 org.participants.push(currentUser.id);
                 
                 alert('Successfully joined the event!');
                 updateOrganizationList();
-                loadOrganizations(); // Refresh markers
+                loadOrganizations();
             } else {
                 alert('You have already joined this event!');
             }
         }
 
-        // Leave event
         function leaveEvent(orgId) {
             if (!currentUser) {
                 alert('Please log in first!');
@@ -755,12 +724,10 @@
                 return;
             }
 
-            // Remove user from joined events
             const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents_' + currentUser.id) || '[]');
             const updatedEvents = joinedEvents.filter(id => id !== orgId);
             localStorage.setItem('joinedEvents_' + currentUser.id, JSON.stringify(updatedEvents));
             
-            // Update organization participants
             const org = organizations.find(o => o.id === orgId);
             if (org && org.participants) {
                 org.participants = org.participants.filter(id => id !== currentUser.id);
@@ -768,10 +735,9 @@
 
             alert('Successfully left the event!');
             updateOrganizationList();
-            loadOrganizations(); // Refresh markers
+            loadOrganizations();
         }
 
-        // Initialize map
         function initMap() {
             map = L.map('map').setView([40.7128, -74.0060], 13);
             
@@ -779,17 +745,14 @@
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
 
-            // Load existing organizations
             loadOrganizations();
 
-            // Map click handler for location selection
             map.on('click', function(e) {
                 if (createMode) {
                     selectedLocation = e.latlng;
                     document.getElementById('orgLocationDisplay').value = 
                         `Lat: ${e.latlng.lat.toFixed(4)}, Lng: ${e.latlng.lng.toFixed(4)}`;
                     
-                    // Add temporary marker
                     if (window.tempMarker) {
                         map.removeLayer(window.tempMarker);
                     }
@@ -797,11 +760,9 @@
                 }
             });
 
-            // Try to get user location
             getCurrentLocation();
         }
 
-        // Get current location
         function getCurrentLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
@@ -825,12 +786,18 @@
             }
         }
 
-        // Load organizations
         async function loadOrganizations() {
             try {
                 const { data, error } = await supabase
                     .from('organizations')
-                    .select('*')
+                    .select(`
+                        *,
+                        users!organizations_created_by_fkey (
+                            id,
+                            name,
+                            avatar_url
+                        )
+                    `)
                     .order('created_at', { ascending: false });
 
                 if (error) {
@@ -840,26 +807,21 @@
 
                 organizations = data || [];
 
-                // Filter out expired organizations (past date)
                 const now = new Date();
-                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Today at 00:00:00
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
                 organizations = organizations.filter(org => {
-                    if (!org.deadline) return true; // No date = never expires
+                    if (!org.deadline) return true;
                     const orgDate = new Date(org.deadline);
-                    return orgDate >= today; // Show if date is today or future
+                    return orgDate >= today;
                 });
 
-                // refresh membership state from attendees before rendering
                 await refreshJoinedOrgs();
 
-                // Clear existing markers
                 map.eachLayer(function(layer) {
                     if (layer instanceof L.Marker && layer !== userMarker) {
                         map.removeLayer(layer);
                     }
                 });
-
-                // Add markers for all organizations
                 organizations.forEach(org => {
                     addOrganizationMarker(org);
                 });
@@ -871,7 +833,6 @@
             }
         }
 
-        // Add organization marker
         function addOrganizationMarker(org) {
             const categoryIcons = {
                 'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
@@ -888,7 +849,23 @@
                     ${org.deadline ? `<p><strong>📅 Date:</strong> ${new Date(org.deadline).toLocaleDateString()}</p>` : ''}
             `;
 
-            // Show event details if it's an event
+            if (org.users) {
+                popupContent += `
+                    <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, #5865F2, #4ECDC4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            ${org.users.avatar_url 
+                                ? `<img src="${org.users.avatar_url}" style="width: 100%; height: 100%; object-fit: cover;">` 
+                                : `<span style="font-size: 1.2rem;">👤</span>`
+                            }
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-size: 0.85rem; color: #6c757d;">Created by</div>
+                            <div style="font-weight: 600; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${org.users.name || 'Anonymous'}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
             if (org.eventDate) {
                 const eventDate = new Date(org.eventDate);
                 const isUpcoming = eventDate > new Date();
@@ -901,7 +878,6 @@
                     </div>
                 `;
 
-                // Add join/leave button only for events
                 if (currentUser && isUpcoming) {
                     const hasJoined = hasUserJoinedEvent(org.id);
                     const isFull = org.maxParticipants && org.participants && org.participants.length >= org.maxParticipants;
@@ -931,7 +907,6 @@
                 }
             }
 
-            // Organization membership join/leave (independent of events)
             if (currentUser) {
                 const hasJoinedOrg = hasUserJoinedOrg(org.id);
                 if (hasJoinedOrg) {
@@ -962,7 +937,6 @@
                 .bindPopup(popupContent);
         }
 
-        // Focus on organization
         function focusOrganization(orgId) {
             const org = organizations.find(o => o.id === orgId);
             if (org) {
@@ -970,7 +944,6 @@
             }
         }
 
-        // Update organization list
         function updateOrganizationList() {
             const listContainer = document.getElementById('orgList');
             
@@ -994,7 +967,22 @@
                         ${hasUserJoinedOrg(org.id) ? '<span class="joined-badge">✓ Joined</span>' : ''}
                 `;
 
-                // Show event info if it's an event
+                if (org.users) {
+                    cardHTML += `
+                        <div style="margin-top: 10px; padding: 8px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 30px; height: 30px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, #5865F2, #4ECDC4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                ${org.users.avatar_url 
+                                    ? `<img src="${org.users.avatar_url}" style="width: 100%; height: 100%; object-fit: cover;">` 
+                                    : `<span style="font-size: 0.9rem;">👤</span>`
+                                }
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 0.75rem; color: #6c757d;">by ${org.users.name || 'Anonymous'}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
                 if (org.eventDate) {
                     const eventDate = new Date(org.eventDate);
                     const isUpcoming = eventDate > new Date();
@@ -1011,7 +999,6 @@
                         </div>
                     `;
 
-                    // Add join/leave button for events
                     if (currentUser && isUpcoming) {
                         if (hasJoined) {
                             cardHTML += `
@@ -1033,7 +1020,6 @@
                     }
                 }
 
-                // Membership buttons for organization
                 if (currentUser) {
                     if (hasUserJoinedOrg(org.id)) {
                         cardHTML += `
@@ -1059,7 +1045,6 @@
             }).join('');
         }
 
-        // Update statistics
         function updateStats() {
             document.getElementById('totalOrgs').textContent = organizations.length;
             
@@ -1075,23 +1060,19 @@
             }, 0);
             document.getElementById('totalParticipants').textContent = totalParticipants;
 
-            // Nearby organizations (if user location is available)
             if (userMarker) {
                 const userPos = userMarker.getLatLng();
                 const nearbyCount = organizations.filter(org => {
-                    const distance = map.distance(userPos, [org.latitude, org.longitude]) / 1000; // in km
+                    const distance = map.distance(userPos, [org.latitude, org.longitude]) / 1000;
                     return distance < 5;
                 }).length;
                 document.getElementById('nearbyOrgs').textContent = nearbyCount;
             }
         }
 
-        // Event Listeners
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize map
             initMap();
 
-            // Tab switching
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1106,7 +1087,6 @@
                 });
             });
 
-            // Create new button
             document.getElementById('createNewBtn').addEventListener('click', function() {
                 if (!currentUser) {
                     alert('Please log in to create an organization!');
@@ -1118,7 +1098,6 @@
                 alert('Click on the map to select location for your organization');
             });
 
-            // Create organization button
             document.getElementById('createOrgBtn').addEventListener('click', function() {
                 if (!currentUser) {
                     alert('Please log in to create an organization!');
@@ -1130,10 +1109,8 @@
                 alert('Click on the map to select location for your organization');
             });
 
-            // Find location button
             document.getElementById('findLocationBtn').addEventListener('click', getCurrentLocation);
 
-            // Close modal buttons
             document.getElementById('modalCloseBtn').addEventListener('click', function() {
                 document.getElementById('createModal').classList.remove('show');
                 createMode = false;
@@ -1143,7 +1120,6 @@
                 }
             });
 
-            // Form submission
             document.getElementById('createOrgForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
 
@@ -1158,14 +1134,12 @@
                     return;
                 }
 
-                // Validate required fields
                 const deadline = document.getElementById('orgDeadline').value;
                 if (!deadline) {
                     alert('Please select an organization date!');
                     return;
                 }
 
-                // Check user's organization limit (max 3)
                 const { data: userOrgs, error: countError } = await supabase
                     .from('organizations')
                     .select('id')
@@ -1226,7 +1200,6 @@
             });
         });
 
-        // Close modal on outside click
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
                 event.target.classList.remove('show');
