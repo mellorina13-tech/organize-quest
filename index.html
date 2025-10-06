@@ -366,13 +366,116 @@
             border-radius: 10px;
             font-size: 1rem;
         }
+
+        /* Mobile Responsive Fixes */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-wrap: wrap;
+                gap: 1rem;
+                padding: 0 1rem;
+            }
+
+            .nav-buttons {
+                width: 100%;
+                justify-content: space-between;
+                order: 2;
+                flex-wrap: wrap;
+            }
+
+            .logo {
+                font-size: 1.4rem;
+                order: 1;
+            }
+
+            .lang-switcher {
+                order: 3;
+            }
+
+            .btn-login,
+            .btn-nav {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .hero {
+                padding: 6rem 1rem 3rem;
+                min-height: auto;
+            }
+
+            .hero-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .hero-content p {
+                font-size: 1rem;
+            }
+
+            .btn-primary {
+                padding: 0.8rem 1.8rem;
+                font-size: 1rem;
+            }
+
+            section {
+                padding: 2rem 1rem !important;
+            }
+
+            h2 {
+                font-size: 1.8rem !important;
+            }
+
+            .map-container {
+                grid-template-columns: 1fr;
+            }
+
+            .map-sidebar {
+                display: none;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+                width: 95%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .lang-switcher {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .btn-login,
+            .btn-nav,
+            .user-menu-btn {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+
+            .hero-content h1 {
+                font-size: 1.6rem;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="landing-page" id="landingPage">
         <nav>
             <div class="nav-container">
-                <div class="logo" id="logoText">🌍 Organize.Quest</div>
+                <div class="logo" id="logoText">🌐 Organize.Quest</div>
                 <div class="nav-buttons">
                     <div class="lang-switcher">
                         <button class="lang-btn active" id="btnEN">EN</button>
@@ -527,7 +630,7 @@
 
     <div class="map-app" id="mapApp">
         <div class="map-header">
-            <h2>🌍 <span id="mapTitle">Organize.Quest Map</span></h2>
+            <h2>🌐 <span id="mapTitle">Organize.Quest Map</span></h2>
             <button class="btn-primary" id="closeMapBtn">← Back</button>
         </div>
         <div class="map-container">
@@ -705,7 +808,6 @@
             
             const t = translations[lang];
             
-            // Update all text
             document.getElementById('heroTitle').textContent = t.heroTitle;
             document.getElementById('heroDesc').textContent = t.heroDesc;
             document.getElementById('heroMapBtn').textContent = t.startBtn;
@@ -851,7 +953,6 @@
                     ${org.deadline ? `<p><strong>📅 Date:</strong> ${new Date(org.deadline).toLocaleDateString()}</p>` : ''}
             `;
 
-            // Organizasyonu oluşturan kişinin bilgileri
             if (org.users) {
                 popupContent += `
                     <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; gap: 10px;">
@@ -997,14 +1098,12 @@
                     return;
                 }
 
-                // Validate required fields
                 const deadline = document.getElementById('orgDeadline').value;
                 if (!deadline) {
                     alert('Please select an organization date!');
                     return;
                 }
 
-                // Check user's organization limit (max 3)
                 const { data: userOrgs, error: countError } = await supabase
                     .from('organizations')
                     .select('id')
@@ -1088,7 +1187,6 @@
                 }
             });
 
-            // Global join/leave handlers for organization membership via Supabase attendees
             window.joinOrganization = function(orgId) {
                 (async () => {
                     if (!currentUser) {
