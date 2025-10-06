@@ -439,8 +439,10 @@
             }
 
             .hero {
-                padding: 6rem 1.5rem 3rem;
-                min-height: auto;
+                padding: 7rem 1.5rem 3rem;
+                min-height: 85vh;
+                display: flex;
+                align-items: center;
             }
 
             .hero-container {
@@ -449,13 +451,15 @@
             }
 
             .hero-content h1 {
-                font-size: 2.2rem;
-                line-height: 1.2;
+                font-size: 2.5rem;
+                line-height: 1.3;
+                margin-bottom: 1.2rem;
             }
 
             .hero-content p {
-                font-size: 1.1rem;
-                line-height: 1.5;
+                font-size: 1.15rem;
+                line-height: 1.6;
+                margin-bottom: 1.8rem;
             }
 
             .btn-primary {
@@ -796,15 +800,16 @@
                 openMapBtn: 'Open Map',
                 myAccount: 'My Account',
                 logout: 'Logout',
-                featuresTitle: 'Why Choose Organize.Quest?',
-                feature1Title: 'Interactive Map',
-                feature1Desc: 'Discover local organizations on an easy-to-use interactive map with real-time updates.',
-                feature2Title: 'Community Driven',
-                feature2Desc: 'Connect with like-minded people and build meaningful relationships in your area.',
-                feature3Title: 'Event Management',
-                feature3Desc: 'Create and manage events, track participants, and organize community activities.',
-                feature4Title: 'Safe & Secure',
-                feature4Desc: 'Your data is protected with enterprise-level security and privacy controls.',
+                featuresTitle: 'How Organize.Quest Works',
+                featuresSubtitle: 'From creating organizations to meeting in real life - everything you need to build your local community',
+                feature1Title: 'Create & Discover',
+                feature1Desc: 'Create your own organization or discover existing ones on the interactive map. Set location, date, category and invite others to join your community initiative.',
+                feature2Title: 'Chat & Plan',
+                feature2Desc: 'Join organizations and use the built-in chat to communicate with members. Discuss details, make plans, and coordinate activities before meeting in person.',
+                feature3Title: 'Meet & Participate',
+                feature3Desc: 'Once everything is planned, meet at the agreed location and participate in the activities. Turn online connections into real-world community experiences.',
+                feature4Title: 'Build Community',
+                feature4Desc: 'Strengthen relationships through regular meetups and shared activities. Grow your local network and make lasting connections in your neighborhood.',
                 howItWorksTitle: 'How It Works',
                 step1Title: 'Create Account',
                 step1Desc: 'Sign up in seconds with just your email',
@@ -844,15 +849,16 @@
                 openMapBtn: 'Haritayı Aç',
                 myAccount: 'Hesabım',
                 logout: 'Çıkış Yap',
-                featuresTitle: 'Neden Organize.Quest?',
-                feature1Title: 'İnteraktif Harita',
-                feature1Desc: 'Kullanımı kolay interaktif haritada gerçek zamanlı güncellemelerle yerel organizasyonları keşfedin.',
-                feature2Title: 'Topluluk Odaklı',
-                feature2Desc: 'Benzer düşünen insanlarla bağlantı kurun ve bölgenizdeki anlamlı ilişkiler geliştirin.',
-                feature3Title: 'Etkinlik Yönetimi',
-                feature3Desc: 'Etkinlikler oluşturun ve yönetin, katılımcıları takip edin ve topluluk aktivitelerini organize edin.',
-                feature4Title: 'Güvenli ve Emniyetli',
-                feature4Desc: 'Verileriniz kurumsal düzeyde güvenlik ve gizlilik kontrolleri ile korunur.',
+                featuresTitle: 'Organize.Quest Nasıl Çalışır',
+                featuresSubtitle: 'Organizasyon oluşturmaktan gerçek hayatta buluşmaya kadar - yerel topluluğunuzu kurmak için ihtiyacınız olan her şey',
+                feature1Title: 'Oluştur & Keşfet',
+                feature1Desc: 'Kendi organizasyonunuzu oluşturun veya interaktif haritada mevcut olanları keşfedin. Konum, tarih, kategori belirleyin ve diğerlerini topluluk girişiminize katılmaya davet edin.',
+                feature2Title: 'Sohbet Et & Planla',
+                feature2Desc: 'Organizasyonlara katılın ve üyelerle iletişim kurmak için yerleşik sohbeti kullanın. Detayları tartışın, planlar yapın ve yüz yüze buluşmadan önce aktiviteleri koordine edin.',
+                feature3Title: 'Buluş & Katıl',
+                feature3Desc: 'Her şey planlandıktan sonra, kararlaştırılan yerde buluşun ve aktivitelere katılın. Çevrimiçi bağlantıları gerçek dünya topluluk deneyimlerine dönüştürün.',
+                feature4Title: 'Topluluk Oluştur',
+                feature4Desc: 'Düzenli buluşmalar ve ortak aktivitelerle ilişkileri güçlendirin. Yerel ağınızı büyütün ve mahallenizde kalıcı bağlantılar kurun.',
                 howItWorksTitle: 'Nasıl Çalışır',
                 step1Title: 'Hesap Oluştur',
                 step1Desc: 'Sadece e-postanızla saniyeler içinde kaydolun',
@@ -899,6 +905,7 @@
             document.getElementById('loginBtn').textContent = t.loginBtn;
             document.getElementById('openMapBtn').textContent = t.openMapBtn;
             document.getElementById('featuresTitle').textContent = t.featuresTitle;
+            document.getElementById('featuresSubtitle').textContent = t.featuresSubtitle;
             document.getElementById('feature1Title').textContent = t.feature1Title;
             document.getElementById('feature1Desc').textContent = t.feature1Desc;
             document.getElementById('feature2Title').textContent = t.feature2Title;
