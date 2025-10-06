@@ -450,14 +450,138 @@
             background: white;
         }
 
+        /* Mobile Responsive Fixes */
         @media (max-width: 968px) {
             .main-content {
                 grid-template-columns: 1fr;
+                height: auto;
             }
             
             .sidebar {
                 order: -1;
-                max-height: 300px;
+                max-height: none;
+            }
+
+            .map-container {
+                min-height: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-wrap: wrap;
+                gap: 1rem;
+                padding: 0 1rem;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: space-around;
+                gap: 1rem;
+                order: 2;
+                flex-wrap: wrap;
+            }
+
+            .logo {
+                font-size: 1.4rem;
+                order: 1;
+            }
+
+            .btn-primary {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .page-header {
+                padding: 1.5rem 1rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .page-header p {
+                font-size: 1rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .tab-btn {
+                padding: 0.8rem;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-card .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .filter-bar select {
+                width: 100%;
+            }
+
+            .sidebar {
+                padding: 1rem;
+            }
+
+            .sidebar h2 {
+                font-size: 1.2rem;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+                max-width: 95%;
+            }
+
+            .org-card {
+                padding: 1rem;
+            }
+
+            .org-card h3 {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .nav-link, .btn-primary {
+                width: 100%;
+                text-align: center;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header h1 {
+                font-size: 1.5rem;
             }
         }
     </style>
