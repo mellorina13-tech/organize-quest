@@ -1056,7 +1056,7 @@
                         </div>
                         <div style="flex: 1; min-width: 0;">
                             <div style="font-size: 0.85rem; color: #6c757d;">Created by</div>
-                            <div style="font-weight: 600; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${org.users.name || 'Anonymous'}</div>
+                            <a href="user-profile.html?id=${org.users.id}" style="font-weight: 600; color: #5865F2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: none; display: block;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${org.users.name || 'Anonymous'}</a>
                         </div>
                     </div>
                 `;
