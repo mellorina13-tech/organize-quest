@@ -334,15 +334,6 @@
             position: relative;
         }
 
-        .modal-header {
-            margin-bottom: 2rem;
-        }
-
-        .modal-header h2 {
-            color: var(--dark);
-            font-size: 1.8rem;
-        }
-
         .modal-close {
             position: absolute;
             right: 20px;
@@ -364,45 +355,6 @@
             background: var(--danger);
             color: white;
             transform: rotate(90deg);
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.1);
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .required {
-            color: var(--danger);
         }
 
         .stats-container {
@@ -450,7 +402,6 @@
             background: white;
         }
 
-        /* Mobile Responsive Fixes */
         @media (max-width: 968px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -877,7 +828,6 @@
                     }
                     window.tempMarker = L.marker(e.latlng).addTo(map);
                     
-                    // Modal'ı aç ve createMode'u kapat
                     document.getElementById('createModal').classList.add('show');
                     createMode = false;
                     map.getContainer().style.cursor = '';
@@ -931,14 +881,6 @@
 
                 organizations = data || [];
 
-                const now = new Date();
-                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                organizations = organizations.filter(org => {
-                    if (!org.deadline) return true;
-                    const orgDate = new Date(org.deadline);
-                    return orgDate >= today;
-                });
-
                 await refreshJoinedOrgs();
 
                 map.eachLayer(function(layer) {
@@ -970,7 +912,6 @@
                     <h3 style="color: var(--primary); margin-bottom: 10px;">${icon} ${org.name}</h3>
                     <p><strong>Category:</strong> ${org.category}</p>
                     ${org.description ? `<p>${org.description}</p>` : ''}
-                    ${org.deadline ? `<p><strong>📅 Date:</strong> ${new Date(org.deadline).toLocaleDateString()}</p>` : ''}
             `;
 
             if (org.users) {
@@ -1048,10 +989,6 @@
                         </button>
                     `;
                 }
-            }
-
-            if (org.contactEmail) {
-                popupContent += `<p><strong>📧 Email:</strong> ${org.contactEmail}</p>`;
             }
 
             popupContent += `</div>`;
@@ -1284,7 +1221,6 @@
                     eventDate: document.getElementById('eventDate').value || null,
                     eventTime: document.getElementById('eventTime').value || null,
                     maxParticipants: parseInt(document.getElementById('maxParticipants').value) || null,
-                    contactEmail: document.getElementById('contactEmail').value,
                     latitude: selectedLocation.lat,
                     longitude: selectedLocation.lng,
                     created_by: currentUser.id,
