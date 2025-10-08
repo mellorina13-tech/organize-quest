@@ -661,7 +661,7 @@
                     <input type="number" id="maxParticipants" min="1" placeholder="Max Attendees" style="padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px;">
                 </div>
 
-                <textarea id="orgDescription" placeholder="Description (optional)" rows="2" style="width: 100%; padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 1rem; resize: none;"></textarea>
+                <textarea id="orgDescription" placeholder="Description (optional)" rows="3" style="width: 100%; padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 1rem; resize: none;"></textarea>
 
                 <input type="text" id="orgLocationDisplay" readonly placeholder="Click on map to select location *" style="width: 100%; padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px; background: #f0f0f0; cursor: not-allowed; margin-bottom: 1rem;">
 
@@ -1218,13 +1218,12 @@
                     name: document.getElementById('orgName').value,
                     category: document.getElementById('orgCategory').value,
                     description: document.getElementById('orgDescription').value,
-                    eventDate: document.getElementById('eventDate').value || null,
-                    eventTime: document.getElementById('eventTime').value || null,
-                    maxParticipants: parseInt(document.getElementById('maxParticipants').value) || null,
-                    latitude: selectedLocation.lat,
-                    longitude: selectedLocation.lng,
+                    event_date: document.getElementById('eventDate').value ? new Date(document.getElementById('eventDate').value + 'T' + (document.getElementById('eventTime').value || '00:00')).toISOString() : null,
+                    max_attendees: parseInt(document.getElementById('maxParticipants').value) || null,
+                    latitude: parseFloat(selectedLocation.lat),
+                    longitude: parseFloat(selectedLocation.lng),
                     created_by: currentUser.id,
-                    participants: []
+                    current_attendees: 0
                 };
 
                 try {
