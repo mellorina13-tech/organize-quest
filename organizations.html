@@ -710,13 +710,7 @@
                     <input type="number" id="maxParticipants" min="1" placeholder="Max Attendees" style="padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px;">
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <input type="date" id="orgDeadline" required placeholder="Organization Date *" style="padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px;">
-                </div>
-
                 <textarea id="orgDescription" placeholder="Description (optional)" rows="2" style="width: 100%; padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 1rem; resize: none;"></textarea>
-
-                <input type="email" id="contactEmail" placeholder="Contact Email (optional)" style="width: 100%; padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 1rem;">
 
                 <input type="text" id="orgLocationDisplay" readonly placeholder="Click on map to select location *" style="width: 100%; padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px; background: #f0f0f0; cursor: not-allowed; margin-bottom: 1rem;">
 
@@ -1268,12 +1262,6 @@
                     return;
                 }
 
-                const deadline = document.getElementById('orgDeadline').value;
-                if (!deadline) {
-                    alert('Please select an organization date!');
-                    return;
-                }
-
                 const { data: userOrgs, error: countError } = await supabase
                     .from('organizations')
                     .select('id')
@@ -1297,7 +1285,6 @@
                     eventTime: document.getElementById('eventTime').value || null,
                     maxParticipants: parseInt(document.getElementById('maxParticipants').value) || null,
                     contactEmail: document.getElementById('contactEmail').value,
-                    deadline: document.getElementById('orgDeadline').value,
                     latitude: selectedLocation.lat,
                     longitude: selectedLocation.lng,
                     created_by: currentUser.id,
