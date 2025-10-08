@@ -912,6 +912,13 @@
                     <h3 style="color: var(--primary); margin-bottom: 10px;">${icon} ${org.name}</h3>
                     <p><strong>Category:</strong> ${org.category}</p>
                     ${org.description ? `<p>${org.description}</p>` : ''}
+                    ${org.event_date ? `<div style="margin: 10px 0; padding: 10px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #4caf50;">
+                        <strong>📅 Event Date & Time:</strong><br>
+                        ${new Date(org.event_date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}<br>
+                        <strong>🕐</strong> ${new Date(org.event_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    </div>` : ''}
+                    ${org.max_attendees ? `<p><strong>👥 Max Attendees:</strong> ${org.max_attendees}</p>` : ''}
+                    ${org.current_attendees !== undefined ? `<p><strong>✅ Current Attendees:</strong> ${org.current_attendees}</p>` : ''}
             `;
 
             if (org.users) {
