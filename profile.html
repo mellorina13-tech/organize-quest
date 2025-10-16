@@ -405,6 +405,15 @@
             margin-bottom: 0.2rem;
         }
 
+        .message-info a {
+            transition: all 0.2s ease;
+        }
+
+        .message.other .message-info a:hover {
+            color: var(--primary) !important;
+            opacity: 1;
+        }
+
         .chat-input-container {
             padding: 1rem;
             border-top: 1px solid #e0e0e0;
@@ -919,7 +928,7 @@
                     .from('organization_messages')
                     .select(`
                         *,
-                        users!organization_messages_user_id_fkey(name, email)
+                        users!organization_messages_user_id_fkey(id, name, email)
                     `)
                     .eq('organization_id', orgId)
                     .order('created_at', { ascending: true });
@@ -942,7 +951,9 @@
                     
                     return `
                         <div class="message ${isOwn ? 'own' : 'other'}">
-                            <div class="message-info">${isOwn ? 'You' : senderName} • ${time}</div>
+                            <div class="message-info">
+                                ${isOwn ? 'You' : `<a href="user-profile.html?id=${msg.user_id}" style="color: inherit; text-decoration: none; font-weight: 600; cursor: pointer;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'" onclick="event.stopPropagation()">${senderName}</a>`} • ${time}
+                            </div>
                             <div>${msg.message}</div>
                         </div>
                     `;
