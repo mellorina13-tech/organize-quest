@@ -310,6 +310,26 @@
             background: #218838;
         }
 
+        .participant-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.4rem 0.8rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        .participant-count-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
         .chat-modal {
             display: none;
             position: fixed;
@@ -490,12 +510,122 @@
             color: var(--gray);
         }
 
+        .participants-modal {
+            display: none;
+            position: fixed;
+            z-index: 4000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .participants-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .participants-modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .participants-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .participants-modal-header h3 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .participants-close {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: color 0.3s ease;
+        }
+
+        .participants-close:hover {
+            color: var(--primary);
+        }
+
+        .participant-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #f8f9fa;
+        }
+
+        .participant-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .participant-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .participant-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .participant-info {
+            flex: 1;
+        }
+
+        .participant-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .participant-email {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
         @media (max-width: 768px) {
             .profile-header {
                 padding: 2rem 1rem;
             }
             .org-grid {
                 grid-template-columns: 1fr;
+            }
+            .participants-modal-content {
+                width: 95%;
             }
         }
     </style>
@@ -566,7 +696,6 @@
             <div id="profileTab" class="profile-form">
                 <h2 style="margin-bottom: 1.5rem;">Edit Profile</h2>
                 <form id="profileForm">
-                    <!-- Profil Fotoğrafı Bölümü -->
                     <div class="form-group">
                         <label>Profile Picture</label>
                         <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1rem;">
@@ -670,6 +799,16 @@
         </div>
     </div>
 
+    <div id="participantsModal" class="participants-modal">
+        <div class="participants-modal-content">
+            <div class="participants-modal-header">
+                <h3>👥 Participants</h3>
+                <button class="participants-close" id="participantsClose">&times;</button>
+            </div>
+            <div id="participantsList"></div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const SUPABASE_URL = 'https://ymrxfbkghznrosgfqwrh.supabase.co';
@@ -755,6 +894,25 @@
             }
         }
 
+        async function getParticipantCount(orgId) {
+            try {
+                const { data, error } = await supabase
+                    .from('attendees')
+                    .select('user_id', { count: 'exact' })
+                    .eq('organization_id', orgId);
+
+                if (error) {
+                    console.error('Error getting participant count:', error);
+                    return 0;
+                }
+
+                return data ? data.length : 0;
+            } catch (err) {
+                console.error('Error:', err);
+                return 0;
+            }
+        }
+
         async function loadMyOrganizations() {
             if (!currentUser || !currentUser.id) return;
 
@@ -814,7 +972,7 @@
             })();
         }
 
-        function displayMyOrganizations() {
+        async function displayMyOrganizations() {
             const container = document.getElementById('myOrgsList');
             
             if (myOrganizations.length === 0) {
@@ -828,8 +986,20 @@
                 'Environment': '🌱', 'Community': '🏙️'
             };
 
-            container.innerHTML = myOrganizations.map(org => {
+            const orgsWithCounts = await Promise.all(
+                myOrganizations.map(async (org) => {
+                    const participantCount = await getParticipantCount(org.id);
+                    return { ...org, participantCount };
+                })
+            );
+
+            container.innerHTML = orgsWithCounts.map(org => {
                 const icon = icons[org.category] || '📌';
+                const maxParticipants = org.maxParticipants || 0;
+                const participantText = maxParticipants > 0 
+                    ? `${org.participantCount}/${maxParticipants}` 
+                    : `${org.participantCount}`;
+
                 return `
                     <div class="org-card">
                         <h3>${icon} ${org.name}</h3>
@@ -841,8 +1011,11 @@
                                     📅 Event: ${new Date(org.eventDate).toLocaleDateString()}
                                     ${org.maxParticipants ? ` | Max: ${org.maxParticipants}` : ''}
                                 </span>
-                                </div>
+                            </div>
                         ` : ''}
+                        <div class="participant-count-badge" onclick="showParticipants('${org.id}')">
+                            👥 ${participantText} Participants
+                        </div>
                         ${org.created_at ? `<p style="margin-top: 0.5rem; font-size: 0.85rem; color: #999;">Created: ${new Date(org.created_at).toLocaleDateString()}</p>` : ''}
                         <div class="org-card-actions">
                             <button class="btn-small btn-edit" data-org-id="${org.id}">✏️ Edit</button>
@@ -867,7 +1040,7 @@
             });
         }
 
-        function displayMyEvents(events) {
+        async function displayMyEvents(events) {
             const container = document.getElementById('myEventsList');
             
             if (events.length === 0) {
@@ -881,10 +1054,21 @@
                 'Environment': '🌱', 'Community': '🏙️'
             };
 
-            container.innerHTML = events.map(org => {
+            const eventsWithCounts = await Promise.all(
+                events.map(async (org) => {
+                    const participantCount = await getParticipantCount(org.id);
+                    return { ...org, participantCount };
+                })
+            );
+
+            container.innerHTML = eventsWithCounts.map(org => {
                 const icon = icons[org.category] || '📌';
                 const orgDate = org.deadline ? new Date(org.deadline) : null;
                 const isUpcoming = orgDate ? orgDate >= new Date() : true;
+                const maxParticipants = org.maxParticipants || 0;
+                const participantText = maxParticipants > 0 
+                    ? `${org.participantCount}/${maxParticipants}` 
+                    : `${org.participantCount}`;
                 
                 return `
                     <div class="org-card">
@@ -899,6 +1083,9 @@
                                 </span>
                             </div>
                         ` : ''}
+                        <div class="participant-count-badge" onclick="showParticipants('${org.id}')">
+                            👥 ${participantText} Participants
+                        </div>
                         <div class="org-card-actions">
                             <button class="btn-small btn-chat" onclick="openChat('${org.id}', '${org.name}')">
                                 💬 Chat
@@ -910,6 +1097,65 @@
                     </div>
                 `;
             }).join('');
+        }
+
+        async function showParticipants(orgId) {
+            const modal = document.getElementById('participantsModal');
+            const participantsList = document.getElementById('participantsList');
+            
+            participantsList.innerHTML = '<p style="text-align: center; color: #999;">Loading participants...</p>';
+            modal.classList.add('show');
+
+            try {
+                const { data: attendees, error } = await supabase
+                    .from('attendees')
+                    .select(`
+                        user_id,
+                        users!attendees_user_id_fkey(id, name, email, avatar_url)
+                    `)
+                    .eq('organization_id', orgId);
+
+                if (error) {
+                    console.error('Error loading participants:', error);
+                    participantsList.innerHTML = '<p style="text-align: center; color: #dc3545;">Error loading participants</p>';
+                    return;
+                }
+
+                if (!attendees || attendees.length === 0) {
+                    participantsList.innerHTML = '<p style="text-align: center; color: #999;">No participants yet</p>';
+                    return;
+                }
+
+                participantsList.innerHTML = attendees.map(attendee => {
+                    const user = attendee.users;
+                    if (!user) return '';
+
+                    const displayName = user.name || user.email || 'Unknown User';
+                    const avatarContent = user.avatar_url 
+                        ? `<img src="${user.avatar_url}" alt="${displayName}">` 
+                        : '👤';
+
+                    return `
+                        <div class="participant-item" onclick="window.location.href='user-profile.html?id=${user.id}'">
+                            <div class="participant-avatar">
+                                ${avatarContent}
+                            </div>
+                            <div class="participant-info">
+                                <div class="participant-name">${displayName}</div>
+                                <div class="participant-email">${user.email}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error('Error:', err);
+                participantsList.innerHTML = '<p style="text-align: center; color: #dc3545;">Error loading participants</p>';
+            }
+        }
+
+        function closeParticipantsModal() {
+            document.getElementById('participantsModal').classList.remove('show');
         }
 
         async function openChat(orgId, orgName) {
@@ -1036,7 +1282,6 @@
             }
         }
 
-        // Profil fotoğrafı yükleme
         document.getElementById('profilePhoto').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -1348,6 +1593,14 @@
             }
         });
 
+        document.getElementById('participantsClose').addEventListener('click', closeParticipantsModal);
+        
+        document.getElementById('participantsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeParticipantsModal();
+            }
+        });
+
         document.getElementById('logoutBtn').addEventListener('click', async function() {
             try {
                 await supabase.auth.signOut();
@@ -1378,6 +1631,8 @@
             alert('Left organization successfully!');
             loadMyJoinedEvents();
         };
+
+        window.showParticipants = showParticipants;
     </script>
 </body>
 </html>
