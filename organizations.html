@@ -754,14 +754,14 @@
             }
 
             const org = organizations.find(o => o.id === orgId);
-            if (!org || !org.eventDate) {
+            if (!org || !org.event_date) {
                 alert('This organization has no event to join!');
                 return;
             }
 
-            if (org.maxParticipants) {
+            if (org.max_attendees) {
                 const currentParticipants = org.participants ? org.participants.length : 0;
-                if (currentParticipants >= org.maxParticipants) {
+                if (currentParticipants >= org.max_attendees) {
                     alert('This event is full!');
                     return;
                 }
@@ -916,16 +916,36 @@
             };
             const icon = categoryIcons[org.category] || '📌';
 
+            // Tarih ve saat bilgilerini düzgün şekilde göster
+            let eventDateDisplay = '';
+            if (org.event_date) {
+                const eventDate = new Date(org.event_date);
+                const dateStr = eventDate.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                const timeStr = eventDate.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                eventDateDisplay = `
+                    <div style="margin: 10px 0; padding: 10px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #4caf50;">
+                        <strong>📅 Event Date & Time:</strong><br>
+                        ${dateStr}<br>
+                        <strong>🕐</strong> ${timeStr}
+                    </div>
+                `;
+            }
+
             let popupContent = `
                 <div style="min-width: 250px;">
                     <h3 style="color: var(--primary); margin-bottom: 10px;">${icon} ${org.name}</h3>
                     <p><strong>Category:</strong> ${org.category}</p>
                     ${org.description ? `<p>${org.description}</p>` : ''}
-                    ${org.event_date ? `<div style="margin: 10px 0; padding: 10px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #4caf50;">
-                        <strong>📅 Event Date & Time:</strong><br>
-                        ${new Date(org.event_date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}<br>
-                        <strong>🕐</strong> ${new Date(org.event_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                    </div>` : ''}
+                    ${eventDateDisplay}
                     ${org.max_attendees ? `<p><strong>👥 Max Attendees:</strong> ${org.max_attendees}</p>` : ''}
                     ${org.current_attendees !== undefined ? `<p><strong>✅ Current Attendees:</strong> ${org.current_attendees}</p>` : ''}
             `;
@@ -947,21 +967,14 @@
                 `;
             }
 
-            if (org.eventDate) {
-                const eventDate = new Date(org.eventDate);
+            // Event join/leave butonları için event_date kontrolü
+            if (org.event_date) {
+                const eventDate = new Date(org.event_date);
                 const isUpcoming = eventDate > new Date();
-                popupContent += `
-                    <div style="margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 5px;">
-                        <strong>📅 Event:</strong> ${eventDate.toLocaleDateString()}
-                        ${org.eventTime ? `<br><strong>🕐 Time:</strong> ${org.eventTime}` : ''}
-                        ${org.maxParticipants ? `<br><strong>👥 Max Attendees:</strong> ${org.maxParticipants}` : ''}
-                        ${org.participants ? `<br><strong>✅ Current:</strong> ${org.participants.length}` : ''}
-                    </div>
-                `;
 
                 if (currentUser && isUpcoming) {
                     const hasJoined = hasUserJoinedEvent(org.id);
-                    const isFull = org.maxParticipants && org.participants && org.participants.length >= org.maxParticipants;
+                    const isFull = org.max_attendees && org.participants && org.participants.length >= org.max_attendees;
                     
                     if (hasJoined) {
                         popupContent += `
@@ -1060,19 +1073,30 @@
                     `;
                 }
 
-                if (org.eventDate) {
-                    const eventDate = new Date(org.eventDate);
+                // event_date gösterimi için düzeltme
+                if (org.event_date) {
+                    const eventDate = new Date(org.event_date);
                     const isUpcoming = eventDate > new Date();
                     const hasJoined = hasUserJoinedEvent(org.id);
-                    const isFull = org.maxParticipants && org.participants && org.participants.length >= org.maxParticipants;
+                    const isFull = org.max_attendees && org.participants && org.participants.length >= org.max_attendees;
+
+                    const dateStr = eventDate.toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
+                    const timeStr = eventDate.toLocaleTimeString('en-US', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
 
                     cardHTML += `
                         <div style="margin-top: 10px; padding: 8px; background: #e3f2fd; border-radius: 8px;">
                             <div style="font-size: 0.9rem; color: #1976d2; font-weight: 600;">
-                                📅 ${eventDate.toLocaleDateString()} ${org.eventTime || ''}
+                                📅 ${dateStr} at ${timeStr}
                                 ${hasJoined ? '<span class="joined-badge">✓ Joined</span>' : ''}
                             </div>
-                            ${org.maxParticipants ? `<div style="font-size: 0.85rem; color: #666; margin-top: 4px;">👥 ${org.participants ? org.participants.length : 0}/${org.maxParticipants} attendees</div>` : ''}
+                            ${org.max_attendees ? `<div style="font-size: 0.85rem; color: #666; margin-top: 4px;">👥 ${org.participants ? org.participants.length : 0}/${org.max_attendees} attendees</div>` : ''}
                         </div>
                     `;
 
@@ -1127,8 +1151,8 @@
             
             const now = new Date();
             const activeEvents = organizations.filter(org => {
-                if (!org.eventDate) return false;
-                return new Date(org.eventDate) > now;
+                if (!org.event_date) return false;
+                return new Date(org.event_date) > now;
             }).length;
             document.getElementById('activeEvents').textContent = activeEvents;
             
