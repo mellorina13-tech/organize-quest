@@ -861,54 +861,34 @@
         }
 
         async function loadOrganizations() {
-    try {
-        const { data, error } = await supabase
-            .from('organizations')
-            .select(`
-                *,
-                users!organizations_created_by_fkey (
-                    id,
-                    name,
-                    avatar_url
-                )
-            `)
-            .order('created_at', { ascending: false });
+            try {
+                const { data, error } = await supabase
+                    .from('organizations')
+                    .select(`
+                        *,
+                        users!organizations_created_by_fkey (
+                            id,
+                            name,
+                            avatar_url
+                        )
+                    `)
+                    .order('created_at', { ascending: false });
 
-        if (error) {
-            console.error('Error loading organizations:', error);
-            return;
-        }
+                if (error) {
+                    console.error('Error loading organizations:', error);
+                    return;
+                }
 
-        // Geçmiş organizasyonları filtrele
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        
-        organizations = (data || []).filter(org => {
-            if (!org.event_date) return true; // Tarihi olmayanları göster
-            const orgDate = new Date(org.event_date);
-            const orgDay = new Date(orgDate.getFullYear(), orgDate.getMonth(), orgDate.getDate());
-            return orgDay >= today; // Sadece bugün ve gelecek tarihleri göster
-        });
-
-        await refreshJoinedOrgs();
-
-        map.eachLayer(function(layer) {
-            if (layer instanceof L.Marker && layer !== userMarker) {
-                map.removeLayer(layer);
-            }
-        });
-        organizations.forEach(org => {
-            addOrganizationMarker(org);
-        });
-
-        updateOrganizationList();
-        updateStats();
-    } catch (err) {
-        console.error('Error:', err);
-    }
-}
-
-                organizations = data || [];
+                // Geçmiş organizasyonları filtrele
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                
+                organizations = (data || []).filter(org => {
+                    if (!org.event_date) return true; // Tarihi olmayanları göster
+                    const orgDate = new Date(org.event_date);
+                    const orgDay = new Date(orgDate.getFullYear(), orgDate.getMonth(), orgDate.getDate());
+                    return orgDay >= today; // Sadece bugün ve gelecek tarihleri göster
+                });
 
                 await refreshJoinedOrgs();
 
