@@ -683,21 +683,21 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltcnhmYmtnaHpucm9zZ2Zxd3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NzQ4MTMsImV4cCI6MjA3NDA1MDgxM30.GyrbrTmWMc6--zCUcfKwc-2qlsBI0z3oly8iv9Fq9-0';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function hasUserJoinedEvent(orgId) {
-            if (!currentUser || !currentUser.id) return false;
-            const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents_' + currentUser.id) || '[]');
-            return joinedEvents.includes(orgId);
-        }
-
         async function refreshJoinedOrgs() {
             joinedOrgIds = new Set();
             if (!currentUser || !currentUser.id) return;
-            const { data, error } = await supabase
-                .from('attendees')
-                .select('organization_id')
-                .eq('user_id', currentUser.id);
-            if (!error && Array.isArray(data)) {
-                data.forEach(r => joinedOrgIds.add(r.organization_id));
+            
+            try {
+                const { data, error } = await supabase
+                    .from('attendees')
+                    .select('organization_id')
+                    .eq('user_id', currentUser.id);
+                    
+                if (!error && Array.isArray(data)) {
+                    data.forEach(r => joinedOrgIds.add(r.organization_id));
+                }
+            } catch (err) {
+                console.error('Error refreshing joined orgs:', err);
             }
         }
 
@@ -712,17 +712,29 @@
                 window.location.href = 'profile.html';
                 return;
             }
-            const { error } = await supabase
-                .from('attendees')
-                .insert([{ organization_id: orgId, user_id: currentUser.id }]);
-            if (error) {
-                alert('Join failed: ' + error.message);
-                return;
+            
+            try {
+                const { error } = await supabase
+                    .from('attendees')
+                    .insert([{ organization_id: orgId, user_id: currentUser.id }]);
+                    
+                if (error) {
+                    if (error.code === '23505') { // Unique violation - already joined
+                        alert('You have already joined this organization!');
+                    } else {
+                        alert('Join failed: ' + error.message);
+                    }
+                    return;
+                }
+                
+                joinedOrgIds.add(orgId);
+                alert('Joined organization successfully!');
+                await loadOrganizations();
+                updateOrganizationList();
+            } catch (err) {
+                alert('Error: ' + err.message);
+                console.error('Join error:', err);
             }
-            joinedOrgIds.add(orgId);
-            alert('Joined organization successfully!');
-            updateOrganizationList();
-            loadOrganizations();
         }
 
         async function leaveOrg(orgId) {
@@ -730,81 +742,29 @@
                 alert('Please log in first!');
                 return;
             }
+            
             if (!confirm('Are you sure you want to leave this organization?')) return;
-            const { error } = await supabase
-                .from('attendees')
-                .delete()
-                .eq('organization_id', orgId)
-                .eq('user_id', currentUser.id);
-            if (error) {
-                alert('Leave failed: ' + error.message);
-                return;
-            }
-            joinedOrgIds.delete(orgId);
-            alert('Left organization successfully!');
-            updateOrganizationList();
-            loadOrganizations();
-        }
-
-        function joinEvent(orgId) {
-            if (!currentUser) {
-                alert('Please log in to join events!');
-                window.location.href = 'profile.html';
-                return;
-            }
-
-            const org = organizations.find(o => o.id === orgId);
-            if (!org || !org.event_date) {
-                alert('This organization has no event to join!');
-                return;
-            }
-
-            if (org.max_attendees) {
-                const currentParticipants = org.participants ? org.participants.length : 0;
-                if (currentParticipants >= org.max_attendees) {
-                    alert('This event is full!');
+            
+            try {
+                const { error } = await supabase
+                    .from('attendees')
+                    .delete()
+                    .eq('organization_id', orgId)
+                    .eq('user_id', currentUser.id);
+                    
+                if (error) {
+                    alert('Leave failed: ' + error.message);
                     return;
                 }
-            }
-
-            const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents_' + currentUser.id) || '[]');
-            if (!joinedEvents.includes(orgId)) {
-                joinedEvents.push(orgId);
-                localStorage.setItem('joinedEvents_' + currentUser.id, JSON.stringify(joinedEvents));
                 
-                if (!org.participants) org.participants = [];
-                org.participants.push(currentUser.id);
-                
-                alert('Successfully joined the event!');
+                joinedOrgIds.delete(orgId);
+                alert('Left organization successfully!');
+                await loadOrganizations();
                 updateOrganizationList();
-                loadOrganizations();
-            } else {
-                alert('You have already joined this event!');
+            } catch (err) {
+                alert('Error: ' + err.message);
+                console.error('Leave error:', err);
             }
-        }
-
-        function leaveEvent(orgId) {
-            if (!currentUser) {
-                alert('Please log in first!');
-                return;
-            }
-
-            if (!confirm('Are you sure you want to leave this event?')) {
-                return;
-            }
-
-            const joinedEvents = JSON.parse(localStorage.getItem('joinedEvents_' + currentUser.id) || '[]');
-            const updatedEvents = joinedEvents.filter(id => id !== orgId);
-            localStorage.setItem('joinedEvents_' + currentUser.id, JSON.stringify(updatedEvents));
-            
-            const org = organizations.find(o => o.id === orgId);
-            if (org && org.participants) {
-                org.participants = org.participants.filter(id => id !== currentUser.id);
-            }
-
-            alert('Successfully left the event!');
-            updateOrganizationList();
-            loadOrganizations();
         }
 
         function initMap() {
@@ -817,7 +777,6 @@
             loadOrganizations();
 
             map.on('click', function(e) {
-                console.log('Map clicked!', 'createMode:', createMode);
                 if (createMode) {
                     selectedLocation = e.latlng;
                     document.getElementById('orgLocationDisplay').value = 
@@ -879,24 +838,35 @@
                     return;
                 }
 
-                // Geçmiş organizasyonları filtrele
+                // Filter past organizations
                 const now = new Date();
                 const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
                 
                 organizations = (data || []).filter(org => {
-                    if (!org.event_date) return true; // Tarihi olmayanları göster
+                    if (!org.event_date) return true;
                     const orgDate = new Date(org.event_date);
                     const orgDay = new Date(orgDate.getFullYear(), orgDate.getMonth(), orgDate.getDate());
-                    return orgDay >= today; // Sadece bugün ve gelecek tarihleri göster
+                    return orgDay >= today;
                 });
 
                 await refreshJoinedOrgs();
+
+                // Get attendee counts for all organizations
+                for (let org of organizations) {
+                    const { data: attendees, error: countError } = await supabase
+                        .from('attendees')
+                        .select('user_id', { count: 'exact' })
+                        .eq('organization_id', org.id);
+                    
+                    org.current_attendees = attendees ? attendees.length : 0;
+                }
 
                 map.eachLayer(function(layer) {
                     if (layer instanceof L.Marker && layer !== userMarker) {
                         map.removeLayer(layer);
                     }
                 });
+                
                 organizations.forEach(org => {
                     addOrganizationMarker(org);
                 });
@@ -916,7 +886,6 @@
             };
             const icon = categoryIcons[org.category] || '📌';
 
-            // Tarih ve saat bilgilerini düzgün şekilde göster
             let eventDateDisplay = '';
             if (org.event_date) {
                 const eventDate = new Date(org.event_date);
@@ -947,7 +916,7 @@
                     ${org.description ? `<p>${org.description}</p>` : ''}
                     ${eventDateDisplay}
                     ${org.max_attendees ? `<p><strong>👥 Max Attendees:</strong> ${org.max_attendees}</p>` : ''}
-                    ${org.current_attendees !== undefined ? `<p><strong>✅ Current Attendees:</strong> ${org.current_attendees}</p>` : ''}
+                    <p><strong>✅ Current Attendees:</strong> ${org.current_attendees || 0}</p>
             `;
 
             if (org.users) {
@@ -967,58 +936,31 @@
                 `;
             }
 
-            // Sadece bir buton göster: ya event ya da organization
             if (currentUser) {
-                if (org.event_date) {
-                    // Eğer event tarihi varsa, sadece event butonu göster
-                    const eventDate = new Date(org.event_date);
-                    const isUpcoming = eventDate > new Date();
-
-                    if (isUpcoming) {
-                        const hasJoined = hasUserJoinedEvent(org.id);
-                        const isFull = org.max_attendees && org.participants && org.participants.length >= org.max_attendees;
-                        
-                        if (hasJoined) {
-                            popupContent += `
-                                <button onclick="leaveEvent('${org.id}')" 
-                                        style="width: 100%; margin-top: 10px; padding: 8px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
-                                    Leave Event
-                                </button>
-                            `;
-                        } else if (!isFull) {
-                            popupContent += `
-                                <button onclick="joinEvent('${org.id}')" 
-                                        style="width: 100%; margin-top: 10px; padding: 8px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
-                                    Join Event
-                                </button>
-                            `;
-                        } else {
-                            popupContent += `
-                                <button disabled
-                                        style="width: 100%; margin-top: 10px; padding: 8px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: not-allowed; font-weight: 600;">
-                                    Event Full
-                                </button>
-                            `;
-                        }
-                    }
+                const hasJoined = hasUserJoinedOrg(org.id);
+                const isFull = org.max_attendees && org.current_attendees >= org.max_attendees;
+                
+                if (hasJoined) {
+                    popupContent += `
+                        <button onclick="leaveOrg('${org.id}')" 
+                                style="width: 100%; margin-top: 10px; padding: 8px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                            Leave Organization
+                        </button>
+                    `;
+                } else if (!isFull) {
+                    popupContent += `
+                        <button onclick="joinOrg('${org.id}')" 
+                                style="width: 100%; margin-top: 10px; padding: 8px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                            Join Organization
+                        </button>
+                    `;
                 } else {
-                    // Eğer event tarihi yoksa, sadece organization butonu göster
-                    const hasJoinedOrg = hasUserJoinedOrg(org.id);
-                    if (hasJoinedOrg) {
-                        popupContent += `
-                            <button onclick="leaveOrg('${org.id}')"
-                                    style="width: 100%; margin-top: 10px; padding: 8px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
-                                Leave Organization
-                            </button>
-                        `;
-                    } else {
-                        popupContent += `
-                            <button onclick="joinOrg('${org.id}')"
-                                    style="width: 100%; margin-top: 10px; padding: 8px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
-                                Join Organization
-                            </button>
-                        `;
-                    }
+                    popupContent += `
+                        <button disabled
+                                style="width: 100%; margin-top: 10px; padding: 8px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: not-allowed; font-weight: 600;">
+                            Organization Full
+                        </button>
+                    `;
                 }
             }
 
@@ -1051,12 +993,13 @@
                     'Environment': '🌱', 'Community': '🏙️'
                 };
                 const icon = categoryIcons[org.category] || '📌';
+                const hasJoined = hasUserJoinedOrg(org.id);
 
                 let cardHTML = `
                     <div class="org-card" onclick="focusOrganization('${org.id}')">
                         <h3>${icon} ${org.name}</h3>
                         <span class="category">${org.category}</span>
-                        ${hasUserJoinedOrg(org.id) ? '<span class="joined-badge">✓ Joined</span>' : ''}
+                        ${hasJoined ? '<span class="joined-badge">✓ Joined</span>' : ''}
                 `;
 
                 if (org.users) {
@@ -1075,11 +1018,8 @@
                     `;
                 }
 
-                // Tarih bilgisi gösterimi
                 if (org.event_date) {
                     const eventDate = new Date(org.event_date);
-                    const hasJoined = hasUserJoinedEvent(org.id);
-
                     const dateStr = eventDate.toLocaleDateString('en-US', { 
                         month: 'short', 
                         day: 'numeric',
@@ -1094,61 +1034,38 @@
                         <div style="margin-top: 10px; padding: 8px; background: #e3f2fd; border-radius: 8px;">
                             <div style="font-size: 0.9rem; color: #1976d2; font-weight: 600;">
                                 📅 ${dateStr} at ${timeStr}
-                                ${hasJoined ? '<span class="joined-badge">✓ Joined</span>' : ''}
                             </div>
-                            ${org.max_attendees ? `<div style="font-size: 0.85rem; color: #666; margin-top: 4px;">👥 ${org.participants ? org.participants.length : 0}/${org.max_attendees} attendees</div>` : ''}
+                            ${org.max_attendees ? `<div style="font-size: 0.85rem; color: #666; margin-top: 4px;">👥 ${org.current_attendees || 0}/${org.max_attendees} attendees</div>` : `<div style="font-size: 0.85rem; color: #666; margin-top: 4px;">👥 ${org.current_attendees || 0} attendees</div>`}
                         </div>
                     `;
                 }
 
-                // Sadece bir buton göster: ya event ya da organization
                 if (currentUser) {
-                    if (org.event_date) {
-                        // Eğer event tarihi varsa, sadece event butonu göster
-                        const eventDate = new Date(org.event_date);
-                        const isUpcoming = eventDate > new Date();
-                        
-                        if (isUpcoming) {
-                            const hasJoined = hasUserJoinedEvent(org.id);
-                            const isFull = org.max_attendees && org.participants && org.participants.length >= org.max_attendees;
+                    const isFull = org.max_attendees && org.current_attendees >= org.max_attendees;
 
-                            if (hasJoined) {
-                                cardHTML += `
-                                    <button class="btn btn-leave" 
-                                            onclick="event.stopPropagation(); leaveEvent('${org.id}')"
-                                            style="margin-top: 10px; width: 100%;">
-                                        Leave Event
-                                    </button>
-                                `;
-                            } else if (!isFull) {
-                                cardHTML += `
-                                    <button class="btn btn-join" 
-                                            onclick="event.stopPropagation(); joinEvent('${org.id}')"
-                                            style="margin-top: 10px; width: 100%;">
-                                        Join Event
-                                    </button>
-                                `;
-                            }
-                        }
+                    if (hasJoined) {
+                        cardHTML += `
+                            <button class="btn btn-leave"
+                                    onclick="event.stopPropagation(); leaveOrg('${org.id}')"
+                                    style="margin-top: 10px; width: 100%; padding: 0.5rem; border-radius: 8px; font-size: 0.9rem;">
+                                Leave Organization
+                            </button>
+                        `;
+                    } else if (!isFull) {
+                        cardHTML += `
+                            <button class="btn btn-join"
+                                    onclick="event.stopPropagation(); joinOrg('${org.id}')"
+                                    style="margin-top: 10px; width: 100%;">
+                                Join Organization
+                            </button>
+                        `;
                     } else {
-                        // Eğer event tarihi yoksa, sadece organization butonu göster
-                        if (hasUserJoinedOrg(org.id)) {
-                            cardHTML += `
-                                <button class="btn btn-leave"
-                                        onclick="event.stopPropagation(); leaveOrg('${org.id}')"
-                                        style="margin-top: 10px; width: 100%;">
-                                    Leave Organization
-                                </button>
-                            `;
-                        } else {
-                            cardHTML += `
-                                <button class="btn btn-join"
-                                        onclick="event.stopPropagation(); joinOrg('${org.id}')"
-                                        style="margin-top: 10px; width: 100%;">
-                                    Join Organization
-                                </button>
-                            `;
-                        }
+                        cardHTML += `
+                            <button class="btn btn-join" disabled
+                                    style="margin-top: 10px; width: 100%; background: #6c757d; cursor: not-allowed;">
+                                Organization Full
+                            </button>
+                        `;
                     }
                 }
 
@@ -1168,7 +1085,7 @@
             document.getElementById('activeEvents').textContent = activeEvents;
             
             const totalParticipants = organizations.reduce((sum, org) => {
-                return sum + (org.participants ? org.participants.length : 0);
+                return sum + (org.current_attendees || 0);
             }, 0);
             document.getElementById('totalParticipants').textContent = totalParticipants;
 
@@ -1206,7 +1123,6 @@
                     window.location.href = 'profile.html';
                     return;
                 }
-                console.log('Create button clicked, setting createMode to true');
                 createMode = true;
                 map.getContainer().style.cursor = 'crosshair';
                 alert('Click on the map to select location for your organization');
@@ -1219,7 +1135,6 @@
                     window.location.href = 'profile.html';
                     return;
                 }
-                console.log('Create org button clicked, setting createMode to true');
                 createMode = true;
                 map.getContainer().style.cursor = 'crosshair';
                 alert('Click on the map to select location for your organization');
@@ -1317,6 +1232,10 @@
                 }
             }
         }
+
+        // Make functions globally accessible
+        window.joinOrg = joinOrg;
+        window.leaveOrg = leaveOrg;
     </script>
 </body>
 </html>
