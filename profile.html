@@ -143,6 +143,7 @@
             padding: 1rem;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
         }
 
         .profile-tab-btn {
@@ -155,6 +156,7 @@
             color: var(--gray);
             cursor: pointer;
             transition: all 0.3s ease;
+            min-width: 150px;
         }
 
         .profile-tab-btn:hover {
@@ -259,9 +261,18 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
 
+        .org-card.expired {
+            opacity: 0.7;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+        }
+
         .org-card h3 {
             color: var(--primary);
             margin-bottom: 0.5rem;
+        }
+
+        .org-card.expired h3 {
+            color: var(--gray);
         }
 
         .org-card .category {
@@ -272,6 +283,20 @@
             border-radius: 20px;
             font-size: 0.85rem;
             margin-bottom: 1rem;
+        }
+
+        .org-card.expired .category {
+            background: var(--gray);
+        }
+
+        .expired-badge {
+            display: inline-block;
+            background: #dc3545;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
         }
 
         .org-card-actions {
@@ -627,6 +652,13 @@
             .participants-modal-content {
                 width: 95%;
             }
+            .profile-tabs {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .profile-tab-btn {
+                min-width: auto;
+            }
         }
     </style>
 </head>
@@ -691,6 +723,7 @@
                 <button class="profile-tab-btn active" data-tab="profile">📝 My Profile</button>
                 <button class="profile-tab-btn" data-tab="organizations">🏢 My Organizations</button>
                 <button class="profile-tab-btn" data-tab="events">📅 My Events</button>
+                <button class="profile-tab-btn" data-tab="pastEvents">🕐 Past Events</button>
             </div>
 
             <div id="profileTab" class="profile-form">
@@ -752,16 +785,24 @@
             </div>
 
             <div id="organizationsTab" class="profile-form hidden">
-                <h2 style="margin-bottom: 1.5rem;">My Organizations</h2>
+                <h2 style="margin-bottom: 1.5rem;">My Organizations (Active)</h2>
                 <div id="myOrgsList" class="org-grid">
                     <p style="text-align: center; color: #999;">Loading your organizations...</p>
                 </div>
             </div>
 
             <div id="eventsTab" class="profile-form hidden">
-                <h2 style="margin-bottom: 1.5rem;">My Joined Events</h2>
+                <h2 style="margin-bottom: 1.5rem;">My Joined Events (Active)</h2>
                 <div id="myEventsList" class="org-grid">
                     <p style="text-align: center; color: #999;">Loading your events...</p>
+                </div>
+            </div>
+
+            <div id="pastEventsTab" class="profile-form hidden">
+                <h2 style="margin-bottom: 1.5rem;">Past Events</h2>
+                <p style="color: var(--gray); margin-bottom: 1rem;">Organizations and events that have already ended</p>
+                <div id="pastEventsList" class="org-grid">
+                    <p style="text-align: center; color: #999;">Loading past events...</p>
                 </div>
             </div>
         </div>
@@ -819,6 +860,15 @@
         let myOrganizations = [];
         let editingOrgId = null;
         let currentChatOrgId = null;
+
+        function isEventExpired(eventDate) {
+            if (!eventDate) return false;
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const orgDate = new Date(eventDate);
+            const orgDay = new Date(orgDate.getFullYear(), orgDate.getMonth(), orgDate.getDate());
+            return orgDay < today;
+        }
 
         function switchTab(tab) {
             const loginForm = document.getElementById('loginForm');
@@ -972,11 +1022,59 @@
             })();
         }
 
+        async function loadPastEvents() {
+            if (!currentUser || !currentUser.id) return;
+
+            try {
+                // Load past organizations created by user
+                const { data: myOrgs, error: myOrgsError } = await supabase
+                    .from('organizations')
+                    .select('*')
+                    .eq('created_by', currentUser.id);
+
+                // Load past joined organizations
+                const { data: joinedOrgs, error: joinedError } = await supabase
+                    .from('attendees')
+                    .select('organization_id')
+                    .eq('user_id', currentUser.id);
+
+                let allPastOrgs = [];
+
+                if (!myOrgsError && myOrgs) {
+                    const pastMyOrgs = myOrgs.filter(org => isEventExpired(org.event_date));
+                    allPastOrgs = [...pastMyOrgs];
+                }
+
+                if (!joinedError && joinedOrgs && joinedOrgs.length > 0) {
+                    const orgIds = joinedOrgs.map(item => item.organization_id);
+                    const { data: joinedOrgDetails, error: detailsError } = await supabase
+                        .from('organizations')
+                        .select('*')
+                        .in('id', orgIds);
+
+                    if (!detailsError && joinedOrgDetails) {
+                        const pastJoinedOrgs = joinedOrgDetails.filter(org => 
+                            isEventExpired(org.event_date) && 
+                            !allPastOrgs.some(o => o.id === org.id)
+                        );
+                        allPastOrgs = [...allPastOrgs, ...pastJoinedOrgs];
+                    }
+                }
+
+                displayPastEvents(allPastOrgs);
+            } catch (err) {
+                console.error('Error loading past events:', err);
+            }
+        }
+
         async function displayMyOrganizations() {
             const container = document.getElementById('myOrgsList');
             
-            if (myOrganizations.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t created any organizations yet.</p>';
+            // Filter only active organizations
+            const activeOrgs = myOrganizations.filter(org => !isEventExpired(org.event_date));
+            
+            if (activeOrgs.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t created any active organizations.</p>';
                 return;
             }
 
@@ -987,7 +1085,7 @@
             };
 
             const orgsWithCounts = await Promise.all(
-                myOrganizations.map(async (org) => {
+                activeOrgs.map(async (org) => {
                     const participantCount = await getParticipantCount(org.id);
                     return { ...org, participantCount };
                 })
@@ -995,7 +1093,7 @@
 
             container.innerHTML = orgsWithCounts.map(org => {
                 const icon = icons[org.category] || '📌';
-                const maxParticipants = org.maxParticipants || 0;
+                const maxParticipants = org.max_attendees || 0;
                 const participantText = maxParticipants > 0 
                     ? `${org.participantCount}/${maxParticipants}` 
                     : `${org.participantCount}`;
@@ -1005,11 +1103,10 @@
                         <h3>${icon} ${org.name}</h3>
                         <span class="category">${org.category}</span>
                         <p>${org.description || 'No description'}</p>
-                        ${org.eventDate ? `
+                        ${org.event_date ? `
                             <div style="margin-top: 0.5rem; padding: 8px; background: #e3f2fd; border-radius: 8px;">
                                 <span style="font-size: 0.9rem; color: #1976d2; font-weight: 600;">
-                                    📅 Event: ${new Date(org.eventDate).toLocaleDateString()}
-                                    ${org.maxParticipants ? ` | Max: ${org.maxParticipants}` : ''}
+                                    📅 Event: ${new Date(org.event_date).toLocaleDateString()}
                                 </span>
                             </div>
                         ` : ''}
@@ -1043,8 +1140,11 @@
         async function displayMyEvents(events) {
             const container = document.getElementById('myEventsList');
             
-            if (events.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t joined any organizations yet.</p>';
+            // Filter only active events
+            const activeEvents = events.filter(org => !isEventExpired(org.event_date));
+            
+            if (activeEvents.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t joined any active organizations.</p>';
                 return;
             }
 
@@ -1055,7 +1155,7 @@
             };
 
             const eventsWithCounts = await Promise.all(
-                events.map(async (org) => {
+                activeEvents.map(async (org) => {
                     const participantCount = await getParticipantCount(org.id);
                     return { ...org, participantCount };
                 })
@@ -1063,9 +1163,7 @@
 
             container.innerHTML = eventsWithCounts.map(org => {
                 const icon = icons[org.category] || '📌';
-                const orgDate = org.deadline ? new Date(org.deadline) : null;
-                const isUpcoming = orgDate ? orgDate >= new Date() : true;
-                const maxParticipants = org.maxParticipants || 0;
+                const maxParticipants = org.max_attendees || 0;
                 const participantText = maxParticipants > 0 
                     ? `${org.participantCount}/${maxParticipants}` 
                     : `${org.participantCount}`;
@@ -1075,11 +1173,10 @@
                         <h3>${icon} ${org.name}</h3>
                         <span class="category">${org.category}</span>
                         <p>${org.description || 'No description'}</p>
-                        ${orgDate ? `
-                            <div style="margin-top: 0.5rem; padding: 8px; background: ${isUpcoming ? '#e8f5e9' : '#ffebee'}; border-radius: 8px;">
-                                <span style="font-size: 0.9rem; color: ${isUpcoming ? '#2e7d32' : '#c62828'}; font-weight: 600;">
-                                    📅 ${orgDate.toLocaleDateString()}
-                                    ${isUpcoming ? ' (Active)' : ' (Expired)'}
+                        ${org.event_date ? `
+                            <div style="margin-top: 0.5rem; padding: 8px; background: #e3f2fd; border-radius: 8px;">
+                                <span style="font-size: 0.9rem; color: #1976d2; font-weight: 600;">
+                                    📅 ${new Date(org.event_date).toLocaleDateString()} at ${new Date(org.event_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                             </div>
                         ` : ''}
@@ -1093,6 +1190,63 @@
                             <button class="btn-small btn-delete" onclick="leaveOrgFromProfile('${org.id}')">
                                 🚪 Leave
                             </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function displayPastEvents(events) {
+            const container = document.getElementById('pastEventsList');
+            
+            if (events.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">No past events yet.</p>';
+                return;
+            }
+
+            const icons = {
+                'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
+                'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨',
+                'Environment': '🌱', 'Community': '🏙️'
+            };
+
+            const eventsWithCounts = await Promise.all(
+                events.map(async (org) => {
+                    const participantCount = await getParticipantCount(org.id);
+                    const wasCreator = org.created_by === currentUser.id;
+                    return { ...org, participantCount, wasCreator };
+                })
+            );
+
+            // Sort by event date, most recent first
+            eventsWithCounts.sort((a, b) => {
+                const dateA = a.event_date ? new Date(a.event_date) : new Date(0);
+                const dateB = b.event_date ? new Date(b.event_date) : new Date(0);
+                return dateB - dateA;
+            });
+
+            container.innerHTML = eventsWithCounts.map(org => {
+                const icon = icons[org.category] || '📌';
+                const maxParticipants = org.max_attendees || 0;
+                const participantText = maxParticipants > 0 
+                    ? `${org.participantCount}/${maxParticipants}` 
+                    : `${org.participantCount}`;
+                
+                return `
+                    <div class="org-card expired">
+                        <h3>${icon} ${org.name} <span class="expired-badge">Ended</span></h3>
+                        <span class="category">${org.category}</span>
+                        ${org.wasCreator ? '<span style="background: #4ECDC4;" class="category">Created by you</span>' : '<span style="background: #28a745;" class="category">You joined</span>'}
+                        <p>${org.description || 'No description'}</p>
+                        ${org.event_date ? `
+                            <div style="margin-top: 0.5rem; padding: 8px; background: #ffebee; border-radius: 8px;">
+                                <span style="font-size: 0.9rem; color: #c62828; font-weight: 600;">
+                                    📅 Ended: ${new Date(org.event_date).toLocaleDateString()}
+                                </span>
+                            </div>
+                        ` : ''}
+                        <div class="participant-count-badge" onclick="showParticipants('${org.id}')" style="background: #6c757d;">
+                            👥 ${participantText} Participants
                         </div>
                     </div>
                 `;
@@ -1388,6 +1542,7 @@
                 document.getElementById('profileTab').classList.add('hidden');
                 document.getElementById('organizationsTab').classList.add('hidden');
                 document.getElementById('eventsTab').classList.add('hidden');
+                document.getElementById('pastEventsTab').classList.add('hidden');
                 
                 if (tab === 'profile') {
                     document.getElementById('profileTab').classList.remove('hidden');
@@ -1397,6 +1552,9 @@
                 } else if (tab === 'events') {
                     document.getElementById('eventsTab').classList.remove('hidden');
                     loadMyJoinedEvents();
+                } else if (tab === 'pastEvents') {
+                    document.getElementById('pastEventsTab').classList.remove('hidden');
+                    loadPastEvents();
                 }
             });
         });
@@ -1633,6 +1791,7 @@
         };
 
         window.showParticipants = showParticipants;
+        window.openChat = openChat;
     </script>
 </body>
 </html>
