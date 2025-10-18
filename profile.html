@@ -984,42 +984,49 @@
             }
         }
 
-        function loadMyJoinedEvents() {
+        async function loadMyJoinedEvents() {
             if (!currentUser || !currentUser.id) return;
 
-            (async () => {
-                try {
-                    const { data: joinedOrgs, error } = await supabase
-                        .from('attendees')
-                        .select('organization_id')
-                        .eq('user_id', currentUser.id);
+            try {
+                // Get all organizations where user is an attendee
+                const { data: joinedOrgs, error } = await supabase
+                    .from('attendees')
+                    .select('organization_id')
+                    .eq('user_id', currentUser.id);
 
-                    if (error) {
-                        console.error('Error loading joined events:', error);
-                        return;
-                    }
-
-                    if (!joinedOrgs || joinedOrgs.length === 0) {
-                        displayMyEvents([]);
-                        return;
-                    }
-
-                    const orgIds = joinedOrgs.map(item => item.organization_id);
-                    const { data: organizations, error: orgError } = await supabase
-                        .from('organizations')
-                        .select('*')
-                        .in('id', orgIds);
-
-                    if (orgError) {
-                        console.error('Error loading organization details:', orgError);
-                        return;
-                    }
-
-                    displayMyEvents(organizations || []);
-                } catch (err) {
-                    console.error('Error:', err);
+                if (error) {
+                    console.error('Error loading joined events:', error);
+                    document.getElementById('myEventsList').innerHTML = '<p style="text-align: center; color: #dc3545;">Error loading events</p>';
+                    return;
                 }
-            })();
+
+                if (!joinedOrgs || joinedOrgs.length === 0) {
+                    displayMyEvents([]);
+                    return;
+                }
+
+                const orgIds = joinedOrgs.map(item => item.organization_id);
+                
+                // Get organization details
+                const { data: organizations, error: orgError } = await supabase
+                    .from('organizations')
+                    .select('*')
+                    .in('id', orgIds);
+
+                if (orgError) {
+                    console.error('Error loading organization details:', orgError);
+                    document.getElementById('myEventsList').innerHTML = '<p style="text-align: center; color: #dc3545;">Error loading events</p>';
+                    return;
+                }
+
+                // Filter out organizations created by the user (they should only appear in My Organizations)
+                const joinedOnly = (organizations || []).filter(org => org.created_by !== currentUser.id);
+                
+                displayMyEvents(joinedOnly);
+            } catch (err) {
+                console.error('Error:', err);
+                document.getElementById('myEventsList').innerHTML = '<p style="text-align: center; color: #dc3545;">Error loading events</p>';
+            }
         }
 
         async function loadPastEvents() {
@@ -1032,7 +1039,7 @@
                     .select('*')
                     .eq('created_by', currentUser.id);
 
-                // Load past joined organizations
+                // Load past joined organizations (excluding ones created by user)
                 const { data: joinedOrgs, error: joinedError } = await supabase
                     .from('attendees')
                     .select('organization_id')
@@ -1040,11 +1047,13 @@
 
                 let allPastOrgs = [];
 
+                // Add expired organizations created by user
                 if (!myOrgsError && myOrgs) {
                     const pastMyOrgs = myOrgs.filter(org => isEventExpired(org.event_date));
-                    allPastOrgs = [...pastMyOrgs];
+                    allPastOrgs = pastMyOrgs.map(org => ({ ...org, wasCreator: true }));
                 }
 
+                // Add expired organizations user joined (but didn't create)
                 if (!joinedError && joinedOrgs && joinedOrgs.length > 0) {
                     const orgIds = joinedOrgs.map(item => item.organization_id);
                     const { data: joinedOrgDetails, error: detailsError } = await supabase
@@ -1055,15 +1064,17 @@
                     if (!detailsError && joinedOrgDetails) {
                         const pastJoinedOrgs = joinedOrgDetails.filter(org => 
                             isEventExpired(org.event_date) && 
+                            org.created_by !== currentUser.id && // Don't show user's own organizations here
                             !allPastOrgs.some(o => o.id === org.id)
                         );
-                        allPastOrgs = [...allPastOrgs, ...pastJoinedOrgs];
+                        allPastOrgs = [...allPastOrgs, ...pastJoinedOrgs.map(org => ({ ...org, wasCreator: false }))];
                     }
                 }
 
                 displayPastEvents(allPastOrgs);
             } catch (err) {
                 console.error('Error loading past events:', err);
+                document.getElementById('pastEventsList').innerHTML = '<p style="text-align: center; color: #dc3545;">Error loading past events</p>';
             }
         }
 
@@ -1213,8 +1224,7 @@
             const eventsWithCounts = await Promise.all(
                 events.map(async (org) => {
                     const participantCount = await getParticipantCount(org.id);
-                    const wasCreator = org.created_by === currentUser.id;
-                    return { ...org, participantCount, wasCreator };
+                    return { ...org, participantCount };
                 })
             );
 
