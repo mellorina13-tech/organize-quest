@@ -719,7 +719,7 @@
                     .insert([{ organization_id: orgId, user_id: currentUser.id }]);
                     
                 if (error) {
-                    if (error.code === '23505') { // Unique violation - already joined
+                    if (error.code === '23505') {
                         alert('You have already joined this organization!');
                     } else {
                         alert('Join failed: ' + error.message);
@@ -838,7 +838,6 @@
                     return;
                 }
 
-                // Filter past organizations
                 const now = new Date();
                 const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
                 
@@ -851,7 +850,6 @@
 
                 await refreshJoinedOrgs();
 
-                // Get attendee counts for all organizations
                 for (let org of organizations) {
                     const { data: attendees, error: countError } = await supabase
                         .from('attendees')
@@ -1165,12 +1163,28 @@
                     return;
                 }
 
+                // Kullanıcının Supabase Auth ile giriş yapıp yapmadığını kontrol et
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                
+                if (sessionError || !session) {
+                    console.error('Session error:', sessionError);
+                    alert('You need to be logged in with Supabase Auth. Please log out and log in again.');
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'profile.html';
+                    return;
+                }
+
+                console.log('Auth UID:', session.user.id);
+                console.log('Current User ID:', currentUser.id);
+
+                // Check if user already has 3 organizations
                 const { data: userOrgs, error: countError } = await supabase
                     .from('organizations')
                     .select('id')
-                    .eq('created_by', currentUser.id);
+                    .eq('created_by', session.user.id);
 
                 if (countError) {
+                    console.error('Count error:', countError);
                     alert('Error checking organization limit: ' + countError.message);
                     return;
                 }
@@ -1188,9 +1202,11 @@
                     max_attendees: parseInt(document.getElementById('maxParticipants').value) || null,
                     latitude: parseFloat(selectedLocation.lat),
                     longitude: parseFloat(selectedLocation.lng),
-                    created_by: currentUser.id,
+                    created_by: session.user.id,  // Use Auth UID instead of currentUser.id
                     current_attendees: 0
                 };
+
+                console.log('Organization data to insert:', orgData);
 
                 try {
                     const { data, error } = await supabase
@@ -1199,10 +1215,18 @@
                         .select();
 
                     if (error) {
+                        console.error('Insert error:', error);
+                        console.error('Error details:', {
+                            code: error.code,
+                            message: error.message,
+                            details: error.details,
+                            hint: error.hint
+                        });
                         alert('Error: ' + error.message);
                         return;
                     }
 
+                    console.log('Organization created successfully:', data);
                     alert('Organization created successfully!');
                     
                     this.reset();
@@ -1217,6 +1241,7 @@
 
                     await loadOrganizations();
                 } catch (err) {
+                    console.error('Catch error:', err);
                     alert('Error creating organization: ' + err.message);
                 }
             });
