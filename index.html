@@ -288,6 +288,97 @@
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
         }
 
+        /* Image Carousel Styles */
+        .image-carousel-section {
+            padding: 3rem 2rem 2rem;
+            background: white;
+        }
+
+        .carousel-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            position: relative;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 20px;
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--primary);
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .carousel-nav:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .carousel-nav.prev {
+            left: 20px;
+        }
+
+        .carousel-nav.next {
+            right: 20px;
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .carousel-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background: white;
+            width: 30px;
+            border-radius: 6px;
+        }
+
         @media (max-width: 768px) {
             .nav-container {
                 flex-wrap: wrap;
@@ -362,6 +453,24 @@
             .feature-icon svg {
                 width: 28px;
                 height: 28px;
+            }
+
+            .carousel-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .carousel-nav.prev {
+                left: 10px;
+            }
+
+            .carousel-nav.next {
+                right: 10px;
+            }
+
+            .image-carousel-section {
+                padding: 2rem 1rem 1.5rem;
             }
         }
 
@@ -445,7 +554,28 @@
             <div style="max-width: 1200px; margin: 0 auto;">
                 <h2 id="featuresTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 1rem; color: var(--dark);">How Organize.Quest Works</h2>
                 <p id="featuresSubtitle" style="text-align: center; font-size: 1.2rem; color: var(--gray); margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto;">From creating organizations to meeting in real life - everything you need to build your local community</p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+                
+                <!-- Image Carousel -->
+                <div class="image-carousel-section">
+                    <div class="carousel-container">
+                        <div class="carousel-track" id="carouselTrack">
+                            <div class="carousel-slide">
+                                <img src="Meet_with_new_people.png" alt="Meet with new people">
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="For_business.png" alt="For business">
+                            </div>
+                        </div>
+                        <button class="carousel-nav prev" id="prevBtn">‹</button>
+                        <button class="carousel-nav next" id="nextBtn">›</button>
+                        <div class="carousel-dots">
+                            <button class="carousel-dot active" data-slide="0"></button>
+                            <button class="carousel-dot" data-slide="1"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-top: 3rem;">
                     <div style="text-align: center; padding: 2rem;">
                         <div class="feature-icon">
                             <svg viewBox="0 0 24 24">
@@ -599,6 +729,44 @@
         
         let currentLang = 'en';
         let currentUser = null;
+
+        // Carousel functionality
+        let currentSlide = 0;
+        const track = document.getElementById('carouselTrack');
+        const slides = document.querySelectorAll('.carousel-slide');
+        const dots = document.querySelectorAll('.carousel-dot');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        function updateCarousel() {
+            track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            updateCarousel();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            updateCarousel();
+        }
+
+        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.addEventListener('click', prevSlide);
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                currentSlide = index;
+                updateCarousel();
+            });
+        });
+
+        // Auto-advance carousel every 5 seconds
+        setInterval(nextSlide, 5000);
 
         const translations = {
             en: {
