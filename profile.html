@@ -1761,7 +1761,7 @@
                 currentUser = { id: data.user.id, email: email, name: name };
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 
-                alert('Account created successfully! Please activate your email, otherwise your memebership will be revoked in 24 hours.');
+                alert('Account created successfully! Please activate your email, otherwise your memebership will be deleted in 24 hours.');
                 showProfile();
             } catch (err) {
                 alert('Signup error: ' + err.message);
