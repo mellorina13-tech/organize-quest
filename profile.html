@@ -660,6 +660,98 @@
                 min-width: auto;
             }
         }
+        /* Forgot Password Link Styles */
+.forgot-password-link {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.forgot-password-link a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.forgot-password-link a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* Forgot Password Modal */
+.forgot-modal {
+    display: none;
+    position: fixed;
+    z-index: 3000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.forgot-modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.forgot-modal-content {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 450px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.forgot-modal-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.forgot-modal-header h2 {
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+}
+
+.forgot-modal-header p {
+    color: var(--gray);
+    font-size: 0.95rem;
+}
+
+.forgot-modal-close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--gray);
+    background: var(--light);
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.forgot-modal-close:hover {
+    background: var(--danger);
+    color: white;
+    transform: rotate(90deg);
+}
+
+@media (max-width: 480px) {
+    .forgot-modal-content {
+        padding: 2rem 1.5rem;
+    }
+}
     </style>
 </head>
 <body>
@@ -689,6 +781,9 @@
                     <input type="password" id="loginPassword" required placeholder="••••••••">
                 </div>
                 <button type="submit" class="btn btn-primary">Sign In</button>
+                <div class="forgot-password-link">
+    <a href="#" id="forgotPasswordLink">Forgot Password? / Şifremi Unuttum</a>
+                </div>
             </form>
 
             <form id="signupForm" class="hidden">
