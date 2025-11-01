@@ -1897,79 +1897,123 @@
 
         window.showParticipants = showParticipants;
         window.openChat = openChat;
-        // ==========================================
-// FORGOT PASSWORD FUNCTIONALITY
+    // ==========================================
+// FORGOT PASSWORD - İYİLEŞTİRİLMİŞ
 // ==========================================
 
-// Open Forgot Password Modal
 function openForgotPasswordModal() {
     document.getElementById('forgotPasswordModal').classList.add('show');
+    console.log('✅ Forgot password modal açıldı');
 }
 
-// Close Forgot Password Modal
 function closeForgotPasswordModal() {
     document.getElementById('forgotPasswordModal').classList.remove('show');
     document.getElementById('forgotPasswordForm').reset();
+    console.log('✅ Forgot password modal kapatıldı');
 }
 
-// Forgot Password Link Click Handler
-document.getElementById('forgotPasswordLink').addEventListener('click', function(e) {
-    e.preventDefault();
-    openForgotPasswordModal();
-});
-
-// Forgot Password Modal Close Button
-document.getElementById('forgotModalClose').addEventListener('click', closeForgotPasswordModal);
-
-// Close modal when clicking outside
-document.getElementById('forgotPasswordModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeForgotPasswordModal();
-    }
-});
-
-// Forgot Password Form Submit
-document.getElementById('forgotPasswordForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+// DOMContentLoaded içine eklenmeli
+document.addEventListener('DOMContentLoaded', function() {
+    // ... diğer kodlar ...
     
-    const email = document.getElementById('forgotEmail').value;
-    
-    if (!email) {
-        alert('Please enter your email address!');
-        return;
-    }
-
-    try {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + '/reset-password.html'
+    // Forgot Password Link
+    const forgotLink = document.getElementById('forgotPasswordLink');
+    if (forgotLink) {
+        forgotLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('🔗 Forgot password link tıklandı');
+            openForgotPasswordModal();
         });
+    }
 
-        if (error) {
-            alert('Error: ' + error.message);
-            console.error('Password reset error:', error);
-        } else {
-            alert('✅ Password reset link has been sent to your email!\n\nŞifre sıfırlama bağlantısı email adresinize gönderildi!');
+    // Close button
+    const forgotClose = document.getElementById('forgotModalClose');
+    if (forgotClose) {
+        forgotClose.addEventListener('click', function() {
+            console.log('❌ Modal close tıklandı');
             closeForgotPasswordModal();
-        }
-    } catch (err) {
-        alert('Error: ' + err.message);
-        console.error('Password reset error:', err);
+        });
+    }
+
+    // Click outside to close
+    const forgotModal = document.getElementById('forgotPasswordModal');
+    if (forgotModal) {
+        forgotModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                console.log('🖱️ Modal dışı tıklandı');
+                closeForgotPasswordModal();
+            }
+        });
+    }
+
+    // Form submit
+    const forgotForm = document.getElementById('forgotPasswordForm');
+    if (forgotForm) {
+        forgotForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const emailInput = document.getElementById('forgotEmail');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            if (!emailInput || !emailInput.value) {
+                alert('Lütfen email adresinizi girin!\nPlease enter your email!');
+                return;
+            }
+            
+            const email = emailInput.value.trim();
+            const originalBtnText = submitBtn.textContent;
+            
+            console.log('📧 Email:', email);
+            console.log('🔄 Şifre sıfırlama başladı...');
+            
+            // Button feedback
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Gönderiliyor...';
+            
+            try {
+                const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: window.location.origin + '/reset-password.html'
+                });
+                
+                console.log('Supabase yanıtı:', { data, error });
+                
+                if (error) {
+                    console.error('❌ Hata:', error);
+                    alert('❌ Hata: ' + error.message + '\n\nDetaylar console\'da (F12)');
+                } else {
+                    console.log('✅ Email gönderildi!');
+                    alert('✅ BAŞARILI!\n\n' +
+                          '📧 Şifre sıfırlama bağlantısı email adresinize gönderildi!\n' +
+                          'Password reset link sent to your email!\n\n' +
+                          '⏰ Email 30 saniye - 5 dakika içinde gelecektir.\n\n' +
+                          '📬 SPAM klasörünü kontrol etmeyi unutmayın!');
+                    closeForgotPasswordModal();
+                }
+            } catch (err) {
+                console.error('❌ Beklenmeyen hata:', err);
+                alert('❌ Hata oluştu: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+            }
+        });
     }
 });
     </script>
-    <!-- Forgot Password Modal -->
+<!-- Forgot Password Modal -->
 <div id="forgotPasswordModal" class="forgot-modal">
     <div class="forgot-modal-content">
         <button class="forgot-modal-close" id="forgotModalClose">&times;</button>
         
         <div class="forgot-modal-header">
-            <h2>Reset Password</h2>
-            <p>Enter your email address and we'll send you a reset link</p>
+            <h2>Reset Password / Şifreyi Sıfırla</h2>
+            <p>Enter your email address and we'll send you a reset link<br>
+            Email adresinizi girin, size sıfırlama linki gönderelim</p>
         </div>
 
         <form id="forgotPasswordForm">
             <div class="form-group">
-                <label>Email Address</label>
+                <label>Email Address / Email Adresi</label>
                 <input type="email" id="forgotEmail" required placeholder="your@email.com">
             </div>
             <button type="submit" class="btn btn-primary">
@@ -1978,5 +2022,8 @@ document.getElementById('forgotPasswordForm').addEventListener('submit', async f
         </form>
     </div>
 </div>
+
+</body>
+</html>
 </body>
 </html>
