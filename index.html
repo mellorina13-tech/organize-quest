@@ -537,6 +537,20 @@
                 flex: 1;
                 min-width: 120px;
             }
+
+            .carousel-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .carousel-nav.prev {
+                left: 10px;
+            }
+
+            .carousel-nav.next {
+                right: 10px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -627,6 +641,28 @@
                     <div class="hero-buttons">
                         <a href="organizations.html" class="btn-primary" id="heroMapBtn">Start Exploring</a>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Image Carousel Section -->
+        <section class="image-carousel-section">
+            <div class="carousel-container">
+                <div class="carousel-track" id="carouselTrack">
+                    <div class="carousel-slide">
+                        <img src="Meet_with_new_people.png" alt="Meet with new people">
+                    </div>
+                    <div class="carousel-slide">
+                        <img src="for_business.png" alt="For business">
+                    </div>
+                </div>
+                
+                <button class="carousel-nav prev" id="prevBtn">‹</button>
+                <button class="carousel-nav next" id="nextBtn">›</button>
+                
+                <div class="carousel-dots">
+                    <button class="carousel-dot active" data-slide="0"></button>
+                    <button class="carousel-dot" data-slide="1"></button>
                 </div>
             </div>
         </section>
@@ -791,6 +827,55 @@
         
         let currentLang = 'en';
         let currentUser = null;
+
+        // Carousel functionality
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const dots = document.querySelectorAll('.carousel-dot');
+        const carouselTrack = document.getElementById('carouselTrack');
+
+        function showSlide(index) {
+            currentSlide = index;
+            const offset = -100 * currentSlide;
+            carouselTrack.style.transform = `translateX(${offset}%)`;
+            
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        // Auto-advance carousel
+        let autoAdvance = setInterval(nextSlide, 5000);
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            nextSlide();
+            clearInterval(autoAdvance);
+            autoAdvance = setInterval(nextSlide, 5000);
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            prevSlide();
+            clearInterval(autoAdvance);
+            autoAdvance = setInterval(nextSlide, 5000);
+        });
+
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                showSlide(index);
+                clearInterval(autoAdvance);
+                autoAdvance = setInterval(nextSlide, 5000);
+            });
+        });
 
         // Cookie Banner Management
         function checkCookieConsent() {
