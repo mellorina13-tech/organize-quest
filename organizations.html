@@ -1944,7 +1944,24 @@
                 console.log('Auth UID:', session.user.id);
                 console.log('Current User ID:', currentUser.id);
 
-                // Check if user already has 3 organizations
+                // Get user's max organization limit from database
+                const { data: userData, error: userError } = await supabase
+                    .from('users')
+                    .select('max_organizations, role')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (userError) {
+                    console.error('User data error:', userError);
+                    alert('Error checking user permissions: ' + userError.message);
+                    return;
+                }
+
+                // Default to 3 if not set
+                const maxOrgs = userData?.max_organizations || 3;
+                const userRole = userData?.role || 'user';
+
+                // Check if user already has reached their limit
                 const { data: userOrgs, error: countError } = await supabase
                     .from('organizations')
                     .select('id')
@@ -1956,10 +1973,13 @@
                     return;
                 }
 
-                if (userOrgs && userOrgs.length >= 3) {
-                    alert('You can create maximum 3 organizations. Please delete one before creating a new one.');
+                if (userOrgs && userOrgs.length >= maxOrgs) {
+                    const roleLabel = userRole === 'admin' ? 'Admin' : userRole === 'mod' ? 'Moderator' : 'User';
+                    alert(`You have reached your organization limit (${maxOrgs} as ${roleLabel}). Please delete one before creating a new one.`);
                     return;
                 }
+
+                console.log(`User can create ${maxOrgs - userOrgs.length} more organization(s). Role: ${userRole}`);
 
                 const orgData = {
                     name: document.getElementById('orgName').value,
