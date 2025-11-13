@@ -535,6 +535,220 @@
                 font-size: 1.5rem;
             }
         }
+
+        /* View switching */
+        .view-content {
+            display: none;
+        }
+
+        .view-content.active {
+            display: block;
+        }
+
+        /* List View Styles */
+        .list-view-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .list-view-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .list-org-card {
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .list-org-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .list-org-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .list-org-card .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .list-org-card .description {
+            color: var(--gray);
+            margin: 1rem 0;
+            line-height: 1.5;
+        }
+
+        /* Calendar View Styles */
+        .calendar-view-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .calendar-header h2 {
+            font-size: 1.8rem;
+            color: var(--dark);
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .calendar-nav button {
+            padding: 0.5rem 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-nav button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-weight: 700;
+            color: var(--primary);
+            padding: 0.5rem;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .calendar-day {
+            min-height: 120px;
+            padding: 0.5rem;
+            background: var(--light);
+            border-radius: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            border-color: var(--accent);
+            transform: scale(1.02);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        .calendar-day.today {
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+            border-color: var(--primary);
+        }
+
+        .calendar-day-number {
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-event {
+            background: var(--primary);
+            color: white;
+            padding: 0.3rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            margin-bottom: 0.3rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .calendar-event:hover {
+            background: var(--primary-dark);
+            transform: translateX(3px);
+        }
+
+        .event-details {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-top: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 968px) {
+            .list-view-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-grid {
+                gap: 0.5rem;
+            }
+
+            .calendar-day {
+                min-height: 80px;
+                padding: 0.3rem;
+            }
+
+            .calendar-day-number {
+                font-size: 0.9rem;
+            }
+
+            .calendar-event {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .calendar-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 0.3rem;
+            }
+
+            .calendar-day-header {
+                font-size: 0.75rem;
+                padding: 0.3rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -610,25 +824,54 @@
             <button class="tab-btn" data-tab="calendar">📅 Calendar View</button>
         </div>
 
-        <div class="main-content" id="mapView">
-            <div class="map-container">
-                <div id="map"></div>
-            </div>
-            <div class="sidebar">
-                <h2>Quick Actions</h2>
-                <div class="action-buttons">
-                    <button class="btn btn-info" id="findLocationBtn">
-                        📍 Find My Location
-                    </button>
-                    <button class="btn btn-success" id="createOrgBtn">
-                        ➕ Create Organization
-                    </button>
+        <!-- Map View -->
+        <div class="view-content active" id="mapView">
+            <div class="main-content">
+                <div class="map-container">
+                    <div id="map"></div>
                 </div>
-                
-                <h2>Nearby Organizations</h2>
-                <div id="orgList" class="org-list">
+                <div class="sidebar">
+                    <h2>Quick Actions</h2>
+                    <div class="action-buttons">
+                        <button class="btn btn-info" id="findLocationBtn">
+                            📍 Find My Location
+                        </button>
+                        <button class="btn btn-success" id="createOrgBtn">
+                            ➕ Create Organization
+                        </button>
+                    </div>
+
+                    <h2>Nearby Organizations</h2>
+                    <div id="orgList" class="org-list">
+                        <p style="text-align: center; color: #999;">Loading organizations...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- List View -->
+        <div class="view-content" id="listView">
+            <div class="list-view-container">
+                <h2 style="margin-bottom: 2rem; font-size: 1.8rem; color: var(--dark);">All Organizations</h2>
+                <div class="list-view-grid" id="listViewGrid">
                     <p style="text-align: center; color: #999;">Loading organizations...</p>
                 </div>
+            </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div class="view-content" id="calendarView">
+            <div class="calendar-view-container">
+                <div class="calendar-header">
+                    <h2 id="calendarMonth">Calendar</h2>
+                    <div class="calendar-nav">
+                        <button id="prevMonth">← Previous</button>
+                        <button id="todayBtn">Today</button>
+                        <button id="nextMonth">Next →</button>
+                    </div>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+                <div id="selectedEventDetails" class="event-details" style="display: none;"></div>
             </div>
         </div>
     </div>
@@ -1074,14 +1317,14 @@
 
         function updateStats() {
             document.getElementById('totalOrgs').textContent = organizations.length;
-            
+
             const now = new Date();
             const activeEvents = organizations.filter(org => {
                 if (!org.event_date) return false;
                 return new Date(org.event_date) > now;
             }).length;
             document.getElementById('activeEvents').textContent = activeEvents;
-            
+
             const totalParticipants = organizations.reduce((sum, org) => {
                 return sum + (org.current_attendees || 0);
             }, 0);
@@ -1097,6 +1340,298 @@
             }
         }
 
+        function renderListView() {
+            const listContainer = document.getElementById('listViewGrid');
+
+            if (organizations.length === 0) {
+                listContainer.innerHTML = '<p style="text-align: center; color: #999; grid-column: 1/-1;">No organizations yet. Create the first one!</p>';
+                return;
+            }
+
+            const categoryIcons = {
+                'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
+                'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨',
+                'Environment': '🌱', 'Community': '🏙️'
+            };
+
+            listContainer.innerHTML = organizations.map(org => {
+                const icon = categoryIcons[org.category] || '📌';
+                const hasJoined = hasUserJoinedOrg(org.id);
+                const isFull = org.max_attendees && org.current_attendees >= org.max_attendees;
+
+                let eventInfo = '';
+                if (org.event_date) {
+                    const eventDate = new Date(org.event_date);
+                    const dateStr = eventDate.toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                    });
+                    const timeStr = eventDate.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    eventInfo = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #e3f2fd; border-radius: 10px; border-left: 4px solid #2196f3;">
+                            <div style="font-weight: 600; color: #1976d2; margin-bottom: 0.5rem;">📅 Event Date & Time</div>
+                            <div style="color: #1976d2;">${dateStr} at ${timeStr}</div>
+                            ${org.max_attendees ? `<div style="margin-top: 0.5rem; color: #666;">👥 ${org.current_attendees || 0}/${org.max_attendees} attendees</div>` : `<div style="margin-top: 0.5rem; color: #666;">👥 ${org.current_attendees || 0} attendees</div>`}
+                        </div>
+                    `;
+                }
+
+                let creatorInfo = '';
+                if (org.users) {
+                    creatorInfo = `
+                        <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, #5865F2, #4ECDC4); display: flex; align-items: center; justify-content: center;">
+                                ${org.users.avatar_url
+                                    ? `<img src="${org.users.avatar_url}" style="width: 100%; height: 100%; object-fit: cover;">`
+                                    : `<span style="font-size: 1.2rem;">👤</span>`
+                                }
+                            </div>
+                            <div>
+                                <div style="font-size: 0.85rem; color: #6c757d;">Created by</div>
+                                <a href="user-profile.html?id=${org.users.id}" style="font-weight: 600; color: #5865F2; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${org.users.name || 'Anonymous'}</a>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                let actionButton = '';
+                if (currentUser) {
+                    if (hasJoined) {
+                        actionButton = `
+                            <button onclick="leaveOrg('${org.id}')" class="btn btn-leave"
+                                    style="width: 100%; margin-top: 1rem; padding: 0.8rem; border-radius: 10px;">
+                                Leave Organization
+                            </button>
+                        `;
+                    } else if (!isFull) {
+                        actionButton = `
+                            <button onclick="joinOrg('${org.id}')" class="btn btn-join"
+                                    style="width: 100%; margin-top: 1rem; padding: 0.8rem; border-radius: 10px;">
+                                Join Organization
+                            </button>
+                        `;
+                    } else {
+                        actionButton = `
+                            <button disabled class="btn"
+                                    style="width: 100%; margin-top: 1rem; padding: 0.8rem; border-radius: 10px; background: #6c757d; color: white; cursor: not-allowed;">
+                                Organization Full
+                            </button>
+                        `;
+                    }
+                }
+
+                return `
+                    <div class="list-org-card">
+                        <h3>${icon} ${org.name}</h3>
+                        <div class="meta">
+                            <span class="category">${org.category}</span>
+                            ${hasJoined ? '<span class="joined-badge">✓ Joined</span>' : ''}
+                        </div>
+                        ${org.description ? `<div class="description">${org.description}</div>` : ''}
+                        ${eventInfo}
+                        ${creatorInfo}
+                        ${actionButton}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        let currentCalendarDate = new Date();
+
+        function renderCalendarView() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+
+            // Update header
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('calendarMonth').textContent = `${monthNames[month]} ${year}`;
+
+            // Get first day of month and number of days
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+            const today = new Date();
+            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+
+            // Day headers
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayNames.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'calendar-day-header';
+                header.textContent = day;
+                calendarGrid.appendChild(header);
+            });
+
+            // Previous month days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const day = document.createElement('div');
+                day.className = 'calendar-day other-month';
+                day.innerHTML = `<div class="calendar-day-number">${daysInPrevMonth - i}</div>`;
+                calendarGrid.appendChild(day);
+            }
+
+            // Current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+
+                if (isCurrentMonth && day === today.getDate()) {
+                    dayElement.classList.add('today');
+                }
+
+                let dayHTML = `<div class="calendar-day-number">${day}</div>`;
+
+                // Find events for this day
+                const currentDate = new Date(year, month, day);
+                const eventsOnDay = organizations.filter(org => {
+                    if (!org.event_date) return false;
+                    const eventDate = new Date(org.event_date);
+                    return eventDate.getFullYear() === year &&
+                           eventDate.getMonth() === month &&
+                           eventDate.getDate() === day;
+                });
+
+                eventsOnDay.forEach(org => {
+                    const categoryIcons = {
+                        'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
+                        'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨',
+                        'Environment': '🌱', 'Community': '🏙️'
+                    };
+                    const icon = categoryIcons[org.category] || '📌';
+                    const eventDate = new Date(org.event_date);
+                    const timeStr = eventDate.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    dayHTML += `
+                        <div class="calendar-event" onclick="showEventDetails('${org.id}')" title="${org.name}">
+                            ${icon} ${timeStr}
+                        </div>
+                    `;
+                });
+
+                dayElement.innerHTML = dayHTML;
+                calendarGrid.appendChild(dayElement);
+            }
+
+            // Next month days
+            const totalCells = calendarGrid.children.length - 7; // excluding headers
+            const remainingCells = 42 - totalCells; // 6 rows * 7 days
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day other-month';
+                dayElement.innerHTML = `<div class="calendar-day-number">${day}</div>`;
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+
+        function showEventDetails(orgId) {
+            const org = organizations.find(o => o.id === orgId);
+            if (!org) return;
+
+            const detailsContainer = document.getElementById('selectedEventDetails');
+            const categoryIcons = {
+                'Education': '🎓', 'Healthcare': '🏥', 'Technology': '💻',
+                'Non-Profit': '🤝', 'Sports': '⚽', 'Arts': '🎨',
+                'Environment': '🌱', 'Community': '🏙️'
+            };
+            const icon = categoryIcons[org.category] || '📌';
+            const hasJoined = hasUserJoinedOrg(org.id);
+            const isFull = org.max_attendees && org.current_attendees >= org.max_attendees;
+
+            let eventInfo = '';
+            if (org.event_date) {
+                const eventDate = new Date(org.event_date);
+                const dateStr = eventDate.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                const timeStr = eventDate.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                eventInfo = `
+                    <div style="margin: 1rem 0; padding: 1rem; background: #e3f2fd; border-radius: 10px;">
+                        <strong>📅 ${dateStr}</strong><br>
+                        <strong>🕐 ${timeStr}</strong>
+                    </div>
+                `;
+            }
+
+            let creatorInfo = '';
+            if (org.users) {
+                creatorInfo = `
+                    <div style="margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, #5865F2, #4ECDC4); display: flex; align-items: center; justify-content: center;">
+                            ${org.users.avatar_url
+                                ? `<img src="${org.users.avatar_url}" style="width: 100%; height: 100%; object-fit: cover;">`
+                                : `<span style="font-size: 1.2rem;">👤</span>`
+                            }
+                        </div>
+                        <div>
+                            <div style="font-size: 0.85rem; color: #6c757d;">Created by</div>
+                            <a href="user-profile.html?id=${org.users.id}" style="font-weight: 600; color: #5865F2; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${org.users.name || 'Anonymous'}</a>
+                        </div>
+                    </div>
+                `;
+            }
+
+            let actionButton = '';
+            if (currentUser) {
+                if (hasJoined) {
+                    actionButton = `
+                        <button onclick="leaveOrg('${org.id}')" class="btn btn-leave"
+                                style="width: 100%; margin-top: 1rem; padding: 0.8rem; border-radius: 10px;">
+                            Leave Organization
+                        </button>
+                    `;
+                } else if (!isFull) {
+                    actionButton = `
+                        <button onclick="joinOrg('${org.id}')" class="btn btn-join"
+                                style="width: 100%; margin-top: 1rem; padding: 0.8rem; border-radius: 10px;">
+                            Join Organization
+                        </button>
+                    `;
+                } else {
+                    actionButton = `
+                        <button disabled class="btn"
+                                style="width: 100%; margin-top: 1rem; padding: 0.8rem; border-radius: 10px; background: #6c757d; color: white; cursor: not-allowed;">
+                            Organization Full
+                        </button>
+                    `;
+                }
+            }
+
+            detailsContainer.innerHTML = `
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">${icon} ${org.name}</h3>
+                <div style="margin-bottom: 1rem;">
+                    <span class="category">${org.category}</span>
+                    ${hasJoined ? '<span class="joined-badge">✓ Joined</span>' : ''}
+                </div>
+                ${org.description ? `<p style="margin: 1rem 0; color: var(--gray); line-height: 1.6;">${org.description}</p>` : ''}
+                ${eventInfo}
+                ${org.max_attendees ? `<p><strong>👥 Attendees:</strong> ${org.current_attendees || 0}/${org.max_attendees}</p>` : `<p><strong>👥 Attendees:</strong> ${org.current_attendees || 0}</p>`}
+                ${creatorInfo}
+                ${actionButton}
+            `;
+
+            detailsContainer.style.display = 'block';
+            detailsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             initMap();
 
@@ -1104,12 +1639,24 @@
                 btn.addEventListener('click', function() {
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
-                    
+
                     const tab = this.dataset.tab;
-                    if (tab === 'list') {
-                        alert('List view coming soon!');
+
+                    // Hide all views
+                    document.querySelectorAll('.view-content').forEach(view => {
+                        view.classList.remove('active');
+                    });
+
+                    // Show selected view
+                    if (tab === 'map') {
+                        document.getElementById('mapView').classList.add('active');
+                        setTimeout(() => map.invalidateSize(), 100);
+                    } else if (tab === 'list') {
+                        document.getElementById('listView').classList.add('active');
+                        renderListView();
                     } else if (tab === 'calendar') {
-                        alert('Calendar view coming soon!');
+                        document.getElementById('calendarView').classList.add('active');
+                        renderCalendarView();
                     }
                 });
             });
@@ -1245,6 +1792,22 @@
                     alert('Error creating organization: ' + err.message);
                 }
             });
+
+            // Calendar navigation
+            document.getElementById('prevMonth').addEventListener('click', function() {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+                renderCalendarView();
+            });
+
+            document.getElementById('nextMonth').addEventListener('click', function() {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+                renderCalendarView();
+            });
+
+            document.getElementById('todayBtn').addEventListener('click', function() {
+                currentCalendarDate = new Date();
+                renderCalendarView();
+            });
         });
 
         window.onclick = function(event) {
@@ -1261,6 +1824,7 @@
         // Make functions globally accessible
         window.joinOrg = joinOrg;
         window.leaveOrg = leaveOrg;
+        window.showEventDetails = showEventDetails;
     </script>
 </body>
 </html>
