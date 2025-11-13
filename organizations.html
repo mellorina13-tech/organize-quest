@@ -1029,21 +1029,43 @@
         let map, userMarker, organizations = [], createMode = false, selectedLocation = null;
         let currentUser = JSON.parse(localStorage.getItem('currentUser'));
         let joinedOrgIds = new Set();
+        let isAdmin = false;
+        let userRole = 'user';
         
         const SUPABASE_URL = 'https://ymrxfbkghznrosgfqwrh.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltcnhmYmtnaHpucm9zZ2Zxd3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NzQ4MTMsImV4cCI6MjA3NDA1MDgxM30.GyrbrTmWMc6--zCUcfKwc-2qlsBI0z3oly8iv9Fq9-0';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        async function refreshUserRole() {
+            if (!currentUser || !currentUser.id) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('role, max_organizations')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                if (!error && data) {
+                    userRole = data.role || 'user';
+                    isAdmin = userRole === 'admin';
+                    console.log('User role:', userRole, 'isAdmin:', isAdmin);
+                }
+            } catch (err) {
+                console.error('Error refreshing user role:', err);
+            }
+        }
+
         async function refreshJoinedOrgs() {
             joinedOrgIds = new Set();
             if (!currentUser || !currentUser.id) return;
-            
+
             try {
                 const { data, error } = await supabase
                     .from('attendees')
                     .select('organization_id')
                     .eq('user_id', currentUser.id);
-                    
+
                 if (!error && Array.isArray(data)) {
                     data.forEach(r => joinedOrgIds.add(r.organization_id));
                 }
@@ -1063,12 +1085,34 @@
                 window.location.href = 'profile.html';
                 return;
             }
-            
+
+            // Get organization details to check if full
+            const org = organizations.find(o => o.id === orgId);
+            if (!org) {
+                alert('Organization not found!');
+                return;
+            }
+
+            const isFull = org.max_attendees && org.current_attendees >= org.max_attendees;
+
+            // Check if user can join (admin can bypass full limit)
+            if (isFull && !isAdmin) {
+                alert('This organization is full!');
+                return;
+            }
+
+            // Admin joining full organization - show special message
+            if (isFull && isAdmin) {
+                if (!confirm('This organization is full, but as an admin you can join anyway. Continue?')) {
+                    return;
+                }
+            }
+
             try {
                 const { error } = await supabase
                     .from('attendees')
                     .insert([{ organization_id: orgId, user_id: currentUser.id }]);
-                    
+
                 if (error) {
                     if (error.code === '23505') {
                         alert('You have already joined this organization!');
@@ -1077,9 +1121,12 @@
                     }
                     return;
                 }
-                
+
                 joinedOrgIds.add(orgId);
-                alert('Joined organization successfully!');
+                const joinMessage = isAdmin && isFull
+                    ? 'Joined organization successfully as admin (organization was full)!'
+                    : 'Joined organization successfully!';
+                alert(joinMessage);
                 await loadOrganizations();
                 updateOrganizationList();
             } catch (err) {
@@ -1093,21 +1140,21 @@
                 alert('Please log in first!');
                 return;
             }
-            
+
             if (!confirm('Are you sure you want to leave this organization?')) return;
-            
+
             try {
                 const { error } = await supabase
                     .from('attendees')
                     .delete()
                     .eq('organization_id', orgId)
                     .eq('user_id', currentUser.id);
-                    
+
                 if (error) {
                     alert('Leave failed: ' + error.message);
                     return;
                 }
-                
+
                 joinedOrgIds.delete(orgId);
                 alert('Left organization successfully!');
                 await loadOrganizations();
@@ -1115,6 +1162,65 @@
             } catch (err) {
                 alert('Error: ' + err.message);
                 console.error('Leave error:', err);
+            }
+        }
+
+        async function deleteOrganization(orgId) {
+            if (!currentUser) {
+                alert('Please log in first!');
+                return;
+            }
+
+            const org = organizations.find(o => o.id === orgId);
+            if (!org) {
+                alert('Organization not found!');
+                return;
+            }
+
+            // Check if user is admin or owner
+            const isOwner = org.created_by === currentUser.id;
+            if (!isAdmin && !isOwner) {
+                alert('You do not have permission to delete this organization!');
+                return;
+            }
+
+            const confirmMsg = isAdmin && !isOwner
+                ? `As an admin, you are about to delete "${org.name}" which was created by another user. Are you sure?`
+                : `Are you sure you want to delete "${org.name}"?`;
+
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                // First delete all attendees
+                const { error: attendeesError } = await supabase
+                    .from('attendees')
+                    .delete()
+                    .eq('organization_id', orgId);
+
+                if (attendeesError) {
+                    console.error('Error deleting attendees:', attendeesError);
+                }
+
+                // Then delete the organization
+                const { error } = await supabase
+                    .from('organizations')
+                    .delete()
+                    .eq('id', orgId);
+
+                if (error) {
+                    alert('Delete failed: ' + error.message);
+                    return;
+                }
+
+                const deleteMsg = isAdmin && !isOwner
+                    ? 'Organization deleted successfully by admin!'
+                    : 'Organization deleted successfully!';
+                alert(deleteMsg);
+                await loadOrganizations();
+                updateOrganizationList();
+            } catch (err) {
+                alert('Error: ' + err.message);
+                console.error('Delete error:', err);
             }
         }
 
@@ -1191,7 +1297,7 @@
 
                 const now = new Date();
                 const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                
+
                 organizations = (data || []).filter(org => {
                     if (!org.event_date) return true;
                     const orgDate = new Date(org.event_date);
@@ -1199,6 +1305,7 @@
                     return orgDay >= today;
                 });
 
+                await refreshUserRole();
                 await refreshJoinedOrgs();
 
                 for (let org of organizations) {
@@ -1288,19 +1395,22 @@
             if (currentUser) {
                 const hasJoined = hasUserJoinedOrg(org.id);
                 const isFull = org.max_attendees && org.current_attendees >= org.max_attendees;
-                
+                const isOwner = org.created_by === currentUser.id;
+
+                // Join/Leave buttons
                 if (hasJoined) {
                     popupContent += `
-                        <button onclick="leaveOrg('${org.id}')" 
+                        <button onclick="leaveOrg('${org.id}')"
                                 style="width: 100%; margin-top: 10px; padding: 8px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
                             Leave Organization
                         </button>
                     `;
-                } else if (!isFull) {
+                } else if (!isFull || isAdmin) {
+                    const btnText = isFull && isAdmin ? '👑 Join as Admin (Full)' : 'Join Organization';
                     popupContent += `
-                        <button onclick="joinOrg('${org.id}')" 
+                        <button onclick="joinOrg('${org.id}')"
                                 style="width: 100%; margin-top: 10px; padding: 8px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
-                            Join Organization
+                            ${btnText}
                         </button>
                     `;
                 } else {
@@ -1308,6 +1418,17 @@
                         <button disabled
                                 style="width: 100%; margin-top: 10px; padding: 8px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: not-allowed; font-weight: 600;">
                             Organization Full
+                        </button>
+                    `;
+                }
+
+                // Delete button for admin or owner
+                if (isAdmin || isOwner) {
+                    const deleteLabel = isAdmin && !isOwner ? '👑 Delete (Admin)' : 'Delete Organization';
+                    popupContent += `
+                        <button onclick="deleteOrganization('${org.id}')"
+                                style="width: 100%; margin-top: 10px; padding: 8px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                            ${deleteLabel}
                         </button>
                     `;
                 }
@@ -1391,7 +1512,9 @@
 
                 if (currentUser) {
                     const isFull = org.max_attendees && org.current_attendees >= org.max_attendees;
+                    const isOwner = org.created_by === currentUser.id;
 
+                    // Join/Leave buttons
                     if (hasJoined) {
                         cardHTML += `
                             <button class="btn btn-leave"
@@ -1400,12 +1523,13 @@
                                 Leave Organization
                             </button>
                         `;
-                    } else if (!isFull) {
+                    } else if (!isFull || isAdmin) {
+                        const btnText = isFull && isAdmin ? '👑 Join as Admin (Full)' : 'Join Organization';
                         cardHTML += `
                             <button class="btn btn-join"
                                     onclick="event.stopPropagation(); joinOrg('${org.id}')"
                                     style="margin-top: 10px; width: 100%;">
-                                Join Organization
+                                ${btnText}
                             </button>
                         `;
                     } else {
@@ -1413,6 +1537,18 @@
                             <button class="btn btn-join" disabled
                                     style="margin-top: 10px; width: 100%; background: #6c757d; cursor: not-allowed;">
                                 Organization Full
+                            </button>
+                        `;
+                    }
+
+                    // Delete button for admin or owner
+                    if (isAdmin || isOwner) {
+                        const deleteLabel = isAdmin && !isOwner ? '👑 Delete (Admin)' : '🗑️ Delete';
+                        cardHTML += `
+                            <button class="btn"
+                                    onclick="event.stopPropagation(); deleteOrganization('${org.id}')"
+                                    style="margin-top: 10px; width: 100%; padding: 0.5rem; background: #dc3545; color: white; border-radius: 8px; font-size: 0.9rem;">
+                                ${deleteLabel}
                             </button>
                         `;
                     }
@@ -1535,6 +1671,9 @@
 
                 let actionButton = '';
                 if (currentUser) {
+                    const isOwner = org.created_by === currentUser.id;
+
+                    // Join/Leave buttons
                     if (hasJoined) {
                         actionButton = `
                             <button onclick="leaveOrg('${org.id}')" class="btn btn-leave"
@@ -1542,11 +1681,12 @@
                                 Leave Organization
                             </button>
                         `;
-                    } else if (!isFull) {
+                    } else if (!isFull || isAdmin) {
+                        const btnText = isFull && isAdmin ? '👑 Join as Admin (Full)' : 'Join Organization';
                         actionButton = `
                             <button onclick="joinOrg('${org.id}')" class="btn btn-join"
                                     style="width: 100%; margin-top: 1rem; padding: 0.8rem; border-radius: 10px;">
-                                Join Organization
+                                ${btnText}
                             </button>
                         `;
                     } else {
@@ -1554,6 +1694,17 @@
                             <button disabled class="btn"
                                     style="width: 100%; margin-top: 1rem; padding: 0.8rem; border-radius: 10px; background: #6c757d; color: white; cursor: not-allowed;">
                                 Organization Full
+                            </button>
+                        `;
+                    }
+
+                    // Delete button for admin or owner
+                    if (isAdmin || isOwner) {
+                        const deleteLabel = isAdmin && !isOwner ? '👑 Delete (Admin)' : '🗑️ Delete';
+                        actionButton += `
+                            <button onclick="deleteOrganization('${org.id}')" class="btn"
+                                    style="width: 100%; margin-top: 0.5rem; padding: 0.8rem; border-radius: 10px; background: #dc3545; color: white;">
+                                ${deleteLabel}
                             </button>
                         `;
                     }
@@ -1756,6 +1907,9 @@
 
             let actionButton = '';
             if (currentUser) {
+                const isOwner = org.created_by === currentUser.id;
+
+                // Join/Leave buttons
                 if (hasJoined) {
                     actionButton = `
                         <button onclick="leaveOrg('${org.id}')" class="btn btn-leave"
@@ -1763,11 +1917,12 @@
                             Leave Organization
                         </button>
                     `;
-                } else if (!isFull) {
+                } else if (!isFull || isAdmin) {
+                    const btnText = isFull && isAdmin ? '👑 Join as Admin (Full)' : 'Join Organization';
                     actionButton = `
                         <button onclick="joinOrg('${org.id}')" class="btn btn-join"
                                 style="width: 100%; margin-top: 1rem; padding: 0.8rem; border-radius: 10px;">
-                            Join Organization
+                            ${btnText}
                         </button>
                     `;
                 } else {
@@ -1775,6 +1930,17 @@
                         <button disabled class="btn"
                                 style="width: 100%; margin-top: 1rem; padding: 0.8rem; border-radius: 10px; background: #6c757d; color: white; cursor: not-allowed;">
                             Organization Full
+                        </button>
+                    `;
+                }
+
+                // Delete button for admin or owner
+                if (isAdmin || isOwner) {
+                    const deleteLabel = isAdmin && !isOwner ? '👑 Delete (Admin)' : '🗑️ Delete';
+                    actionButton += `
+                        <button onclick="deleteOrganization('${org.id}')" class="btn"
+                                style="width: 100%; margin-top: 0.5rem; padding: 0.8rem; border-radius: 10px; background: #dc3545; color: white;">
+                            ${deleteLabel}
                         </button>
                     `;
                 }
@@ -2066,6 +2232,7 @@
         // Make functions globally accessible
         window.joinOrg = joinOrg;
         window.leaveOrg = leaveOrg;
+        window.deleteOrganization = deleteOrganization;
         window.showEventDetails = showEventDetails;
     </script>
 </body>

@@ -22,7 +22,18 @@ CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 --     max_organizations = 20
 -- WHERE email = 'moderator@example.com';
 
--- Role types:
+-- Role types and permissions:
 -- 'user'  - Regular user (default: 3 organizations)
--- 'mod'   - Moderator (customizable limit)
+--           Can only delete their own organizations
+--           Can only join organizations with available space
+--           Can only access chats they are members of
+--
+-- 'mod'   - Moderator (customizable limit, e.g., 20)
+--           Same permissions as user but higher organization limit
+--
 -- 'admin' - Administrator (customizable limit, e.g., 50)
+--           Can create up to 50 organizations (or custom limit)
+--           Can delete ANY organization (including others' organizations)
+--           Can join FULL organizations (bypass max_attendees limit)
+--           Can access ANY organization's chat
+--           Can read chats invisibly (without members seeing their presence)
