@@ -984,6 +984,28 @@
                     </select>
                 </div>
 
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <select id="orgCountry" required style="padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px;">
+                        <option value="">Country *</option>
+                        <option value="United States">🇺🇸 United States</option>
+                        <option value="United Kingdom">🇬🇧 United Kingdom</option>
+                        <option value="Canada">🇨🇦 Canada</option>
+                        <option value="Australia">🇦🇺 Australia</option>
+                        <option value="Germany">🇩🇪 Germany</option>
+                        <option value="France">🇫🇷 France</option>
+                        <option value="Spain">🇪🇸 Spain</option>
+                        <option value="Italy">🇮🇹 Italy</option>
+                        <option value="Netherlands">🇳🇱 Netherlands</option>
+                        <option value="Turkey">🇹🇷 Turkey</option>
+                        <option value="Japan">🇯🇵 Japan</option>
+                        <option value="South Korea">🇰🇷 South Korea</option>
+                        <option value="Brazil">🇧🇷 Brazil</option>
+                        <option value="Mexico">🇲🇽 Mexico</option>
+                        <option value="India">🇮🇳 India</option>
+                    </select>
+                    <input type="text" id="orgCity" required placeholder="City *" style="padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px;">
+                </div>
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                     <input type="date" id="eventDate" placeholder="Event Date" style="padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px;">
                     <input type="time" id="eventTime" placeholder="Event Time" style="padding: 0.6rem; border: 2px solid #e0e0e0; border-radius: 8px;">
@@ -1434,8 +1456,21 @@
                 return;
             }
 
-            if (organizations.length === 0) {
-                listContainer.innerHTML = '<p style="text-align: center; color: #999; grid-column: 1/-1; padding: 3rem;">No organizations found in this location. Be the first to create one!</p>';
+            // Filter organizations by country and city
+            const filteredOrganizations = organizations.filter(org => {
+                return org.country && org.city &&
+                       org.country.toLowerCase() === selectedCountry.toLowerCase() &&
+                       org.city.toLowerCase() === selectedCity.toLowerCase();
+            });
+
+            if (filteredOrganizations.length === 0) {
+                listContainer.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                        <h3 style="color: var(--dark); margin-bottom: 0.5rem;">No organizations found</h3>
+                        <p style="color: #999;">No organizations found in ${selectedCity}, ${selectedCountry}. Be the first to create one!</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -1449,11 +1484,11 @@
             const locationBanner = `
                 <div style="grid-column: 1/-1; background: linear-gradient(135deg, #4ECDC4, #5865F2); padding: 1.5rem; border-radius: 15px; color: white; margin-bottom: 1rem; text-align: center;">
                     <h3 style="margin: 0; font-size: 1.2rem;">📍 Showing organizations in ${selectedCity}, ${selectedCountry}</h3>
-                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.9;">Found ${organizations.length} organization(s) in this area</p>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.9;">Found ${filteredOrganizations.length} organization(s) in this area</p>
                 </div>
             `;
 
-            const organizationCards = organizations.map(org => {
+            const organizationCards = filteredOrganizations.map(org => {
                 const icon = categoryIcons[org.category] || '📌';
                 const hasJoined = hasUserJoinedOrg(org.id);
                 const isFull = org.max_attendees && org.current_attendees >= org.max_attendees;
@@ -1560,6 +1595,13 @@
                 return;
             }
 
+            // Filter organizations by country and city
+            const filteredOrganizations = organizations.filter(org => {
+                return org.country && org.city &&
+                       org.country.toLowerCase() === calendarSelectedCountry.toLowerCase() &&
+                       org.city.toLowerCase() === calendarSelectedCity.toLowerCase();
+            });
+
             // Show calendar, hide placeholder
             document.getElementById('calendarContent').style.display = 'block';
             document.getElementById('calendarPlaceholder').style.display = 'none';
@@ -1616,7 +1658,7 @@
 
                 // Find events for this day
                 const currentDate = new Date(year, month, day);
-                const eventsOnDay = organizations.filter(org => {
+                const eventsOnDay = filteredOrganizations.filter(org => {
                     if (!org.event_date) return false;
                     const eventDate = new Date(org.event_date);
                     return eventDate.getFullYear() === year &&
@@ -1922,6 +1964,8 @@
                 const orgData = {
                     name: document.getElementById('orgName').value,
                     category: document.getElementById('orgCategory').value,
+                    country: document.getElementById('orgCountry').value,
+                    city: document.getElementById('orgCity').value,
                     description: document.getElementById('orgDescription').value,
                     event_date: document.getElementById('eventDate').value ? new Date(document.getElementById('eventDate').value + 'T' + (document.getElementById('eventTime').value || '00:00')).toISOString() : null,
                     max_attendees: parseInt(document.getElementById('maxParticipants').value) || null,
