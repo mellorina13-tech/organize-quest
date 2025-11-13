@@ -749,7 +749,8 @@
                 padding: 0.3rem;
             }
 
-            #listView .list-view-container > div:first-of-type > div {
+            #listView .list-view-container > div:first-of-type > div,
+            #calendarView .calendar-view-container > div:first-of-type > div {
                 grid-template-columns: 1fr !important;
             }
         }
@@ -902,16 +903,61 @@
         <!-- Calendar View -->
         <div class="view-content" id="calendarView">
             <div class="calendar-view-container">
-                <div class="calendar-header">
-                    <h2 id="calendarMonth">Calendar</h2>
-                    <div class="calendar-nav">
-                        <button id="prevMonth">← Previous</button>
-                        <button id="todayBtn">Today</button>
-                        <button id="nextMonth">Next →</button>
+                <h2 style="margin-bottom: 2rem; font-size: 1.8rem; color: var(--dark);">Event Calendar by Location</h2>
+
+                <!-- Location Selection for Calendar -->
+                <div style="background: linear-gradient(135deg, #667eea15, #764ba215); padding: 2rem; border-radius: 15px; margin-bottom: 2rem; border: 2px solid var(--primary);">
+                    <h3 style="color: var(--primary); margin-bottom: 1.5rem; font-size: 1.3rem;">📍 Select Location</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--dark);">Country</label>
+                            <select id="calendarCountrySelect" style="width: 100%; padding: 0.8rem; border: 2px solid #e0e0e0; border-radius: 10px; background: white; font-size: 1rem; cursor: pointer;">
+                                <option value="">Select Country</option>
+                                <option value="United States">🇺🇸 United States</option>
+                                <option value="United Kingdom">🇬🇧 United Kingdom</option>
+                                <option value="Canada">🇨🇦 Canada</option>
+                                <option value="Australia">🇦🇺 Australia</option>
+                                <option value="Germany">🇩🇪 Germany</option>
+                                <option value="France">🇫🇷 France</option>
+                                <option value="Spain">🇪🇸 Spain</option>
+                                <option value="Italy">🇮🇹 Italy</option>
+                                <option value="Netherlands">🇳🇱 Netherlands</option>
+                                <option value="Turkey">🇹🇷 Turkey</option>
+                                <option value="Japan">🇯🇵 Japan</option>
+                                <option value="South Korea">🇰🇷 South Korea</option>
+                                <option value="Brazil">🇧🇷 Brazil</option>
+                                <option value="Mexico">🇲🇽 Mexico</option>
+                                <option value="India">🇮🇳 India</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--dark);">City</label>
+                            <input type="text" id="calendarCityInput" placeholder="Enter city name" style="width: 100%; padding: 0.8rem; border: 2px solid #e0e0e0; border-radius: 10px; background: white; font-size: 1rem;">
+                        </div>
                     </div>
+                    <button id="applyCalendarLocationFilter" style="width: 100%; margin-top: 1rem; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.background='var(--primary-dark)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(88, 101, 242, 0.3)'" onmouseout="this.style.background='var(--primary)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                        📅 Show Calendar
+                    </button>
                 </div>
-                <div class="calendar-grid" id="calendarGrid"></div>
-                <div id="selectedEventDetails" class="event-details" style="display: none;"></div>
+
+                <div id="calendarContent" style="display: none;">
+                    <div class="calendar-header">
+                        <h2 id="calendarMonth">Calendar</h2>
+                        <div class="calendar-nav">
+                            <button id="prevMonth">← Previous</button>
+                            <button id="todayBtn">Today</button>
+                            <button id="nextMonth">Next →</button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                    <div id="selectedEventDetails" class="event-details" style="display: none;"></div>
+                </div>
+
+                <div id="calendarPlaceholder" style="text-align: center; padding: 5rem 2rem; color: #999;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">📅</div>
+                    <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--dark);">Select a Location</h3>
+                    <p>Please choose a country and city to view the event calendar</p>
+                </div>
             </div>
         </div>
     </div>
@@ -1497,15 +1543,37 @@
         }
 
         let currentCalendarDate = new Date();
+        let calendarSelectedCountry = null;
+        let calendarSelectedCity = null;
 
-        function renderCalendarView() {
+        function renderCalendarView(selectedCountry = null, selectedCity = null) {
+            // Update stored location if provided
+            if (selectedCountry && selectedCity) {
+                calendarSelectedCountry = selectedCountry;
+                calendarSelectedCity = selectedCity;
+            }
+
+            // If no location selected, don't render calendar
+            if (!calendarSelectedCountry || !calendarSelectedCity) {
+                document.getElementById('calendarContent').style.display = 'none';
+                document.getElementById('calendarPlaceholder').style.display = 'block';
+                return;
+            }
+
+            // Show calendar, hide placeholder
+            document.getElementById('calendarContent').style.display = 'block';
+            document.getElementById('calendarPlaceholder').style.display = 'none';
+
             const year = currentCalendarDate.getFullYear();
             const month = currentCalendarDate.getMonth();
 
             // Update header
             const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                 'July', 'August', 'September', 'October', 'November', 'December'];
-            document.getElementById('calendarMonth').textContent = `${monthNames[month]} ${year}`;
+
+            // Add location info to header
+            const locationInfo = ` - ${calendarSelectedCity}, ${calendarSelectedCountry}`;
+            document.getElementById('calendarMonth').textContent = `${monthNames[month]} ${year}${locationInfo}`;
 
             // Get first day of month and number of days
             const firstDay = new Date(year, month, 1).getDay();
@@ -1711,6 +1779,7 @@
                         // Don't auto-render, wait for user to select location
                     } else if (tab === 'calendar') {
                         document.getElementById('calendarView').classList.add('active');
+                        // Don't auto-render, wait for user to select location
                         renderCalendarView();
                     }
                 });
@@ -1740,6 +1809,33 @@
             document.getElementById('listCityInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     applyLocationFilter();
+                }
+            });
+
+            // Apply location filter for calendar view
+            function applyCalendarLocationFilter() {
+                const country = document.getElementById('calendarCountrySelect').value;
+                const city = document.getElementById('calendarCityInput').value.trim();
+
+                if (!country) {
+                    alert('Please select a country');
+                    return;
+                }
+
+                if (!city) {
+                    alert('Please enter a city name');
+                    return;
+                }
+
+                renderCalendarView(country, city);
+            }
+
+            document.getElementById('applyCalendarLocationFilter').addEventListener('click', applyCalendarLocationFilter);
+
+            // Allow Enter key to trigger calendar filter
+            document.getElementById('calendarCityInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    applyCalendarLocationFilter();
                 }
             });
 
