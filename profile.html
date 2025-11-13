@@ -1221,6 +1221,9 @@
                         </div>
                         ${org.created_at ? `<p style="margin-top: 0.5rem; font-size: 0.85rem; color: #999;">Created: ${new Date(org.created_at).toLocaleDateString()}</p>` : ''}
                         <div class="org-card-actions">
+                            <button class="btn-small btn-chat" onclick="openChat('${org.id}', '${org.name}')">
+                                💬 Chat
+                            </button>
                             <button class="btn-small btn-edit" data-org-id="${org.id}">✏️ Edit</button>
                             <button class="btn-small btn-delete" data-org-id="${org.id}">🗑️ Delete</button>
                         </div>
