@@ -748,6 +748,10 @@
                 font-size: 0.75rem;
                 padding: 0.3rem;
             }
+
+            #listView .list-view-container > div:first-of-type > div {
+                grid-template-columns: 1fr !important;
+            }
         }
     </style>
 </head>
@@ -852,9 +856,45 @@
         <!-- List View -->
         <div class="view-content" id="listView">
             <div class="list-view-container">
-                <h2 style="margin-bottom: 2rem; font-size: 1.8rem; color: var(--dark);">All Organizations</h2>
+                <h2 style="margin-bottom: 2rem; font-size: 1.8rem; color: var(--dark);">Organizations by Location</h2>
+
+                <!-- Location Selection -->
+                <div style="background: linear-gradient(135deg, #667eea15, #764ba215); padding: 2rem; border-radius: 15px; margin-bottom: 2rem; border: 2px solid var(--primary);">
+                    <h3 style="color: var(--primary); margin-bottom: 1.5rem; font-size: 1.3rem;">📍 Select Location</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--dark);">Country</label>
+                            <select id="listCountrySelect" style="width: 100%; padding: 0.8rem; border: 2px solid #e0e0e0; border-radius: 10px; background: white; font-size: 1rem; cursor: pointer;">
+                                <option value="">Select Country</option>
+                                <option value="United States">🇺🇸 United States</option>
+                                <option value="United Kingdom">🇬🇧 United Kingdom</option>
+                                <option value="Canada">🇨🇦 Canada</option>
+                                <option value="Australia">🇦🇺 Australia</option>
+                                <option value="Germany">🇩🇪 Germany</option>
+                                <option value="France">🇫🇷 France</option>
+                                <option value="Spain">🇪🇸 Spain</option>
+                                <option value="Italy">🇮🇹 Italy</option>
+                                <option value="Netherlands">🇳🇱 Netherlands</option>
+                                <option value="Turkey">🇹🇷 Turkey</option>
+                                <option value="Japan">🇯🇵 Japan</option>
+                                <option value="South Korea">🇰🇷 South Korea</option>
+                                <option value="Brazil">🇧🇷 Brazil</option>
+                                <option value="Mexico">🇲🇽 Mexico</option>
+                                <option value="India">🇮🇳 India</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--dark);">City</label>
+                            <input type="text" id="listCityInput" placeholder="Enter city name" style="width: 100%; padding: 0.8rem; border: 2px solid #e0e0e0; border-radius: 10px; background: white; font-size: 1rem;">
+                        </div>
+                    </div>
+                    <button id="applyLocationFilter" style="width: 100%; margin-top: 1rem; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.background='var(--primary-dark)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(88, 101, 242, 0.3)'" onmouseout="this.style.background='var(--primary)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                        🔍 Show Organizations
+                    </button>
+                </div>
+
                 <div class="list-view-grid" id="listViewGrid">
-                    <p style="text-align: center; color: #999;">Loading organizations...</p>
+                    <p style="text-align: center; color: #999; grid-column: 1/-1; padding: 3rem;">Please select a country and city to view organizations</p>
                 </div>
             </div>
         </div>
@@ -1340,11 +1380,16 @@
             }
         }
 
-        function renderListView() {
+        function renderListView(selectedCountry = null, selectedCity = null) {
             const listContainer = document.getElementById('listViewGrid');
 
+            if (!selectedCountry || !selectedCity) {
+                listContainer.innerHTML = '<p style="text-align: center; color: #999; grid-column: 1/-1; padding: 3rem;">Please select a country and city to view organizations</p>';
+                return;
+            }
+
             if (organizations.length === 0) {
-                listContainer.innerHTML = '<p style="text-align: center; color: #999; grid-column: 1/-1;">No organizations yet. Create the first one!</p>';
+                listContainer.innerHTML = '<p style="text-align: center; color: #999; grid-column: 1/-1; padding: 3rem;">No organizations found in this location. Be the first to create one!</p>';
                 return;
             }
 
@@ -1354,7 +1399,15 @@
                 'Environment': '🌱', 'Community': '🏙️'
             };
 
-            listContainer.innerHTML = organizations.map(org => {
+            // Info banner about selected location
+            const locationBanner = `
+                <div style="grid-column: 1/-1; background: linear-gradient(135deg, #4ECDC4, #5865F2); padding: 1.5rem; border-radius: 15px; color: white; margin-bottom: 1rem; text-align: center;">
+                    <h3 style="margin: 0; font-size: 1.2rem;">📍 Showing organizations in ${selectedCity}, ${selectedCountry}</h3>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; opacity: 0.9;">Found ${organizations.length} organization(s) in this area</p>
+                </div>
+            `;
+
+            const organizationCards = organizations.map(org => {
                 const icon = categoryIcons[org.category] || '📌';
                 const hasJoined = hasUserJoinedOrg(org.id);
                 const isFull = org.max_attendees && org.current_attendees >= org.max_attendees;
@@ -1439,6 +1492,8 @@
                     </div>
                 `;
             }).join('');
+
+            listContainer.innerHTML = locationBanner + organizationCards;
         }
 
         let currentCalendarDate = new Date();
@@ -1653,12 +1708,39 @@
                         setTimeout(() => map.invalidateSize(), 100);
                     } else if (tab === 'list') {
                         document.getElementById('listView').classList.add('active');
-                        renderListView();
+                        // Don't auto-render, wait for user to select location
                     } else if (tab === 'calendar') {
                         document.getElementById('calendarView').classList.add('active');
                         renderCalendarView();
                     }
                 });
+            });
+
+            // Apply location filter for list view
+            function applyLocationFilter() {
+                const country = document.getElementById('listCountrySelect').value;
+                const city = document.getElementById('listCityInput').value.trim();
+
+                if (!country) {
+                    alert('Please select a country');
+                    return;
+                }
+
+                if (!city) {
+                    alert('Please enter a city name');
+                    return;
+                }
+
+                renderListView(country, city);
+            }
+
+            document.getElementById('applyLocationFilter').addEventListener('click', applyLocationFilter);
+
+            // Allow Enter key to trigger filter
+            document.getElementById('listCityInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    applyLocationFilter();
+                }
             });
 
             document.getElementById('createNewBtn').addEventListener('click', function(e) {
