@@ -955,6 +955,29 @@
         let myOrganizations = [];
         let editingOrgId = null;
         let currentChatOrgId = null;
+        let isAdmin = false;
+        let userRole = 'user';
+        let adminObserverMode = false;
+
+        async function refreshUserRole() {
+            if (!currentUser || !currentUser.id) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('role, max_organizations')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                if (!error && data) {
+                    userRole = data.role || 'user';
+                    isAdmin = userRole === 'admin';
+                    console.log('User role:', userRole, 'isAdmin:', isAdmin);
+                }
+            } catch (err) {
+                console.error('Error refreshing user role:', err);
+            }
+        }
 
         function isEventExpired(eventDate) {
             if (!eventDate) return false;
@@ -1060,6 +1083,9 @@
 
         async function loadMyOrganizations() {
             if (!currentUser || !currentUser.id) return;
+
+            // Refresh user role to check if admin
+            await refreshUserRole();
 
             try {
                 const { data, error } = await supabase
@@ -1221,6 +1247,9 @@
                         </div>
                         ${org.created_at ? `<p style="margin-top: 0.5rem; font-size: 0.85rem; color: #999;">Created: ${new Date(org.created_at).toLocaleDateString()}</p>` : ''}
                         <div class="org-card-actions">
+                            <button class="btn-small btn-chat" onclick="openChat('${org.id}', '${org.name}')">
+                                💬 Chat
+                            </button>
                             <button class="btn-small btn-edit" data-org-id="${org.id}">✏️ Edit</button>
                             <button class="btn-small btn-delete" data-org-id="${org.id}">🗑️ Delete</button>
                         </div>
@@ -1417,10 +1446,48 @@
             document.getElementById('participantsModal').classList.remove('show');
         }
 
-        async function openChat(orgId, orgName) {
+        async function openChat(orgId, orgName, isObserverMode = false) {
             currentChatOrgId = orgId;
-            document.getElementById('chatOrgName').textContent = `${orgName} - Chat`;
+
+            // Check if user is member of this organization
+            const isMember = myOrganizations.some(org => org.id === orgId);
+
+            // Admin can access any chat, regular users only their own
+            if (!isMember && !isAdmin) {
+                alert('You are not a member of this organization!');
+                return;
+            }
+
+            // Set observer mode for admin viewing non-member chats
+            adminObserverMode = isAdmin && !isMember;
+
+            // Update chat title with admin indicator
+            let chatTitle = `${orgName} - Chat`;
+            if (adminObserverMode) {
+                chatTitle = `👑 ${orgName} - Chat (Admin Observer Mode)`;
+                document.getElementById('chatOrgName').style.background = 'linear-gradient(135deg, #FFD700, #FFA500)';
+                document.getElementById('chatOrgName').style.webkitBackgroundClip = 'text';
+                document.getElementById('chatOrgName').style.webkitTextFillColor = 'transparent';
+            } else {
+                document.getElementById('chatOrgName').style.background = 'none';
+                document.getElementById('chatOrgName').style.webkitTextFillColor = 'inherit';
+                document.getElementById('chatOrgName').style.color = 'var(--dark)';
+            }
+
+            document.getElementById('chatOrgName').textContent = chatTitle;
             document.getElementById('chatModal').classList.add('show');
+
+            // Show/hide send button based on observer mode
+            if (adminObserverMode) {
+                document.getElementById('chatInput').placeholder = 'Observer mode: Read-only (Admin can see all messages)';
+                document.getElementById('chatInput').disabled = false; // Admin can still send if they want
+                document.getElementById('chatSend').style.display = 'block';
+            } else {
+                document.getElementById('chatInput').placeholder = 'Type your message...';
+                document.getElementById('chatInput').disabled = false;
+                document.getElementById('chatSend').style.display = 'block';
+            }
+
             await loadChatMessages(orgId);
         }
 
