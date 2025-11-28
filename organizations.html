@@ -1165,7 +1165,7 @@
 
                 // Kullanıcının Supabase Auth ile giriş yapıp yapmadığını kontrol et
                 const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-                
+
                 if (sessionError || !session) {
                     console.error('Session error:', sessionError);
                     alert('You need to be logged in with Supabase Auth. Please log out and log in again.');
@@ -1176,6 +1176,44 @@
 
                 console.log('Auth UID:', session.user.id);
                 console.log('Current User ID:', currentUser.id);
+
+                // Ensure user exists in users table (for RLS policies)
+                try {
+                    const { data: userProfile, error: profileError } = await supabase
+                        .from('users')
+                        .select('id')
+                        .eq('id', session.user.id)
+                        .maybeSingle();
+
+                    if (profileError) {
+                        console.error('Error checking user profile:', profileError);
+                        alert('Error checking user permissions: ' + profileError.message);
+                        return;
+                    }
+
+                    // If user doesn't exist in users table, create it
+                    if (!userProfile) {
+                        const { error: createError } = await supabase
+                            .from('users')
+                            .insert([{
+                                id: session.user.id,
+                                email: session.user.email,
+                                name: session.user.user_metadata?.name || session.user.email.split('@')[0]
+                            }]);
+
+                        if (createError) {
+                            console.error('Error creating user profile:', createError);
+                            alert('Error creating user profile: ' + createError.message);
+                            return;
+                        }
+
+                        console.log('User profile created successfully');
+                    }
+                } catch (err) {
+                    console.error('Error checking/creating user:', err);
+                    alert('Error checking user permissions: ' + err.message);
+                    return;
+                }
 
                 // Check if user already has 3 organizations
                 const { data: userOrgs, error: countError } = await supabase
