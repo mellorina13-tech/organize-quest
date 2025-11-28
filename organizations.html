@@ -400,6 +400,19 @@
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-bar select:hover:not(:disabled) {
+            border-color: var(--primary);
+        }
+
+        .filter-bar select:disabled {
+            background: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+            opacity: 0.6;
         }
 
         @media (max-width: 968px) {
@@ -1138,13 +1151,15 @@
         }
 
         function updateLocationFilters() {
-            // Get unique countries and cities
-            const countries = new Set();
-            const cities = new Set();
+            updateCountryFilter();
+            updateCityFilter();
+        }
 
+        function updateCountryFilter() {
+            // Get unique countries
+            const countries = new Set();
             organizations.forEach(org => {
                 if (org.country) countries.add(org.country);
-                if (org.city) cities.add(org.city);
             });
 
             // Update country filter
@@ -1158,18 +1173,49 @@
                 countryFilter.appendChild(option);
             });
             countryFilter.value = selectedCountry;
+        }
+
+        function updateCityFilter() {
+            const countryFilter = document.getElementById('countryFilter');
+            const selectedCountry = countryFilter.value;
+
+            // Get cities based on selected country
+            const cities = new Set();
+            organizations.forEach(org => {
+                // If a country is selected, only show cities from that country
+                if (selectedCountry) {
+                    if (org.country === selectedCountry && org.city) {
+                        cities.add(org.city);
+                    }
+                } else {
+                    // Show all cities if no country is selected
+                    if (org.city) cities.add(org.city);
+                }
+            });
 
             // Update city filter
             const cityFilter = document.getElementById('cityFilter');
             const selectedCity = cityFilter.value;
+
             cityFilter.innerHTML = '<option value="">All Cities</option>';
-            Array.from(cities).sort().forEach(city => {
-                const option = document.createElement('option');
-                option.value = city;
-                option.textContent = `🏙️ ${city}`;
-                cityFilter.appendChild(option);
-            });
-            cityFilter.value = selectedCity;
+
+            if (cities.size === 0 && selectedCountry) {
+                cityFilter.innerHTML = '<option value="">No cities in this country</option>';
+                cityFilter.disabled = true;
+            } else {
+                cityFilter.disabled = false;
+                Array.from(cities).sort().forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = `🏙️ ${city}`;
+                    cityFilter.appendChild(option);
+                });
+
+                // Only restore selected city if it's in the filtered list
+                if (Array.from(cities).includes(selectedCity)) {
+                    cityFilter.value = selectedCity;
+                }
+            }
         }
 
         function getFilteredOrganizations() {
@@ -1719,6 +1765,13 @@
             });
 
             document.getElementById('countryFilter').addEventListener('change', function() {
+                // Reset city selection when country changes
+                document.getElementById('cityFilter').value = '';
+
+                // Update city filter to show only cities from selected country
+                updateCityFilter();
+
+                // Update views
                 renderListView();
                 renderCalendarView();
             });
