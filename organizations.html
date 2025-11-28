@@ -535,6 +535,197 @@
                 font-size: 1.5rem;
             }
         }
+
+        /* List View Styles */
+        .list-view, .calendar-view {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .list-view.active, .calendar-view.active {
+            display: block;
+        }
+
+        .org-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .org-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .org-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 20px rgba(88, 101, 242, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .org-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .org-card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .org-card-category {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .org-card-description {
+            color: var(--gray);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .org-card-details {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .org-card-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .org-card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        /* Calendar View Styles */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .calendar-header h2 {
+            font-size: 1.8rem;
+            color: var(--dark);
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .calendar-nav button {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-nav button:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-weight: 700;
+            color: var(--dark);
+            padding: 1rem 0;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .calendar-day {
+            min-height: 100px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 0.5rem;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .calendar-day:hover {
+            border-color: var(--primary);
+            box-shadow: 0 3px 10px rgba(88, 101, 242, 0.2);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        .calendar-day.today {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .calendar-day-number {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-event {
+            background: var(--primary);
+            color: white;
+            padding: 0.3rem;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            margin-bottom: 0.3rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .event-list {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .event-list h3 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
     </style>
 </head>
 <body>
@@ -628,6 +819,40 @@
                 <h2>Nearby Organizations</h2>
                 <div id="orgList" class="org-list">
                     <p style="text-align: center; color: #999;">Loading organizations...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- List View -->
+        <div class="list-view" id="listView">
+            <div class="org-grid" id="orgGrid">
+                <p style="text-align: center; color: #999;">Loading organizations...</p>
+            </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div class="calendar-view" id="calendarView">
+            <div class="calendar-header">
+                <h2 id="calendarMonth">November 2025</h2>
+                <div class="calendar-nav">
+                    <button id="prevMonth">◀ Previous</button>
+                    <button id="todayBtn">Today</button>
+                    <button id="nextMonth">Next ▶</button>
+                </div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid">
+                <div class="calendar-day-header">Sun</div>
+                <div class="calendar-day-header">Mon</div>
+                <div class="calendar-day-header">Tue</div>
+                <div class="calendar-day-header">Wed</div>
+                <div class="calendar-day-header">Thu</div>
+                <div class="calendar-day-header">Fri</div>
+                <div class="calendar-day-header">Sat</div>
+            </div>
+            <div class="event-list">
+                <h3>Upcoming Events</h3>
+                <div class="org-grid" id="upcomingEvents">
+                    <p style="text-align: center; color: #999;">No upcoming events</p>
                 </div>
             </div>
         </div>
@@ -1097,19 +1322,222 @@
             }
         }
 
+        function renderListView() {
+            const grid = document.getElementById('orgGrid');
+            if (organizations.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: #999;">No organizations found</p>';
+                return;
+            }
+
+            grid.innerHTML = organizations.map(org => {
+                const isJoined = joinedOrgIds.has(org.id);
+                const eventDate = org.event_date ? new Date(org.event_date) : null;
+                const isUpcoming = eventDate && eventDate > new Date();
+                const isFull = org.max_attendees && org.current_attendees >= org.max_attendees;
+
+                return `
+                    <div class="org-card">
+                        <div class="org-card-header">
+                            <div>
+                                <div class="org-card-title">${org.name}</div>
+                                <span class="org-card-category">${org.category}</span>
+                            </div>
+                        </div>
+                        <div class="org-card-description">
+                            ${org.description || 'No description available'}
+                        </div>
+                        <div class="org-card-details">
+                            ${eventDate ? `<div class="org-card-detail">📅 ${eventDate.toLocaleDateString()} ${eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>` : ''}
+                            ${org.max_attendees ? `<div class="org-card-detail">👥 ${org.current_attendees || 0}/${org.max_attendees} attendees</div>` : ''}
+                            ${org.creator_name ? `<div class="org-card-detail">👤 ${org.creator_name}</div>` : ''}
+                        </div>
+                        <div class="org-card-actions">
+                            ${isJoined
+                                ? '<button class="btn btn-danger" style="background: var(--danger); padding: 0.5rem 1rem; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;" onclick="leaveOrg(\'' + org.id + '\')">Leave</button>'
+                                : (isFull
+                                    ? '<button class="btn" style="background: #ccc; padding: 0.5rem 1rem; border: none; border-radius: 8px; color: white; cursor: not-allowed; font-weight: 600;" disabled>Full</button>'
+                                    : '<button class="btn btn-success" style="background: var(--success); padding: 0.5rem 1rem; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;" onclick="joinOrg(\'' + org.id + '\')">Join</button>')
+                            }
+                            <button class="btn" style="background: var(--primary); padding: 0.5rem 1rem; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;" onclick="map.setView([${org.latitude}, ${org.longitude}], 15); document.querySelector('[data-tab=map]').click();">View on Map</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        let currentCalendarDate = new Date();
+
+        function renderCalendarView() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+
+            // Update month display
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('calendarMonth').textContent = `${monthNames[month]} ${year}`;
+
+            // Get first day of month and number of days
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+            // Build calendar grid
+            const grid = document.getElementById('calendarGrid');
+            // Keep day headers, remove old days
+            while (grid.children.length > 7) {
+                grid.removeChild(grid.lastChild);
+            }
+
+            const today = new Date();
+            const todayStr = today.toDateString();
+
+            // Add previous month days
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const day = daysInPrevMonth - i;
+                const dayDiv = createCalendarDay(day, year, month - 1, true);
+                grid.appendChild(dayDiv);
+            }
+
+            // Add current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const isToday = date.toDateString() === todayStr;
+                const dayDiv = createCalendarDay(day, year, month, false, isToday);
+                grid.appendChild(dayDiv);
+            }
+
+            // Add next month days to fill grid
+            const totalCells = grid.children.length - 7;
+            const remainingCells = (Math.ceil(totalCells / 7) * 7) - totalCells;
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayDiv = createCalendarDay(day, year, month + 1, true);
+                grid.appendChild(dayDiv);
+            }
+
+            // Render upcoming events list
+            renderUpcomingEvents();
+        }
+
+        function createCalendarDay(day, year, month, isOtherMonth, isToday = false) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'calendar-day';
+            if (isOtherMonth) dayDiv.classList.add('other-month');
+            if (isToday) dayDiv.classList.add('today');
+
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'calendar-day-number';
+            dayNumber.textContent = day;
+            dayDiv.appendChild(dayNumber);
+
+            // Find events for this day
+            const date = new Date(year, month, day);
+            const dayStart = new Date(date.setHours(0, 0, 0, 0));
+            const dayEnd = new Date(date.setHours(23, 59, 59, 999));
+
+            organizations.forEach(org => {
+                if (org.event_date) {
+                    const eventDate = new Date(org.event_date);
+                    if (eventDate >= dayStart && eventDate <= dayEnd) {
+                        const eventDiv = document.createElement('div');
+                        eventDiv.className = 'calendar-event';
+                        eventDiv.textContent = org.name;
+                        eventDiv.title = `${org.name} - ${eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+                        dayDiv.appendChild(eventDiv);
+                    }
+                }
+            });
+
+            return dayDiv;
+        }
+
+        function renderUpcomingEvents() {
+            const now = new Date();
+            const upcomingOrgs = organizations
+                .filter(org => org.event_date && new Date(org.event_date) > now)
+                .sort((a, b) => new Date(a.event_date) - new Date(b.event_date))
+                .slice(0, 5);
+
+            const container = document.getElementById('upcomingEvents');
+
+            if (upcomingOrgs.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">No upcoming events</p>';
+                return;
+            }
+
+            container.innerHTML = upcomingOrgs.map(org => {
+                const eventDate = new Date(org.event_date);
+                const isJoined = joinedOrgIds.has(org.id);
+                const isFull = org.max_attendees && org.current_attendees >= org.max_attendees;
+
+                return `
+                    <div class="org-card">
+                        <div class="org-card-header">
+                            <div>
+                                <div class="org-card-title">${org.name}</div>
+                                <span class="org-card-category">${org.category}</span>
+                            </div>
+                        </div>
+                        <div class="org-card-description">
+                            ${org.description || 'No description available'}
+                        </div>
+                        <div class="org-card-details">
+                            <div class="org-card-detail">📅 ${eventDate.toLocaleDateString()} ${eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                            ${org.max_attendees ? `<div class="org-card-detail">👥 ${org.current_attendees || 0}/${org.max_attendees}</div>` : ''}
+                        </div>
+                        <div class="org-card-actions">
+                            ${isJoined
+                                ? '<button class="btn btn-danger" style="background: var(--danger); padding: 0.5rem 1rem; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;" onclick="leaveOrg(\'' + org.id + '\')">Leave</button>'
+                                : (isFull
+                                    ? '<button class="btn" style="background: #ccc; padding: 0.5rem 1rem; border: none; border-radius: 8px; color: white; cursor: not-allowed; font-weight: 600;" disabled>Full</button>'
+                                    : '<button class="btn btn-success" style="background: var(--success); padding: 0.5rem 1rem; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;" onclick="joinOrg(\'' + org.id + '\')">Join</button>')
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             initMap();
+
+            // Calendar navigation
+            document.getElementById('prevMonth').addEventListener('click', function() {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+                renderCalendarView();
+            });
+
+            document.getElementById('nextMonth').addEventListener('click', function() {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+                renderCalendarView();
+            });
+
+            document.getElementById('todayBtn').addEventListener('click', function() {
+                currentCalendarDate = new Date();
+                renderCalendarView();
+            });
 
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
-                    
+
                     const tab = this.dataset.tab;
-                    if (tab === 'list') {
-                        alert('List view coming soon!');
+
+                    // Hide all views
+                    document.getElementById('mapView').style.display = 'none';
+                    document.getElementById('listView').classList.remove('active');
+                    document.getElementById('calendarView').classList.remove('active');
+
+                    // Show selected view
+                    if (tab === 'map') {
+                        document.getElementById('mapView').style.display = 'flex';
+                        map.invalidateSize();
+                    } else if (tab === 'list') {
+                        document.getElementById('listView').classList.add('active');
+                        renderListView();
                     } else if (tab === 'calendar') {
-                        alert('Calendar view coming soon!');
+                        document.getElementById('calendarView').classList.add('active');
+                        renderCalendarView();
                     }
                 });
             });
