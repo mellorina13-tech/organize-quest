@@ -957,12 +957,17 @@
         let currentChatOrgId = null;
 
         function isEventExpired(eventDate) {
-            if (!eventDate) return false;
+            if (!eventDate) {
+                console.log('No event date - not expired');
+                return false;
+            }
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             const orgDate = new Date(eventDate);
             const orgDay = new Date(orgDate.getFullYear(), orgDate.getMonth(), orgDate.getDate());
-            return orgDay < today;
+            const expired = orgDay < today;
+            console.log(`Event date: ${eventDate}, Today: ${today}, Expired: ${expired}`);
+            return expired;
         }
 
         function switchTab(tab) {
@@ -1059,24 +1064,42 @@
         }
 
         async function loadMyOrganizations() {
-            if (!currentUser || !currentUser.id) return;
+            console.log('=== loadMyOrganizations called ===');
+            console.log('currentUser:', currentUser);
+
+            if (!currentUser || !currentUser.id) {
+                console.log('No currentUser found');
+                return;
+            }
 
             try {
                 // Get current auth session to use correct user ID
                 const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-                if (sessionError || !session) {
+                console.log('Session:', session);
+                console.log('Session Error:', sessionError);
+
+                if (sessionError) {
                     console.error('Session error:', sessionError);
                     return;
                 }
 
+                if (!session) {
+                    console.log('No session found - user might need to log in again');
+                    return;
+                }
+
                 console.log('Loading organizations for Auth UID:', session.user.id);
+                console.log('currentUser.id for comparison:', currentUser.id);
 
                 const { data, error } = await supabase
                     .from('organizations')
                     .select('*')
                     .eq('created_by', session.user.id)
                     .order('created_at', { ascending: false });
+
+                console.log('Query result - data:', data);
+                console.log('Query result - error:', error);
 
                 if (error) {
                     console.error('Error loading organizations:', error);
@@ -1085,9 +1108,10 @@
 
                 console.log('Loaded organizations:', data);
                 myOrganizations = data || [];
+                console.log('myOrganizations array updated, length:', myOrganizations.length);
                 displayMyOrganizations();
             } catch (err) {
-                console.error('Error:', err);
+                console.error('Error in loadMyOrganizations:', err);
             }
         }
 
@@ -1195,12 +1219,23 @@
 
         async function displayMyOrganizations() {
             const container = document.getElementById('myOrgsList');
-            
+
+            console.log('displayMyOrganizations called');
+            console.log('Total myOrganizations:', myOrganizations.length);
+            console.log('myOrganizations data:', myOrganizations);
+
             // Filter only active organizations
             const activeOrgs = myOrganizations.filter(org => !isEventExpired(org.event_date));
-            
+
+            console.log('Active organizations after filter:', activeOrgs.length);
+            console.log('Active orgs:', activeOrgs);
+
             if (activeOrgs.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t created any active organizations.</p>';
+                if (myOrganizations.length > 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">You have organizations, but all events have expired.</p>';
+                } else {
+                    container.innerHTML = '<p style="text-align: center; color: #999;">You haven\'t created any active organizations.</p>';
+                }
                 return;
             }
 
