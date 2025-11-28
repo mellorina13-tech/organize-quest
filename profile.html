@@ -1062,16 +1062,28 @@
             if (!currentUser || !currentUser.id) return;
 
             try {
+                // Get current auth session to use correct user ID
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+                if (sessionError || !session) {
+                    console.error('Session error:', sessionError);
+                    return;
+                }
+
+                console.log('Loading organizations for Auth UID:', session.user.id);
+
                 const { data, error } = await supabase
                     .from('organizations')
                     .select('*')
-                    .eq('created_by', currentUser.id);
+                    .eq('created_by', session.user.id)
+                    .order('created_at', { ascending: false });
 
                 if (error) {
                     console.error('Error loading organizations:', error);
                     return;
                 }
 
+                console.log('Loaded organizations:', data);
                 myOrganizations = data || [];
                 displayMyOrganizations();
             } catch (err) {
@@ -1083,11 +1095,19 @@
             if (!currentUser || !currentUser.id) return;
 
             try {
+                // Get current auth session to use correct user ID
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+                if (sessionError || !session) {
+                    console.error('Session error:', sessionError);
+                    return;
+                }
+
                 // Get all organizations where user is an attendee
                 const { data: joinedOrgs, error } = await supabase
                     .from('attendees')
                     .select('organization_id')
-                    .eq('user_id', currentUser.id);
+                    .eq('user_id', session.user.id);
 
                 if (error) {
                     console.error('Error loading joined events:', error);
@@ -1522,10 +1542,19 @@
             if (!confirm('Are you sure you want to delete this organization?')) return;
 
             try {
+                // Get current auth session to verify ownership
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+                if (sessionError || !session) {
+                    alert('You must be logged in to delete an organization');
+                    return;
+                }
+
                 const { error } = await supabase
                     .from('organizations')
                     .delete()
-                    .eq('id', orgId);
+                    .eq('id', orgId)
+                    .eq('created_by', session.user.id);
 
                 if (error) {
                     alert('Error deleting organization: ' + error.message);
@@ -1818,10 +1847,19 @@
             };
 
             try {
+                // Get current auth session to verify ownership
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+                if (sessionError || !session) {
+                    alert('You must be logged in to edit an organization');
+                    return;
+                }
+
                 const { error } = await supabase
                     .from('organizations')
                     .update(updatedData)
-                    .eq('id', editingOrgId);
+                    .eq('id', editingOrgId)
+                    .eq('created_by', session.user.id);
 
                 if (error) {
                     alert('Error updating organization: ' + error.message);

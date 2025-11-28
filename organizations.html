@@ -1833,11 +1833,17 @@
                     max_attendees: parseInt(document.getElementById('maxParticipants').value) || null,
                     latitude: parseFloat(selectedLocation.lat),
                     longitude: parseFloat(selectedLocation.lng),
-                    city: selectedLocation.city || null,
-                    country: selectedLocation.country || null,
                     created_by: session.user.id,  // Use Auth UID instead of currentUser.id
                     current_attendees: 0
                 };
+
+                // Add city and country only if they exist (columns might not be in database yet)
+                if (selectedLocation.city) {
+                    orgData.city = selectedLocation.city;
+                }
+                if (selectedLocation.country) {
+                    orgData.country = selectedLocation.country;
+                }
 
                 console.log('Organization data to insert:', orgData);
 
