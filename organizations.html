@@ -1808,7 +1808,7 @@
                     return;
                 }
 
-                // Check if user already has 3 organizations
+                // Check if user already has 5 organizations
                 const { data: userOrgs, error: countError } = await supabase
                     .from('organizations')
                     .select('id')
@@ -1820,8 +1820,8 @@
                     return;
                 }
 
-                if (userOrgs && userOrgs.length >= 3) {
-                    alert('You can create maximum 3 organizations. Please delete one before creating a new one.');
+                if (userOrgs && userOrgs.length >= 5) {
+                    alert('You can create maximum 5 organizations. Please delete one before creating a new one.');
                     return;
                 }
 
