@@ -793,6 +793,12 @@
                 <option value="events">With Events Only</option>
                 <option value="upcoming">Upcoming Events</option>
             </select>
+            <select id="countryFilter">
+                <option value="">All Countries</option>
+            </select>
+            <select id="cityFilter">
+                <option value="">All Cities</option>
+            </select>
         </div>
 
         <div class="tabs">
@@ -903,10 +909,27 @@
         let map, userMarker, organizations = [], createMode = false, selectedLocation = null;
         let currentUser = JSON.parse(localStorage.getItem('currentUser'));
         let joinedOrgIds = new Set();
+        let organizationMarkers = new Map(); // Store markers by organization ID
         
         const SUPABASE_URL = 'https://ymrxfbkghznrosgfqwrh.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltcnhmYmtnaHpucm9zZ2Zxd3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NzQ4MTMsImV4cCI6MjA3NDA1MDgxM30.GyrbrTmWMc6--zCUcfKwc-2qlsBI0z3oly8iv9Fq9-0';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Reverse geocoding to get city and country from coordinates
+        async function getLocationInfo(lat, lng) {
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`);
+                const data = await response.json();
+
+                const city = data.address.city || data.address.town || data.address.village || data.address.county || '';
+                const country = data.address.country || '';
+
+                return { city, country };
+            } catch (error) {
+                console.error('Reverse geocoding error:', error);
+                return { city: '', country: '' };
+            }
+        }
 
         async function refreshJoinedOrgs() {
             joinedOrgIds = new Set();
@@ -1001,17 +1024,27 @@
 
             loadOrganizations();
 
-            map.on('click', function(e) {
+            map.on('click', async function(e) {
                 if (createMode) {
                     selectedLocation = e.latlng;
-                    document.getElementById('orgLocationDisplay').value = 
-                        `Lat: ${e.latlng.lat.toFixed(4)}, Lng: ${e.latlng.lng.toFixed(4)}`;
-                    
+                    document.getElementById('orgLocationDisplay').value = 'Getting location info...';
+
                     if (window.tempMarker) {
                         map.removeLayer(window.tempMarker);
                     }
                     window.tempMarker = L.marker(e.latlng).addTo(map);
-                    
+
+                    // Get city and country from coordinates
+                    const locationInfo = await getLocationInfo(e.latlng.lat, e.latlng.lng);
+                    selectedLocation.city = locationInfo.city;
+                    selectedLocation.country = locationInfo.country;
+
+                    const locationText = locationInfo.city && locationInfo.country
+                        ? `${locationInfo.city}, ${locationInfo.country}`
+                        : `Lat: ${e.latlng.lat.toFixed(4)}, Lng: ${e.latlng.lng.toFixed(4)}`;
+
+                    document.getElementById('orgLocationDisplay').value = locationText;
+
                     document.getElementById('createModal').classList.add('show');
                     createMode = false;
                     map.getContainer().style.cursor = '';
@@ -1084,21 +1117,102 @@
                     org.current_attendees = attendees ? attendees.length : 0;
                 }
 
+                // Clear existing markers
                 map.eachLayer(function(layer) {
                     if (layer instanceof L.Marker && layer !== userMarker) {
                         map.removeLayer(layer);
                     }
                 });
-                
+                organizationMarkers.clear(); // Clear marker references
+
                 organizations.forEach(org => {
                     addOrganizationMarker(org);
                 });
 
                 updateOrganizationList();
                 updateStats();
+                updateLocationFilters();
             } catch (err) {
                 console.error('Error:', err);
             }
+        }
+
+        function updateLocationFilters() {
+            // Get unique countries and cities
+            const countries = new Set();
+            const cities = new Set();
+
+            organizations.forEach(org => {
+                if (org.country) countries.add(org.country);
+                if (org.city) cities.add(org.city);
+            });
+
+            // Update country filter
+            const countryFilter = document.getElementById('countryFilter');
+            const selectedCountry = countryFilter.value;
+            countryFilter.innerHTML = '<option value="">All Countries</option>';
+            Array.from(countries).sort().forEach(country => {
+                const option = document.createElement('option');
+                option.value = country;
+                option.textContent = `🌍 ${country}`;
+                countryFilter.appendChild(option);
+            });
+            countryFilter.value = selectedCountry;
+
+            // Update city filter
+            const cityFilter = document.getElementById('cityFilter');
+            const selectedCity = cityFilter.value;
+            cityFilter.innerHTML = '<option value="">All Cities</option>';
+            Array.from(cities).sort().forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = `🏙️ ${city}`;
+                cityFilter.appendChild(option);
+            });
+            cityFilter.value = selectedCity;
+        }
+
+        function getFilteredOrganizations() {
+            let filtered = [...organizations];
+
+            // Category filter
+            const category = document.getElementById('categoryFilter').value;
+            if (category) {
+                filtered = filtered.filter(org => org.category === category);
+            }
+
+            // Event filter
+            const eventFilter = document.getElementById('eventFilter').value;
+            const now = new Date();
+            if (eventFilter === 'events') {
+                filtered = filtered.filter(org => org.event_date);
+            } else if (eventFilter === 'upcoming') {
+                filtered = filtered.filter(org => org.event_date && new Date(org.event_date) > now);
+            }
+
+            // Country filter
+            const country = document.getElementById('countryFilter').value;
+            if (country) {
+                filtered = filtered.filter(org => org.country === country);
+            }
+
+            // City filter
+            const city = document.getElementById('cityFilter').value;
+            if (city) {
+                filtered = filtered.filter(org => org.city === city);
+            }
+
+            // Distance filter
+            const distance = document.getElementById('distanceFilter').value;
+            if (distance && userMarker) {
+                const userPos = userMarker.getLatLng();
+                filtered = filtered.filter(org => {
+                    const dist = map.distance(userPos, [org.latitude, org.longitude]) / 1000;
+                    return dist <= parseFloat(distance);
+                });
+            }
+
+            return filtered;
         }
 
         function addOrganizationMarker(org) {
@@ -1136,6 +1250,7 @@
                 <div style="min-width: 250px;">
                     <h3 style="color: var(--primary); margin-bottom: 10px;">${icon} ${org.name}</h3>
                     <p><strong>Category:</strong> ${org.category}</p>
+                    ${org.city && org.country ? `<p><strong>📍 Location:</strong> ${org.city}, ${org.country}</p>` : ''}
                     ${org.description ? `<p>${org.description}</p>` : ''}
                     ${eventDateDisplay}
                     ${org.max_attendees ? `<p><strong>👥 Max Attendees:</strong> ${org.max_attendees}</p>` : ''}
@@ -1192,12 +1307,30 @@
             const marker = L.marker([org.latitude, org.longitude])
                 .addTo(map)
                 .bindPopup(popupContent);
+
+            // Store marker reference
+            organizationMarkers.set(org.id, marker);
         }
 
         function focusOrganization(orgId) {
             const org = organizations.find(o => o.id === orgId);
-            if (org) {
+            const marker = organizationMarkers.get(orgId);
+
+            if (org && marker) {
+                // Switch to map view
+                document.getElementById('mapView').style.display = 'flex';
+                document.getElementById('listView').classList.remove('active');
+                document.getElementById('calendarView').classList.remove('active');
+
+                // Update active tab
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector('[data-tab="map"]').classList.add('active');
+
+                // Focus on location and open popup
                 map.setView([org.latitude, org.longitude], 16);
+                setTimeout(() => {
+                    marker.openPopup();
+                }, 300);
             }
         }
 
@@ -1324,12 +1457,14 @@
 
         function renderListView() {
             const grid = document.getElementById('orgGrid');
-            if (organizations.length === 0) {
+            const filtered = getFilteredOrganizations();
+
+            if (filtered.length === 0) {
                 grid.innerHTML = '<p style="text-align: center; color: #999;">No organizations found</p>';
                 return;
             }
 
-            grid.innerHTML = organizations.map(org => {
+            grid.innerHTML = filtered.map(org => {
                 const isJoined = joinedOrgIds.has(org.id);
                 const eventDate = org.event_date ? new Date(org.event_date) : null;
                 const isUpcoming = eventDate && eventDate > new Date();
@@ -1347,6 +1482,7 @@
                             ${org.description || 'No description available'}
                         </div>
                         <div class="org-card-details">
+                            ${org.city && org.country ? `<div class="org-card-detail">📍 ${org.city}, ${org.country}</div>` : ''}
                             ${eventDate ? `<div class="org-card-detail">📅 ${eventDate.toLocaleDateString()} ${eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>` : ''}
                             ${org.max_attendees ? `<div class="org-card-detail">👥 ${org.current_attendees || 0}/${org.max_attendees} attendees</div>` : ''}
                             ${org.creator_name ? `<div class="org-card-detail">👤 ${org.creator_name}</div>` : ''}
@@ -1358,7 +1494,7 @@
                                     ? '<button class="btn" style="background: #ccc; padding: 0.5rem 1rem; border: none; border-radius: 8px; color: white; cursor: not-allowed; font-weight: 600;" disabled>Full</button>'
                                     : '<button class="btn btn-success" style="background: var(--success); padding: 0.5rem 1rem; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;" onclick="joinOrg(\'' + org.id + '\')">Join</button>')
                             }
-                            <button class="btn" style="background: var(--primary); padding: 0.5rem 1rem; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;" onclick="map.setView([${org.latitude}, ${org.longitude}], 15); document.querySelector('[data-tab=map]').click();">View on Map</button>
+                            <button class="btn" style="background: var(--primary); padding: 0.5rem 1rem; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;" onclick="focusOrganization('${org.id}')">View on Map</button>
                         </div>
                     </div>
                 `;
@@ -1434,7 +1570,8 @@
             const dayStart = new Date(date.setHours(0, 0, 0, 0));
             const dayEnd = new Date(date.setHours(23, 59, 59, 999));
 
-            organizations.forEach(org => {
+            const filtered = getFilteredOrganizations();
+            filtered.forEach(org => {
                 if (org.event_date) {
                     const eventDate = new Date(org.event_date);
                     if (eventDate >= dayStart && eventDate <= dayEnd) {
@@ -1452,7 +1589,8 @@
 
         function renderUpcomingEvents() {
             const now = new Date();
-            const upcomingOrgs = organizations
+            const filtered = getFilteredOrganizations();
+            const upcomingOrgs = filtered
                 .filter(org => org.event_date && new Date(org.event_date) > now)
                 .sort((a, b) => new Date(a.event_date) - new Date(b.event_date))
                 .slice(0, 5);
@@ -1481,6 +1619,7 @@
                             ${org.description || 'No description available'}
                         </div>
                         <div class="org-card-details">
+                            ${org.city && org.country ? `<div class="org-card-detail">📍 ${org.city}, ${org.country}</div>` : ''}
                             <div class="org-card-detail">📅 ${eventDate.toLocaleDateString()} ${eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
                             ${org.max_attendees ? `<div class="org-card-detail">👥 ${org.current_attendees || 0}/${org.max_attendees}</div>` : ''}
                         </div>
@@ -1567,6 +1706,32 @@
             });
 
             document.getElementById('findLocationBtn').addEventListener('click', getCurrentLocation);
+
+            // Filter event listeners
+            document.getElementById('categoryFilter').addEventListener('change', function() {
+                renderListView();
+                renderCalendarView();
+            });
+
+            document.getElementById('eventFilter').addEventListener('change', function() {
+                renderListView();
+                renderCalendarView();
+            });
+
+            document.getElementById('countryFilter').addEventListener('change', function() {
+                renderListView();
+                renderCalendarView();
+            });
+
+            document.getElementById('cityFilter').addEventListener('change', function() {
+                renderListView();
+                renderCalendarView();
+            });
+
+            document.getElementById('distanceFilter').addEventListener('change', function() {
+                renderListView();
+                renderCalendarView();
+            });
 
             document.getElementById('modalCloseBtn').addEventListener('click', function() {
                 document.getElementById('createModal').classList.remove('show');
@@ -1668,6 +1833,8 @@
                     max_attendees: parseInt(document.getElementById('maxParticipants').value) || null,
                     latitude: parseFloat(selectedLocation.lat),
                     longitude: parseFloat(selectedLocation.lng),
+                    city: selectedLocation.city || null,
+                    country: selectedLocation.country || null,
                     created_by: session.user.id,  // Use Auth UID instead of currentUser.id
                     current_attendees: 0
                 };
