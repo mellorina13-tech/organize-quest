@@ -1,1112 +1,591 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organize.Quest - Discover & Create Local Organizations</title>
-    <meta name="description" content="Build your local community network. Create, discover, and join organizations in your neighborhood.">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%235865F2'/%3E%3Cstop offset='100%25' style='stop-color:%234ECDC4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='45' fill='url(%23grad)'/%3E%3Cpath d='M50 20 L65 40 L85 40 L70 55 L75 75 L50 60 L25 75 L30 55 L15 40 L35 40 Z' fill='white'/%3E%3C/svg%3E">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #5865F2;
-            --primary-dark: #4752C4;
-            --secondary: #FF6B6B;
-            --accent: #4ECDC4;
-            --dark: #1a1a2e;
-            --light: #f8f9fa;
-            --gray: #6c757d;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            overflow-x: hidden;
-            background: white;
-        }
-
-        .feature-icon {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 1.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 20px rgba(88, 101, 242, 0.25);
-        }
-
-        .feature-icon svg {
-            width: 32px;
-            height: 32px;
-            stroke: white;
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .step-number {
-            width: 60px;
-            height: 60px;
-            background: var(--primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 0 auto 1rem;
-            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
-        }
-
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            z-index: 1000;
-            padding: 1rem 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            cursor: pointer;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .lang-switcher {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .lang-btn {
-            background: rgba(88, 101, 242, 0.1);
-            color: var(--dark);
-            border: 2px solid rgba(88, 101, 242, 0.2);
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            line-height: 1;
-        }
-
-        .lang-btn:hover {
-            background: rgba(88, 101, 242, 0.15);
-            transform: translateY(-1px);
-        }
-
-        .lang-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            box-shadow: 0 2px 8px rgba(88, 101, 242, 0.3);
-        }
-
-        .user-menu {
-            position: relative;
-        }
-
-        .user-menu-btn {
-            background: var(--primary);
-            color: white;
-            padding: 0.6rem 1.5rem;
-            border: none;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .user-dropdown {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-            min-width: 200px;
-            display: none;
-            z-index: 1001;
-            overflow: hidden;
-        }
-
-        .user-dropdown.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            padding: 0.8rem 1.2rem;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            color: #333;
-            text-decoration: none;
-            display: block;
-            font-size: 0.95rem;
-        }
-
-        .dropdown-item:hover {
-            background: var(--light);
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background: #e0e0e0;
-            margin: 0.5rem 0;
-        }
-
-        .btn-login {
-            background: transparent;
-            color: var(--primary);
-            padding: 0.6rem 1.5rem;
-            border: 2px solid var(--primary);
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-            cursor: pointer;
-        }
-
-        .btn-login:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(88, 101, 242, 0.3);
-        }
-
-        .btn-nav {
-            background: var(--primary);
-            color: white;
-            padding: 0.6rem 1.5rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-nav:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(88, 101, 242, 0.3);
-        }
-
-        .hero {
-            padding: 8rem 2rem 4rem;
-            min-height: 90vh;
-            display: flex;
-            align-items: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-content h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-            color: white;
-            line-height: 1.2;
-        }
-
-        .hero-content p {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .btn-primary {
-            background: white;
-            color: var(--primary);
-            padding: 1rem 2.5rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .image-carousel-section {
-            padding: 3rem 2rem 2rem;
-            background: white;
-        }
-
-        .carousel-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-            overflow: hidden;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .carousel-track {
-            display: flex;
-            transition: transform 0.5s ease-in-out;
-        }
-
-        .carousel-slide {
-            min-width: 100%;
-            position: relative;
-        }
-
-        .carousel-slide img {
-            width: 100%;
-            height: auto;
-            display: block;
-            border-radius: 20px;
-        }
-
-        .carousel-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--primary);
-            transition: all 0.3s ease;
-            z-index: 10;
-        }
-
-        .carousel-nav:hover {
-            background: white;
-            transform: translateY(-50%) scale(1.1);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .carousel-nav.prev {
-            left: 20px;
-        }
-
-        .carousel-nav.next {
-            right: 20px;
-        }
-
-        .carousel-dots {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-            z-index: 10;
-        }
-
-        .carousel-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .carousel-dot.active {
-            background: white;
-            width: 30px;
-            border-radius: 6px;
-        }
-
-        /* Cookie Banner Styles */
-        .cookie-banner {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(26, 26, 46, 0.98);
-            backdrop-filter: blur(10px);
-            padding: 1.5rem;
-            z-index: 9999;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
-            transform: translateY(100%);
-            transition: transform 0.4s ease;
-        }
-
-        .cookie-banner.show {
-            transform: translateY(0);
-        }
-
-        .cookie-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .cookie-text {
-            flex: 1;
-            color: white;
-            min-width: 300px;
-        }
-
-        .cookie-text h3 {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-            color: var(--accent);
-        }
-
-        .cookie-text p {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            opacity: 0.9;
-        }
-
-        .cookie-text a {
-            color: var(--accent);
-            text-decoration: underline;
-        }
-
-        .cookie-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .cookie-btn {
-            padding: 0.8rem 1.8rem;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-        }
-
-        .cookie-accept {
-            background: var(--accent);
-            color: white;
-        }
-
-        .cookie-accept:hover {
-            background: #3db5ac;
-            transform: translateY(-2px);
-        }
-
-        .cookie-decline {
-            background: transparent;
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .cookie-decline:hover {
-            border-color: rgba(255, 255, 255, 0.6);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        @media (max-width: 768px) {
-            .nav-container {
-                flex-wrap: wrap;
-                gap: 1rem;
-                padding: 0 1rem;
-            }
-
-            .nav-buttons {
-                width: 100%;
-                justify-content: space-between;
-                order: 2;
-                flex-wrap: wrap;
-            }
-
-            .logo {
-                font-size: 1.4rem;
-                order: 1;
-            }
-
-            .lang-switcher {
-                order: 3;
-            }
-
-            .btn-login,
-            .btn-nav {
-                padding: 0.5rem 1rem;
-                font-size: 0.85rem;
-            }
-
-            .hero {
-                padding: 7rem 1.5rem 3rem;
-                min-height: 85vh;
-            }
-
-            .hero-container {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-
-            .hero-content h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero-content p {
-                font-size: 1.15rem;
-            }
-
-            .btn-primary {
-                padding: 0.8rem 1.8rem;
-                font-size: 1rem;
-            }
-
-            .cookie-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .cookie-text {
-                min-width: auto;
-            }
-
-            .cookie-buttons {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .cookie-btn {
-                flex: 1;
-                min-width: 120px;
-            }
-
-            .carousel-nav {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
-            }
-
-            .carousel-nav.prev {
-                left: 10px;
-            }
-
-            .carousel-nav.next {
-                right: 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .nav-buttons {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .lang-switcher {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .btn-login,
-            .btn-nav,
-            .user-menu-btn {
-                width: 100%;
-                text-align: center;
-                justify-content: center;
-            }
-
-            .hero {
-                padding: 5rem 1rem 2rem;
-            }
-
-            .hero-content h1 {
-                font-size: 1.8rem;
-            }
-
-            .hero-content p {
-                font-size: 1rem;
-            }
-
-            .logo {
-                font-size: 1.2rem;
-            }
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organize.Quest - Start Your Local Adventure</title>
+    <meta name="description" content="Build your local community network. Create, discover, and join organizations in your neighborhood.">
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='10' y='10' width='80' height='80' rx='20' fill='%238b5cf6' stroke='black' stroke-width='4'/%3E%3Cpath d='M50 25 L65 45 L85 45 L70 60 L75 80 L50 65 L25 80 L30 60 L15 45 L35 45 Z' fill='white' stroke='black' stroke-width='3'/%3E%3C/svg%3E">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        header: ['"Space Grotesk"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            purple: '#8B5CF6',
+                            yellow: '#FDE047',
+                            pink: '#F472B6',
+                            green: '#4ADE80',
+                            dark: '#18181b',
+                        }
+                    },
+                    boxShadow: {
+                        'neo': '4px 4px 0px 0px rgba(0,0,0,1)',
+                        'neo-hover': '2px 2px 0px 0px rgba(0,0,0,1)',
+                        'neo-lg': '8px 8px 0px 0px rgba(0,0,0,1)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Neo-Brutalist Utilities */
+        .neo-box {
+            border: 3px solid #000;
+            box-shadow: 4px 4px 0px 0px #000;
+            transition: all 0.2s ease;
+        }
+        
+        .neo-btn {
+            border: 3px solid #000;
+            box-shadow: 4px 4px 0px 0px #000;
+            transition: all 0.15s ease;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+        }
+        
+        .neo-btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px 0px #000;
+        }
+
+        .neo-btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px 0px #000;
+        }
+
+        /* Pattern Background */
+        .bg-pattern {
+            background-color: #fdfbf7;
+            background-image: radial-gradient(#000 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Carousel Styles */
+        .carousel-track { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .carousel-dot.active { background-color: #000; width: 32px; }
+    </style>
 </head>
-<body>
-    <!-- Cookie Banner -->
-    <div class="cookie-banner" id="cookieBanner">
-        <div class="cookie-content">
-            <div class="cookie-text">
-                <h3>🍪 Çerez Bildirimi / Cookie Notice</h3>
-                <p>
-                    Web sitemizi kullanarak, deneyiminizi geliştirmek ve site trafiğini analiz etmek için çerezleri kabul etmiş olursunuz. 
-                    <br>By using our website, you accept cookies to improve your experience and analyze site traffic.
-                </p>
-            </div>
-            <div class="cookie-buttons">
-                <button class="cookie-btn cookie-accept" id="acceptCookies">Kabul Et / Accept</button>
-                <button class="cookie-btn cookie-decline" id="declineCookies">Reddet / Decline</button>
-            </div>
-        </div>
-    </div>
+<body class="font-sans text-black bg-pattern antialiased selection:bg-brand-yellow selection:text-black overflow-x-hidden">
 
-    <div class="landing-page" id="landingPage">
-        <nav>
-            <div class="nav-container">
-                <div class="logo" id="logoText">Organize.Quest</div>
-                <div class="nav-buttons">
-                    <div class="lang-switcher">
-                        <button class="lang-btn active" id="btnEN">EN</button>
-                        <button class="lang-btn" id="btnTR">TR</button>
-                    </div>
-                    <a href="profile.html" class="btn-login" id="loginBtn">Log In</a>
-                    <div class="user-menu" id="userMenu" style="display: none;">
-                        <button class="user-menu-btn" id="userMenuBtn">
-                            <span id="userMenuName">My Account</span>
-                        </button>
-                        <div class="user-dropdown" id="userDropdown">
-                            <a href="profile.html" class="dropdown-item">My Account</a>
-                            <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item" id="logoutDropdown">Logout</a>
-                        </div>
-                    </div>
-                    <a href="organizations.html" class="btn-nav" id="openMapBtn">Open Map</a>
-                </div>
-            </div>
-        </nav>
+    <div id="cookieBanner" class="fixed bottom-0 right-0 p-4 z-[60] transform translate-y-[200%] transition-transform duration-500 max-w-md w-full">
+        <div class="bg-white border-4 border-black shadow-neo-lg p-6">
+            <div class="flex items-start gap-4">
+                <div class="text-3xl">🍪</div>
+                <div>
+                    <h3 class="font-header font-bold text-xl mb-2">Cookie Quest?</h3>
+                    <p class="text-sm font-medium mb-4">We use cookies to save your progress and improve the adventure.</p>
+                    <div class="flex gap-3">
+                        <button id="declineCookies" class="flex-1 py-2 px-4 border-2 border-black font-bold hover:bg-gray-100 transition-colors">No Thanks</button>
+                        <button id="acceptCookies" class="flex-1 py-2 px-4 bg-black text-white border-2 border-black font-bold hover:bg-gray-800 transition-colors">Accept</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <section class="hero">
-            <div class="hero-container">
-                <div class="hero-content">
-                    <h1 id="heroTitle">Build Your Local Community Network</h1>
-                    <p id="heroDesc">Create, discover, and join organizations in your neighborhood.</p>
-                    <div class="hero-buttons">
-                        <a href="organizations.html" class="btn-primary" id="heroMapBtn">Start Exploring</a>
-                    </div>
-                </div>
-            </div>
-        </section>
+    <nav class="fixed top-0 w-full z-50 px-4 py-4 pointer-events-none">
+        <div class="max-w-7xl mx-auto flex justify-between items-center pointer-events-auto">
+            <a href="#" class="neo-btn bg-white px-4 py-2 flex items-center gap-2 rotate-1 hover:rotate-0">
+                <div class="w-6 h-6 bg-brand-purple border-2 border-black rounded-full"></div>
+                <span id="logoText" class="text-xl tracking-tight">Organize.Quest</span>
+            </a>
 
-        <!-- Image Carousel Section -->
-        <section class="image-carousel-section">
-            <div class="carousel-container">
-                <div class="carousel-track" id="carouselTrack">
-                    <div class="carousel-slide">
-                        <img src="Meet_with_new_people.png" alt="Meet with new people">
-                    </div>
-                    <div class="carousel-slide">
-                        <img src="for_business.png" alt="For business">
-                    </div>
-                </div>
-                
-                <button class="carousel-nav prev" id="prevBtn">‹</button>
-                <button class="carousel-nav next" id="nextBtn">›</button>
-                
-                <div class="carousel-dots">
-                    <button class="carousel-dot active" data-slide="0"></button>
-                    <button class="carousel-dot" data-slide="1"></button>
-                </div>
-            </div>
-        </section>
+            <div class="flex items-center gap-3">
+                <div class="hidden md:flex bg-white border-2 border-black p-1 gap-1 shadow-neo-hover">
+                    <button id="btnEN" class="px-3 py-1 font-bold text-sm bg-brand-yellow border-2 border-black">EN</button>
+                    <button id="btnTR" class="px-3 py-1 font-bold text-sm hover:bg-gray-100 transition-colors">TR</button>
+                </div>
 
-        <!-- Features Section -->
-        <section style="padding: 4rem 2rem; background: white;">
-            <div style="max-width: 1200px; margin: 0 auto;">
-                <h2 id="featuresTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 1rem; color: var(--dark);">How Organize.Quest Works</h2>
-                <p id="featuresSubtitle" style="text-align: center; font-size: 1.2rem; color: var(--gray); margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto;">From creating organizations to meeting in real life - everything you need to build your local community</p>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-top: 3rem;">
-                    <div style="text-align: center; padding: 2rem;">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
-                        </div>
-                        <h3 id="feature1Title" style="color: var(--primary); margin-bottom: 1rem;">Create & Discover</h3>
-                        <p id="feature1Desc" style="color: var(--gray);">Create your own organization or discover existing ones on the interactive map. Set location, date, category and invite others to join your community initiative.</p>
-                    </div>
-                    <div style="text-align: center; padding: 2rem;">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                        </div>
-                        <h3 id="feature2Title" style="color: var(--primary); margin-bottom: 1rem;">Chat & Plan</h3>
-                        <p id="feature2Desc" style="color: var(--gray);">Join organizations and use the built-in chat to communicate with members. Discuss details, make plans, and coordinate activities before meeting in person.</p>
-                    </div>
-                    <div style="text-align: center; padding: 2rem;">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                        </div>
-                        <h3 id="feature3Title" style="color: var(--primary); margin-bottom: 1rem;">Meet & Participate</h3>
-                        <p id="feature3Desc" style="color: var(--gray);">Once everything is planned, meet at the agreed location and participate in the activities. Turn online connections into real-world community experiences.</p>
-                    </div>
-                    <div style="text-align: center; padding: 2rem;">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                                <line x1="15" y1="9" x2="15.01" y2="9"></line>
-                            </svg>
-                        </div>
-                        <h3 id="feature4Title" style="color: var(--primary); margin-bottom: 1rem;">Build Community</h3>
-                        <p id="feature4Desc" style="color: var(--gray);">Strengthen relationships through regular meetups and shared activities. Grow your local network and make lasting connections in your neighborhood.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+                <div class="hidden md:flex items-center gap-3">
+                    <a href="organizations.html" id="openMapBtn" class="font-bold hover:underline decoration-2 underline-offset-4 px-2">Open Map</a>
+                    
+                    <div id="authButtons">
+                        <a href="profile.html" id="loginBtn" class="neo-btn bg-brand-green px-6 py-2">Log In</a>
+                        
+                        <div id="userMenu" class="relative hidden group">
+                            <button id="userMenuBtn" class="neo-btn bg-white px-4 py-2 flex items-center gap-2">
+                                <i class="fa-solid fa-user-astronaut"></i>
+                                <span id="userMenuName" class="max-w-[100px] truncate">Player 1</span>
+                                <i class="fa-solid fa-caret-down"></i>
+                            </button>
+                            
+                            <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white border-2 border-black shadow-neo hidden z-50">
+                                <a href="profile.html" class="block px-4 py-3 font-bold hover:bg-brand-yellow border-b-2 border-black transition-colors">
+                                    MY PROFILE
+                                </a>
+                                <a href="#" id="logoutDropdown" class="block px-4 py-3 font-bold hover:bg-brand-pink transition-colors">
+                                    LOGOUT
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-        <!-- How It Works Section -->
-        <section style="padding: 4rem 2rem; background: var(--light);">
-            <div style="max-width: 1200px; margin: 0 auto;">
-                <h2 id="howItWorksTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark);">How It Works</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
-                    <div style="text-align: center;">
-                        <div class="step-number">1</div>
-                        <h3 id="step1Title" style="color: var(--dark); margin-bottom: 0.5rem;">Create Account</h3>
-                        <p id="step1Desc" style="color: var(--gray);">Sign up in seconds with just your email</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <div class="step-number">2</div>
-                        <h3 id="step2Title" style="color: var(--dark); margin-bottom: 0.5rem;">Explore Map</h3>
-                        <p id="step2Desc" style="color: var(--gray);">Browse organizations in your area</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <div class="step-number">3</div>
-                        <h3 id="step3Title" style="color: var(--dark); margin-bottom: 0.5rem;">Create or Join</h3>
-                        <p id="step3Desc" style="color: var(--gray);">Start your own or join existing groups</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <div class="step-number">4</div>
-                        <h3 id="step4Title" style="color: var(--dark); margin-bottom: 0.5rem;">Connect & Grow</h3>
-                        <p id="step4Desc" style="color: var(--gray);">Build your community network</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4">
+        <div class="max-w-7xl mx-auto relative z-10">
+            <div class="flex flex-col lg:flex-row gap-12 items-center">
+                <div class="lg:w-1/2 text-center lg:text-left">
+                    <div class="inline-block bg-black text-white font-bold px-4 py-1 mb-6 rotate-2 border-2 border-black shadow-neo-hover">
+                        ✨ Your Neighborhood, Gamified.
+                    </div>
+                    <h1 id="heroTitle" class="font-header text-5xl lg:text-7xl font-black leading-none mb-6">
+                        BUILD YOUR <br>
+                        <span class="text-white bg-brand-purple px-2 decoration-clone shadow-neo box-decoration-clone">LOCAL SQUAD</span>
+                    </h1>
+                    <p id="heroDesc" class="text-xl font-medium text-gray-800 mb-8 border-l-4 border-brand-yellow pl-6">
+                        Create clans, discover guilds, and join real-world quests in your neighborhood. Turn strangers into allies.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <a href="organizations.html" id="heroMapBtn" class="neo-btn bg-brand-yellow text-xl px-8 py-4 flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-map"></i> START EXPLORING
+                        </a>
+                        <a href="profile.html" class="neo-btn bg-white text-xl px-8 py-4 flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-plus"></i> CREATE PARTY
+                        </a>
+                    </div>
+                </div>
 
-        <!-- About Us Section -->
-        <section style="padding: 4rem 2rem; background: white;">
-            <div style="max-width: 900px; margin: 0 auto; text-align: center;">
-                <h2 id="aboutTitle" style="font-size: 2.5rem; margin-bottom: 2rem; color: var(--dark);">About Organize.Quest</h2>
-                <p id="aboutText1" style="font-size: 1.2rem; color: var(--gray); line-height: 1.8; margin-bottom: 2rem;">
-                    Organize.Quest is a platform dedicated to strengthening local communities by making it easy to discover, create, and participate in community organizations and events. We believe that strong communities are built on meaningful connections and shared experiences.
-                </p>
-                <p id="aboutText2" style="font-size: 1.2rem; color: var(--gray); line-height: 1.8;">
-                    Whether you're looking to volunteer, find a local sports team, attend cultural events, or start your own community initiative, Organize.Quest connects you with opportunities right in your neighborhood.
-                </p>
-            </div>
-        </section>
+                <div class="lg:w-1/2 w-full relative">
+                    <div class="absolute -top-10 -right-10 text-6xl rotate-12 animate-bounce">📍</div>
+                    <div class="absolute -bottom-5 -left-5 text-6xl -rotate-12 animate-pulse">💬</div>
 
-        <!-- FAQ Section -->
-        <section style="padding: 4rem 2rem; background: var(--light);">
-            <div style="max-width: 900px; margin: 0 auto;">
-                <h2 id="faqTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark);">Frequently Asked Questions</h2>
-                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary id="faq1Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Is Organize.Quest free to use?</summary>
-                        <p id="faq1A" style="margin-top: 1rem; color: var(--gray);">Yes! Organize.Quest is completely free for users to browse organizations, create their own groups, and participate in community events.</p>
-                    </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary id="faq2Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">How do I create an organization?</summary>
-                        <p id="faq2A" style="margin-top: 1rem; color: var(--gray);">Simply sign up for an account, click on the map where you want to place your organization, fill out the details, and publish. Your organization will be visible to everyone in the community.</p>
-                    </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary id="faq3Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Can I edit or delete my organization?</summary>
-                        <p id="faq3A" style="margin-top: 1rem; color: var(--gray);">Yes! Go to your profile page and click on "My Organizations" to manage all your created organizations. You can edit details or delete them at any time.</p>
-                    </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary id="faq4Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">What types of organizations can I create?</summary>
-                        <p id="faq4A" style="margin-top: 1rem; color: var(--gray);">You can create any type of community organization including educational groups, healthcare initiatives, technology communities, non-profits, sports teams, arts collectives, environmental groups, and general community organizations.</p>
-                    </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary id="faq5Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Is my personal information safe?</summary>
-                        <p id="faq5A" style="margin-top: 1rem; color: var(--gray);">We take privacy seriously. Your personal information is encrypted and stored securely. We never share your data with third parties without your explicit consent.</p>
-                    </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary id="faq6Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">How do I find organizations near me?</summary>
-                        <p id="faq6A" style="margin-top: 1rem; color: var(--gray);">Click "Find My Location" on the map and we'll show you all organizations in your area. You can also use filters to search by category, distance, and event type.</p>
-                    </details>
-                </div>
-            </div>
-        </section>
+                    <div class="neo-box bg-white p-2 rotate-1">
+                        <div class="carousel-container relative overflow-hidden border-2 border-black aspect-video bg-gray-100">
+                            <div id="carouselTrack" class="carousel-track flex h-full">
+                                <div class="carousel-slide min-w-full relative">
+                                    <img src="Meet_with_new_people.png" onerror="this.src='https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" alt="Meet">
+                                    <div class="absolute bottom-4 left-4 bg-white border-2 border-black px-4 py-1 font-bold shadow-neo-hover">Quest: Meet Locals</div>
+                                </div>
+                                <div class="carousel-slide min-w-full relative">
+                                    <img src="for_business.png" onerror="this.src='https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" alt="Business">
+                                    <div class="absolute bottom-4 left-4 bg-white border-2 border-black px-4 py-1 font-bold shadow-neo-hover">Quest: Networking</div>
+                                </div>
+                            </div>
+                            
+                            <div class="absolute bottom-4 right-4 flex gap-2">
+                                <button id="prevBtn" class="w-10 h-10 bg-white border-2 border-black flex items-center justify-center hover:bg-brand-yellow transition-colors"><i class="fa-solid fa-arrow-left"></i></button>
+                                <button id="nextBtn" class="w-10 h-10 bg-white border-2 border-black flex items-center justify-center hover:bg-brand-yellow transition-colors"><i class="fa-solid fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <!-- Footer -->
-        <footer style="background: var(--dark); color: white; padding: 3rem 2rem;">
-            <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
-                <h3 style="font-size: 1.8rem; margin-bottom: 1rem; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Organize.Quest</h3>
-                <p id="footerTagline" style="opacity: 0.8; margin-bottom: 2rem;">Building stronger communities, one connection at a time</p>
-                <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 2rem;">
-                    <a id="footerHome" href="index.html" style="color: white; text-decoration: none; opacity: 0.8;">Home</a>
-                    <a id="footerOrgs" href="organizations.html" style="color: white; text-decoration: none; opacity: 0.8;">Organizations</a>
-                    <a id="footerProfile" href="profile.html" style="color: white; text-decoration: none; opacity: 0.8;">Profile</a>
-                </div>
-                <p id="footerCopyright" style="opacity: 0.6; font-size: 0.9rem;">© 2025 Organize.Quest. All rights reserved.</p>
-            </div>
-        </footer>
-    </div>
+    <div class="bg-black text-white py-3 border-y-4 border-black overflow-hidden whitespace-nowrap">
+        <div class="inline-block animate-[marquee_20s_linear_infinite] font-header font-bold text-xl">
+            🤝 JOIN A QUEST • 🌍 EXPLORE YOUR CITY • 📣 CREATE A MOVEMENT • 🤝 JOIN A QUEST • 🌍 EXPLORE YOUR CITY • 📣 CREATE A MOVEMENT •
+        </div>
+    </div>
+    <style>
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    </style>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const SUPABASE_URL = 'https://ymrxfbkghznrosgfqwrh.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltcnhmYmtnaHpucm9zZ2Zxd3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NzQ4MTMsImV4cCI6MjA3NDA1MDgxM30.GyrbrTmWMc6--zCUcfKwc-2qlsBI0z3oly8iv9Fq9-0';
-        
-        let supabase;
-        try {
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            }
-        } catch (err) {
-            console.error('Supabase initialization error:', err);
-        }
-        
-        let currentLang = 'en';
-        let currentUser = null;
+    <section class="py-24 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 id="featuresTitle" class="font-header text-4xl md:text-5xl font-black mb-4">HOW TO PLAY</h2>
+                <p id="featuresSubtitle" class="text-xl font-medium bg-white inline-block px-4 border-2 border-black shadow-neo-hover">Level up your social life in 4 simple steps.</p>
+            </div>
 
-        // Carousel functionality
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.carousel-slide');
-        const dots = document.querySelectorAll('.carousel-dot');
-        const carouselTrack = document.getElementById('carouselTrack');
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="neo-box bg-white p-6 hover:-translate-y-2 transition-transform">
+                    <div class="w-16 h-16 bg-brand-pink border-2 border-black rounded-none flex items-center justify-center text-3xl mb-6 shadow-neo-hover">
+                        🗺️
+                    </div>
+                    <h3 id="feature1Title" class="font-header text-2xl font-bold mb-3">Create & Discover</h3>
+                    <p id="feature1Desc" class="font-medium text-gray-600">Drop a pin on the map. That's your territory. Discover other guilds nearby.</p>
+                </div>
 
-        function showSlide(index) {
-            currentSlide = index;
-            const offset = -100 * currentSlide;
-            carouselTrack.style.transform = `translateX(${offset}%)`;
-            
-            dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === currentSlide);
-            });
-        }
+                <div class="neo-box bg-brand-yellow p-6 hover:-translate-y-2 transition-transform">
+                    <div class="w-16 h-16 bg-white border-2 border-black rounded-none flex items-center justify-center text-3xl mb-6 shadow-neo-hover">
+                        💬
+                    </div>
+                    <h3 id="feature2Title" class="font-header text-2xl font-bold mb-3">Chat & Plan</h3>
+                    <p id="feature2Desc" class="font-medium text-gray-800">Use the secure comms channel. Plan the raid (or the coffee meetup).</p>
+                </div>
 
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % slides.length;
-            showSlide(currentSlide);
-        }
+                <div class="neo-box bg-white p-6 hover:-translate-y-2 transition-transform">
+                    <div class="w-16 h-16 bg-brand-green border-2 border-black rounded-none flex items-center justify-center text-3xl mb-6 shadow-neo-hover">
+                        🤝
+                    </div>
+                    <h3 id="feature3Title" class="font-header text-2xl font-bold mb-3">Meet In Real Life</h3>
+                    <p id="feature3Desc" class="font-medium text-gray-600">Go AFK (Away From Keyboard). Meet at the coordinates. Complete the quest.</p>
+                </div>
 
-        function prevSlide() {
-            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-            showSlide(currentSlide);
-        }
+                <div class="neo-box bg-brand-purple text-white p-6 hover:-translate-y-2 transition-transform">
+                    <div class="w-16 h-16 bg-white border-2 border-black rounded-none flex items-center justify-center text-3xl mb-6 shadow-neo-hover text-black">
+                        🏰
+                    </div>
+                    <h3 id="feature4Title" class="font-header text-2xl font-bold mb-3">Build Community</h3>
+                    <p id="feature4Desc" class="font-medium text-white/90">Expand your network. Turn a one-time party into a permanent guild.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        // Auto-advance carousel
-        let autoAdvance = setInterval(nextSlide, 5000);
+    <section class="py-20 px-4 border-t-4 border-black bg-white">
+        <div class="max-w-5xl mx-auto">
+            <h2 id="howItWorksTitle" class="font-header text-4xl font-black text-center mb-16">THE ROADMAP</h2>
+            
+            <div class="space-y-8">
+                <div class="flex flex-col md:flex-row gap-6 items-center">
+                    <div class="w-20 h-20 bg-black text-white font-header font-bold text-4xl flex items-center justify-center border-4 border-gray-300 shadow-neo">1</div>
+                    <div class="flex-1 neo-box p-6 bg-gray-50">
+                        <h3 id="step1Title" class="font-bold text-xl">Create Account</h3>
+                        <p id="step1Desc">No lengthy forms. Login and start.</p>
+                    </div>
+                </div>
+                 <div class="flex flex-col md:flex-row gap-6 items-center md:flex-row-reverse">
+                    <div class="w-20 h-20 bg-brand-pink text-black font-header font-bold text-4xl flex items-center justify-center border-2 border-black shadow-neo">2</div>
+                    <div class="flex-1 neo-box p-6 bg-white">
+                        <h3 id="step2Title" class="font-bold text-xl">Explore Map</h3>
+                        <p id="step2Desc">The world is your dashboard.</p>
+                    </div>
+                </div>
+                 <div class="flex flex-col md:flex-row gap-6 items-center">
+                    <div class="w-20 h-20 bg-brand-green text-black font-header font-bold text-4xl flex items-center justify-center border-2 border-black shadow-neo">3</div>
+                    <div class="flex-1 neo-box p-6 bg-gray-50">
+                        <h3 id="step3Title" class="font-bold text-xl">Join Groups</h3>
+                        <p id="step3Desc">Send a request. Join the squad.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        document.getElementById('nextBtn').addEventListener('click', () => {
-            nextSlide();
-            clearInterval(autoAdvance);
-            autoAdvance = setInterval(nextSlide, 5000);
-        });
+    <section class="py-24 px-4 bg-brand-yellow border-t-4 border-black">
+        <div class="max-w-3xl mx-auto">
+            <h2 id="faqTitle" class="font-header text-4xl font-black text-center mb-12">F.A.Q.</h2>
+            
+            <div class="space-y-4">
+                <details class="group neo-box bg-white open:bg-brand-purple open:text-white transition-colors cursor-pointer">
+                    <summary id="faq1Q" class="font-bold text-lg p-6 list-none flex justify-between items-center">
+                        Is Organize.Quest free?
+                        <span class="text-2xl font-black group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <div id="faq1A" class="px-6 pb-6 font-medium">
+                        Yes! Totally free. No pay-to-win mechanics here.
+                    </div>
+                </details>
 
-        document.getElementById('prevBtn').addEventListener('click', () => {
-            prevSlide();
-            clearInterval(autoAdvance);
-            autoAdvance = setInterval(nextSlide, 5000);
-        });
+                <details class="group neo-box bg-white open:bg-brand-purple open:text-white transition-colors cursor-pointer">
+                    <summary id="faq2Q" class="font-bold text-lg p-6 list-none flex justify-between items-center">
+                        How to create an organization?
+                        <span class="text-2xl font-black group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <div id="faq2A" class="px-6 pb-6 font-medium">
+                        Click the map. Drop a pin. Name your guild. You are now the leader.
+                    </div>
+                </details>
 
-        dots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                showSlide(index);
-                clearInterval(autoAdvance);
-                autoAdvance = setInterval(nextSlide, 5000);
-            });
-        });
+                <details class="group neo-box bg-white open:bg-brand-purple open:text-white transition-colors cursor-pointer">
+                    <summary id="faq6Q" class="font-bold text-lg p-6 list-none flex justify-between items-center">
+                        Privacy?
+                        <span class="text-2xl font-black group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <div id="faq6A" class="px-6 pb-6 font-medium">
+                        We don't sell your data to evil wizards. Your location is only shared when you want it to be.
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
 
-        // Cookie Banner Management
-        function checkCookieConsent() {
-            const consent = localStorage.getItem('cookieConsent');
-            if (!consent) {
-                setTimeout(() => {
-                    document.getElementById('cookieBanner').classList.add('show');
-                }, 1000);
-            }
-        }
+    <footer class="bg-black text-white py-16 px-4 border-t-4 border-brand-purple">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-center md:text-left">
+                <h3 class="font-header text-3xl font-bold mb-2">Organize<span class="text-brand-purple">.Quest</span></h3>
+                <p id="footerTagline" class="font-mono text-gray-400">Game over? No, the game just started.</p>
+            </div>
+            
+            <div class="flex gap-4">
+                <a href="#" class="w-10 h-10 bg-white text-black flex items-center justify-center font-bold hover:bg-brand-purple hover:text-white transition-colors border-2 border-white"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" class="w-10 h-10 bg-white text-black flex items-center justify-center font-bold hover:bg-brand-pink hover:text-white transition-colors border-2 border-white"><i class="fa-brands fa-instagram"></i></a>
+            </div>
 
-        function acceptCookies() {
-            localStorage.setItem('cookieConsent', 'accepted');
-            document.getElementById('cookieBanner').classList.remove('show');
-        }
+            <div class="flex gap-6 font-bold text-sm uppercase tracking-widest">
+                <a id="footerHome" href="index.html" class="hover:text-brand-yellow">Home</a>
+                <a id="footerOrgs" href="organizations.html" class="hover:text-brand-yellow">Map</a>
+                <a id="footerProfile" href="profile.html" class="hover:text-brand-yellow">Profile</a>
+            </div>
+        </div>
+        <div class="text-center mt-12 text-gray-600 font-mono text-xs">
+            <span id="footerCopyright">© 2025 Organize.Quest</span> | SERVER: EARTH-1
+        </div>
+    </footer>
 
-        function declineCookies() {
-            localStorage.setItem('cookieConsent', 'declined');
-            document.getElementById('cookieBanner').classList.remove('show');
-        }
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://ymrxfbkghznrosgfqwrh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltcnhmYmtnaHpucm9zZ2Zxd3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NzQ4MTMsImV4cCI6MjA3NDA1MDgxM30.GyrbrTmWMc6--zCUcfKwc-2qlsBI0z3oly8iv9Fq9-0';
+        
+        let supabase;
+        try {
+            if (window.supabase) {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+        } catch (err) {
+            console.error('Supabase initialization error:', err);
+        }
+        
+        let currentLang = 'en';
+        let currentUser = null;
 
-        document.getElementById('acceptCookies').addEventListener('click', acceptCookies);
-        document.getElementById('declineCookies').addEventListener('click', declineCookies);
+        // Carousel functionality
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const carouselTrack = document.getElementById('carouselTrack');
 
-        // Check cookie consent on page load
-        checkCookieConsent();
+        function showSlide(index) {
+            currentSlide = index;
+            const offset = -100 * currentSlide;
+            carouselTrack.style.transform = `translateX(${offset}%)`;
+        }
 
-        const translations = {
-            en: {
-                heroTitle: 'Build Your Local Community Network',
-                heroDesc: 'Create, discover, and join organizations in your neighborhood.',
-                startBtn: 'Start Exploring',
-                loginBtn: 'Log In',
-                openMapBtn: 'Open Map',
-                myAccount: 'My Account',
-                logout: 'Logout',
-                featuresTitle: 'How Organize.Quest Works',
-                featuresSubtitle: 'From creating organizations to meeting in real life - everything you need to build your local community',
-                feature1Title: 'Create & Discover',
-                feature1Desc: 'Create your own organization or discover existing ones on the interactive map. Set location, date, category and invite others to join your community initiative.',
-                feature2Title: 'Chat & Plan',
-                feature2Desc: 'Join organizations and use the built-in chat to communicate with members. Discuss details, make plans, and coordinate activities before meeting in person.',
-                feature3Title: 'Meet & Participate',
-                feature3Desc: 'Once everything is planned, meet at the agreed location and participate in the activities. Turn online connections into real-world community experiences.',
-                feature4Title: 'Build Community',
-                feature4Desc: 'Strengthen relationships through regular meetups and shared activities. Grow your local network and make lasting connections in your neighborhood.',
-                howItWorksTitle: 'How It Works',
-                step1Title: 'Create Account',
-                step1Desc: 'Sign up in seconds with just your email',
-                step2Title: 'Explore Map',
-                step2Desc: 'Browse organizations in your area',
-                step3Title: 'Create or Join',
-                step3Desc: 'Start your own or join existing groups',
-                step4Title: 'Connect & Grow',
-                step4Desc: 'Build your community network',
-                aboutTitle: 'About Organize.Quest',
-                aboutText1: 'Organize.Quest is a platform dedicated to strengthening local communities by making it easy to discover, create, and participate in community organizations and events. We believe that strong communities are built on meaningful connections and shared experiences.',
-                aboutText2: 'Whether you\'re looking to volunteer, find a local sports team, attend cultural events, or start your own community initiative, Organize.Quest connects you with opportunities right in your neighborhood.',
-                faqTitle: 'Frequently Asked Questions',
-                faq1Q: 'Is Organize.Quest free to use?',
-                faq1A: 'Yes! Organize.Quest is completely free for users to browse organizations, create their own groups, and participate in community events.',
-                faq2Q: 'How do I create an organization?',
-                faq2A: 'Simply sign up for an account, click on the map where you want to place your organization, fill out the details, and publish. Your organization will be visible to everyone in the community.',
-                faq3Q: 'Can I edit or delete my organization?',
-                faq3A: 'Yes! Go to your profile page and click on "My Organizations" to manage all your created organizations. You can edit details or delete them at any time.',
-                faq4Q: 'What types of organizations can I create?',
-                faq4A: 'You can create any type of community organization including educational groups, healthcare initiatives, technology communities, non-profits, sports teams, arts collectives, environmental groups, and general community organizations.',
-                faq5Q: 'Is my personal information safe?',
-                faq5A: 'We take privacy seriously. Your personal information is encrypted and stored securely. We never share your data with third parties without your explicit consent.',
-                faq6Q: 'How do I find organizations near me?',
-                faq6A: 'Click "Find My Location" on the map and we\'ll show you all organizations in your area. You can also use filters to search by category, distance, and event type.',
-                footerTagline: 'Building stronger communities, one connection at a time',
-                footerHome: 'Home',
-                footerOrgs: 'Organizations',
-                footerProfile: 'Profile',
-                footerCopyright: '© 2025 Organize.Quest. All rights reserved.'
-            },
-            tr: {
-                heroTitle: 'Yerel Topluluk Ağınızı Oluşturun',
-                heroDesc: 'Mahallenizde organizasyonlar oluşturun, keşfedin ve katılın.',
-                startBtn: 'Keşfetmeye Başla',
-                loginBtn: 'Giriş Yap',
-                openMapBtn: 'Haritayı Aç',
-                myAccount: 'Hesabım',
-                logout: 'Çıkış Yap',
-                featuresTitle: 'Organize.Quest Nasıl Çalışır',
-                featuresSubtitle: 'Organizasyon oluşturmaktan gerçek hayatta buluşmaya kadar - yerel topluluğunuzu kurmak için ihtiyacınız olan her şey',
-                feature1Title: 'Oluştur & Keşfet',
-                feature1Desc: 'Kendi organizasyonunuzu oluşturun veya interaktif haritada mevcut olanları keşfedin. Konum, tarih, kategori belirleyin ve diğerlerini topluluk girişiminize katılmaya davet edin.',
-                feature2Title: 'Sohbet Et & Planla',
-                feature2Desc: 'Organizasyonlara katılın ve üyelerle iletişim kurmak için yerleşik sohbeti kullanın. Detayları tartışın, planlar yapın ve yüz yüze buluşmadan önce aktiviteleri koordine edin.',
-                feature3Title: 'Buluş & Katıl',
-                feature3Desc: 'Her şey planlandıktan sonra, kararlaştırılan yerde buluşun ve aktivitelere katılın. Çevrimiçi bağlantıları gerçek dünya topluluk deneyimlerine dönüştürün.',
-                feature4Title: 'Topluluk Oluştur',
-                feature4Desc: 'Düzenli buluşmalar ve ortak aktivitelerle ilişkileri güçlendirin. Yerel ağınızı büyütün ve mahallenizde kalıcı bağlantılar kurun.',
-                howItWorksTitle: 'Nasıl Çalışır',
-                step1Title: 'Hesap Oluştur',
-                step1Desc: 'Sadece e-postanızla saniyeler içinde kaydolun',
-                step2Title: 'Haritayı Keşfet',
-                step2Desc: 'Bölgenizdeki organizasyonlara göz atın',
-                step3Title: 'Oluştur veya Katıl',
-                step3Desc: 'Kendiniz başlatın veya mevcut gruplara katılın',
-                step4Title: 'Bağlan ve Büyüt',
-                step4Desc: 'Topluluk ağınızı oluşturun',
-                aboutTitle: 'Organize.Quest Hakkında',
-                aboutText1: 'Organize.Quest, topluluk organizasyonlarını ve etkinlikleri keşfetmeyi, oluşturmayı ve katılmayı kolaylaştırarak yerel toplulukları güçlendirmeye adanmış bir platformdur. Güçlü toplulukların anlamlı bağlantılar ve paylaşılan deneyimler üzerine inşa edildiğine inanıyoruz.',
-                aboutText2: 'İster gönüllü olmak, yerel bir spor takımı bulmak, kültürel etkinliklere katılmak veya kendi topluluk girişiminizi başlatmak isteyin, Organize.Quest sizi mahallenizde bulunan fırsatlarla buluşturur.',
-                faqTitle: 'Sıkça Sorulan Sorular',
-                faq1Q: 'Organize.Quest kullanımı ücretsiz mi?',
-                faq1A: 'Evet! Organize.Quest, kullanıcıların organizasyonlara göz atması, kendi gruplarını oluşturması ve topluluk etkinliklerine katılması için tamamen ücretsizdir.',
-                faq2Q: 'Nasıl organizasyon oluşturabilirim?',
-                faq2A: 'Sadece bir hesap oluşturun, organizasyonunuzu yerleştirmek istediğiniz haritaya tıklayın, detayları doldurun ve yayınlayın. Organizasyonunuz topluluktaki herkes tarafından görülebilir olacaktır.',
-                faq3Q: 'Organizasyonumu düzenleyebilir veya silebilir miyim?',
-                faq3A: 'Evet! Profil sayfanıza gidin ve oluşturduğunuz tüm organizasyonları yönetmek için "Organizasyonlarım" sekmesine tıklayın. Detayları düzenleyebilir veya istediğiniz zaman silebilirsiniz.',
-                faq4Q: 'Ne tür organizasyonlar oluşturabilirim?',
-                faq4A: 'Eğitim grupları, sağlık girişimleri, teknoloji toplulukları, kar amacı gütmeyen kuruluşlar, spor takımları, sanat kolektifleri, çevre grupları ve genel topluluk organizasyonları dahil olmak üzere her türlü topluluk organizasyonu oluşturabilirsiniz.',
-                faq5Q: 'Kişisel bilgilerim güvende mi?',
-                faq5A: 'Gizliliği ciddiye alıyoruz. Kişisel bilgileriniz şifrelenir ve güvenli bir şekilde saklanır. Verilerinizi açık izniniz olmadan asla üçüncü taraflarla paylaşmayız.',
-                faq6Q: 'Yakınımdaki organizasyonları nasıl bulabilirim?',
-                faq6A: 'Haritada "Konumumu Bul" seçeneğine tıklayın, bölgenizdeki tüm organizasyonları size göstereceğiz. Ayrıca kategoriye, mesafeye ve etkinlik türüne göre arama yapmak için filtreleri kullanabilirsiniz.',
-                footerTagline: 'Daha güçlü topluluklar inşa ediyoruz, her seferinde bir bağlantı',
-                footerHome: 'Ana Sayfa',
-                footerOrgs: 'Organizasyonlar',
-                footerProfile: 'Profil',
-                footerCopyright: '© 2025 Organize.Quest. Tüm hakları saklıdır.'
-            }
-        };
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
 
-        function switchLanguage(lang) {
-            currentLang = lang;
-            document.getElementById('btnEN').classList.toggle('active', lang === 'en');
-            document.getElementById('btnTR').classList.toggle('active', lang === 'tr');
-            
-            const t = translations[lang];
-            
-            document.getElementById('heroTitle').textContent = t.heroTitle;
-            document.getElementById('heroDesc').textContent = t.heroDesc;
-            document.getElementById('heroMapBtn').textContent = t.startBtn;
-            document.getElementById('loginBtn').textContent = t.loginBtn;
-            document.getElementById('openMapBtn').textContent = t.openMapBtn;
-            document.getElementById('featuresTitle').textContent = t.featuresTitle;
-            document.getElementById('featuresSubtitle').textContent = t.featuresSubtitle;
-            document.getElementById('feature1Title').textContent = t.feature1Title;
-            document.getElementById('feature1Desc').textContent = t.feature1Desc;
-            document.getElementById('feature2Title').textContent = t.feature2Title;
-            document.getElementById('feature2Desc').textContent = t.feature2Desc;
-            document.getElementById('feature3Title').textContent = t.feature3Title;
-            document.getElementById('feature3Desc').textContent = t.feature3Desc;
-            document.getElementById('feature4Title').textContent = t.feature4Title;
-            document.getElementById('feature4Desc').textContent = t.feature4Desc;
-            document.getElementById('howItWorksTitle').textContent = t.howItWorksTitle;
-            document.getElementById('step1Title').textContent = t.step1Title;
-            document.getElementById('step1Desc').textContent = t.step1Desc;
-            document.getElementById('step2Title').textContent = t.step2Title;
-            document.getElementById('step2Desc').textContent = t.step2Desc;
-            document.getElementById('step3Title').textContent = t.step3Title;
-            document.getElementById('step3Desc').textContent = t.step3Desc;
-            document.getElementById('step4Title').textContent = t.step4Title;
-            document.getElementById('step4Desc').textContent = t.step4Desc;
-            document.getElementById('aboutTitle').textContent = t.aboutTitle;
-            document.getElementById('aboutText1').textContent = t.aboutText1;
-            document.getElementById('aboutText2').textContent = t.aboutText2;
-            document.getElementById('faqTitle').textContent = t.faqTitle;
-            document.getElementById('faq1Q').textContent = t.faq1Q;
-            document.getElementById('faq1A').textContent = t.faq1A;
-            document.getElementById('faq2Q').textContent = t.faq2Q;
-            document.getElementById('faq2A').textContent = t.faq2A;
-            document.getElementById('faq3Q').textContent = t.faq3Q;
-            document.getElementById('faq3A').textContent = t.faq3A;
-            document.getElementById('faq4Q').textContent = t.faq4Q;
-            document.getElementById('faq4A').textContent = t.faq4A;
-            document.getElementById('faq5Q').textContent = t.faq5Q;
-            document.getElementById('faq5A').textContent = t.faq5A;
-            document.getElementById('faq6Q').textContent = t.faq6Q;
-            document.getElementById('faq6A').textContent = t.faq6A;
-            document.getElementById('footerTagline').textContent = t.footerTagline;
-            document.getElementById('footerHome').textContent = t.footerHome;
-            document.getElementById('footerOrgs').textContent = t.footerOrgs;
-            document.getElementById('footerProfile').textContent = t.footerProfile;
-            document.getElementById('footerCopyright').textContent = t.footerCopyright;
-            
-            const userMenuName = document.getElementById('userMenuName');
-            if (userMenuName) {
-                userMenuName.textContent = currentUser ? currentUser.name : t.myAccount;
-            }
-        }
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
 
-        function showUserMenu() {
-            document.getElementById('loginBtn').style.display = 'none';
-            document.getElementById('userMenu').style.display = 'block';
-            const userName = currentUser.name || currentUser.email || 'My Account';
-            document.getElementById('userMenuName').textContent = userName;
-        }
+        let autoAdvance = setInterval(nextSlide, 5000);
 
-        function hideUserMenu() {
-            document.getElementById('loginBtn').style.display = 'block';
-            document.getElementById('userMenu').style.display = 'none';
-        }
+        document.getElementById('nextBtn')?.addEventListener('click', () => {
+            nextSlide();
+            clearInterval(autoAdvance);
+            autoAdvance = setInterval(nextSlide, 5000);
+        });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (savedUser) {
-                currentUser = savedUser;
-                showUserMenu();
-            }
+        document.getElementById('prevBtn')?.addEventListener('click', () => {
+            prevSlide();
+            clearInterval(autoAdvance);
+            autoAdvance = setInterval(nextSlide, 5000);
+        });
 
-            document.getElementById('userMenuBtn')?.addEventListener('click', function(e) {
-                e.stopPropagation();
-                document.getElementById('userDropdown').classList.toggle('show');
-            });
+        // Cookie Banner Management
+        function checkCookieConsent() {
+            const consent = localStorage.getItem('cookieConsent');
+            if (!consent) {
+                setTimeout(() => {
+                    document.getElementById('cookieBanner').classList.remove('translate-y-[200%]');
+                }, 1000);
+            }
+        }
 
-            document.addEventListener('click', function() {
-                document.getElementById('userDropdown')?.classList.remove('show');
-            });
+        function acceptCookies() {
+            localStorage.setItem('cookieConsent', 'accepted');
+            document.getElementById('cookieBanner').classList.add('translate-y-[200%]');
+        }
 
-            document.getElementById('logoutDropdown')?.addEventListener('click', async function(e) {
-                e.preventDefault();
-                try {
-                    await supabase.auth.signOut();
-                } catch (err) {
-                    console.error('Error signing out:', err);
-                }
-                currentUser = null;
-                localStorage.removeItem('currentUser');
-                hideUserMenu();
-                alert('Successfully logged out!');
-            });
-            
-            document.getElementById('btnEN').addEventListener('click', () => switchLanguage('en'));
-            document.getElementById('btnTR').addEventListener('click', () => switchLanguage('tr'));
-        });
-    </script>
+        function declineCookies() {
+            localStorage.setItem('cookieConsent', 'declined');
+            document.getElementById('cookieBanner').classList.add('translate-y-[200%]');
+        }
+
+        document.getElementById('acceptCookies').addEventListener('click', acceptCookies);
+        document.getElementById('declineCookies').addEventListener('click', declineCookies);
+        checkCookieConsent();
+
+        // Translations
+        const translations = {
+            en: {
+                heroTitle: 'BUILD YOUR <br><span class="text-white bg-brand-purple px-2 decoration-clone shadow-neo box-decoration-clone">LOCAL SQUAD</span>',
+                heroDesc: 'Create clans, discover guilds, and join real-world quests in your neighborhood. Turn strangers into allies.',
+                startBtn: '<i class="fa-solid fa-map"></i> START EXPLORING',
+                loginBtn: 'Log In',
+                openMapBtn: 'Open Map',
+                myAccount: 'Player 1',
+                logout: 'LOGOUT',
+                featuresTitle: 'HOW TO PLAY',
+                featuresSubtitle: 'Level up your social life in 4 simple steps.',
+                feature1Title: 'Create & Discover',
+                feature1Desc: 'Drop a pin on the map. That\'s your territory. Discover other guilds nearby.',
+                feature2Title: 'Chat & Plan',
+                feature2Desc: 'Use the secure comms channel. Plan the raid (or the coffee meetup).',
+                feature3Title: 'Meet In Real Life',
+                feature3Desc: 'Go AFK (Away From Keyboard). Meet at the coordinates. Complete the quest.',
+                feature4Title: 'Build Community',
+                feature4Desc: 'Expand your network. Turn a one-time party into a permanent guild.',
+                howItWorksTitle: 'THE ROADMAP',
+                step1Title: 'Create Account',
+                step1Desc: 'No lengthy forms. Login and start.',
+                step2Title: 'Explore Map',
+                step2Desc: 'The world is your dashboard.',
+                step3Title: 'Join Groups',
+                step3Desc: 'Send a request. Join the squad.',
+                step4Title: 'Grow',
+                step4Desc: 'Build your network',
+                faqTitle: 'F.A.Q.',
+                faq1Q: 'Is Organize.Quest free?',
+                faq1A: 'Yes! Totally free. No pay-to-win mechanics here.',
+                faq2Q: 'How to create an organization?',
+                faq2A: 'Click the map. Drop a pin. Name your guild. You are now the leader.',
+                faq6Q: 'Privacy?',
+                faq6A: 'We don\'t sell your data to evil wizards. Your location is only shared when you want it to be.',
+                footerTagline: 'Game over? No, the game just started.',
+                footerHome: 'Home',
+                footerOrgs: 'Map',
+                footerProfile: 'Profile',
+                footerCopyright: '© 2025 Organize.Quest'
+            },
+            tr: {
+                heroTitle: 'YEREL <br><span class="text-white bg-brand-purple px-2 decoration-clone shadow-neo box-decoration-clone">EKİBİNİ KUR</span>',
+                heroDesc: 'Klanlar kur, loncaları keşfet ve mahallenizdeki gerçek dünya görevlerine katıl. Yabancıları müttefiklere dönüştür.',
+                startBtn: '<i class="fa-solid fa-map"></i> KEŞFE BAŞLA',
+                loginBtn: 'Giriş',
+                openMapBtn: 'Harita',
+                myAccount: 'Oyuncu 1',
+                logout: 'ÇIKIŞ',
+                featuresTitle: 'NASIL OYNANIR',
+                featuresSubtitle: 'Sosyal hayatınızı 4 adımda seviye atlatın.',
+                feature1Title: 'Oluştur & Keşfet',
+                feature1Desc: 'Haritaya bir iğne bırak. Orası senin bölgen. Yakındaki diğer loncaları keşfet.',
+                feature2Title: 'Sohbet & Planla',
+                feature2Desc: 'Güvenli iletişim kanalını kullan. Baskını (ya da kahve buluşmasını) planla.',
+                feature3Title: 'Gerçek Hayatta Buluş',
+                feature3Desc: 'AFK ol (Klavyeden Uzaklaş). Koordinatlarda buluş. Görevi tamamla.',
+                feature4Title: 'Topluluk Kur',
+                feature4Desc: 'Ağını genişlet. Tek seferlik partiyi kalıcı bir loncaya dönüştür.',
+                howItWorksTitle: 'YOL HARİTASI',
+                step1Title: 'Hesap Aç',
+                step1Desc: 'Uzun formlar yok. Giriş yap ve başla.',
+                step2Title: 'Haritayı Gez',
+                step2Desc: 'Dünya senin kontrol panelin.',
+                step3Title: 'Gruplara Katıl',
+                step3Desc: 'İstek gönder. Ekibe katıl.',
+                step4Title: 'Büyü',
+                step4Desc: 'Ağını genişlet',
+                faqTitle: 'S.S.S.',
+                faq1Q: 'Ücretsiz mi?',
+                faq1A: 'Evet! Tamamen ücretsiz. Pay-to-win yok.',
+                faq2Q: 'Nasıl organizasyon kurulur?',
+                faq2A: 'Haritaya tıkla. İğne bırak. Loncanı isimlendir. Artık lidersin.',
+                faq6Q: 'Gizlilik?',
+                faq6A: 'Verilerinizi kötü büyücülere satmıyoruz. Konumun sadece sen istediğinde paylaşılır.',
+                footerTagline: 'Oyun bitti mi? Hayır, daha yeni başlıyor.',
+                footerHome: 'Ana Sayfa',
+                footerOrgs: 'Harita',
+                footerProfile: 'Profil',
+                footerCopyright: '© 2025 Organize.Quest'
+            }
+        };
+
+        function switchLanguage(lang) {
+            currentLang = lang;
+            const btnEN = document.getElementById('btnEN');
+            const btnTR = document.getElementById('btnTR');
+
+            if(lang === 'en') {
+                btnEN.classList.add('bg-brand-yellow', 'border-2', 'border-black');
+                btnEN.classList.remove('hover:bg-gray-100');
+                btnTR.classList.remove('bg-brand-yellow', 'border-2', 'border-black');
+                btnTR.classList.add('hover:bg-gray-100');
+            } else {
+                btnTR.classList.add('bg-brand-yellow', 'border-2', 'border-black');
+                btnTR.classList.remove('hover:bg-gray-100');
+                btnEN.classList.remove('bg-brand-yellow', 'border-2', 'border-black');
+                btnEN.classList.add('hover:bg-gray-100');
+            }
+            
+            const t = translations[lang];
+            
+            const ids = [
+                'heroTitle', 'heroDesc', 'featuresTitle', 'featuresSubtitle',
+                'feature1Title', 'feature1Desc', 'feature2Title', 'feature2Desc',
+                'feature3Title', 'feature3Desc', 'feature4Title', 'feature4Desc',
+                'howItWorksTitle', 'step1Title', 'step1Desc', 'step2Title', 'step2Desc',
+                'step3Title', 'step3Desc', 'step4Title', 'step4Desc',
+                'faqTitle', 'faq1Q', 'faq1A', 'faq2Q', 'faq2A', 'faq6Q', 'faq6A',
+                'footerTagline', 'footerHome', 'footerOrgs', 'footerProfile', 'footerCopyright'
+            ];
+
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if(el && t[id]) el.innerHTML = t[id];
+            });
+
+            document.getElementById('heroMapBtn').innerHTML = t.startBtn;
+            document.getElementById('loginBtn').textContent = t.loginBtn;
+            document.getElementById('openMapBtn').textContent = t.openMapBtn;
+            document.getElementById('logoutDropdown').textContent = t.logout;
+            
+            const userMenuName = document.getElementById('userMenuName');
+            if (userMenuName && (!currentUser || !currentUser.name)) {
+                userMenuName.textContent = t.myAccount;
+            }
+        }
+
+        // Auth Logic
+        function showUserMenu() {
+            document.getElementById('authButtons').classList.add('logged-in');
+            document.getElementById('loginBtn').classList.add('hidden');
+            document.getElementById('userMenu').classList.remove('hidden');
+            const userName = currentUser.name || currentUser.email || 'Player 1';
+            document.getElementById('userMenuName').textContent = userName;
+        }
+
+        function hideUserMenu() {
+            document.getElementById('loginBtn').classList.remove('hidden');
+            document.getElementById('userMenu').classList.add('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (savedUser) {
+                currentUser = savedUser;
+                showUserMenu();
+            }
+
+            document.getElementById('userMenuBtn')?.addEventListener('click', function(e) {
+                e.stopPropagation();
+                document.getElementById('userDropdown').classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', function(e) {
+                if(!e.target.closest('#userMenu')) {
+                    document.getElementById('userDropdown')?.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('logoutDropdown')?.addEventListener('click', async function(e) {
+                e.preventDefault();
+                try {
+                    await supabase.auth.signOut();
+                } catch (err) { console.error(err); }
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                hideUserMenu();
+                alert('Logged out.');
+            });
+            
+            document.getElementById('btnEN').addEventListener('click', () => switchLanguage('en'));
+            document.getElementById('btnTR').addEventListener('click', () => switchLanguage('tr'));
+        });
+    </script>
 </body>
 </html>
