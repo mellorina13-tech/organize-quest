@@ -1,815 +1,356 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organize.Quest - Discover & Create Local Organizations</title>
+    <title>Organize.Quest - Local Community Hub</title>
     <meta name="description" content="Build your local community network. Create, discover, and join organizations in your neighborhood.">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%235865F2'/%3E%3Cstop offset='100%25' style='stop-color:%234ECDC4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='45' fill='url(%23grad)'/%3E%3Cpath d='M50 20 L65 40 L85 40 L70 55 L75 75 L50 60 L25 75 L30 55 L15 40 L35 40 Z' fill='white'/%3E%3C/svg%3E">
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%236366f1'/%3E%3Cstop offset='100%25' style='stop-color:%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='45' fill='url(%23grad)'/%3E%3Cpath d='M50 20 L65 40 L85 40 L70 55 L75 75 L50 60 L25 75 L30 55 L15 40 L35 40 Z' fill='white'/%3E%3C/svg%3E">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#6366f1', // Indigo
+                        secondary: '#ec4899', // Pink
+                        dark: '#0f172a',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Glass Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
         }
-
-        :root {
-            --primary: #5865F2;
-            --primary-dark: #4752C4;
-            --secondary: #FF6B6B;
-            --accent: #4ECDC4;
-            --dark: #1a1a2e;
-            --light: #f8f9fa;
-            --gray: #6c757d;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            overflow-x: hidden;
-            background: white;
-        }
-
-        .feature-icon {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 1.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 20px rgba(88, 101, 242, 0.25);
-        }
-
-        .feature-icon svg {
-            width: 32px;
-            height: 32px;
-            stroke: white;
-            fill: none;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .step-number {
-            width: 60px;
-            height: 60px;
-            background: var(--primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 0 auto 1rem;
-            box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
-        }
-
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
-            z-index: 1000;
-            padding: 1rem 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            cursor: pointer;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .lang-switcher {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .lang-btn {
-            background: rgba(88, 101, 242, 0.1);
-            color: var(--dark);
-            border: 2px solid rgba(88, 101, 242, 0.2);
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            line-height: 1;
-        }
-
-        .lang-btn:hover {
-            background: rgba(88, 101, 242, 0.15);
-            transform: translateY(-1px);
-        }
-
-        .lang-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            box-shadow: 0 2px 8px rgba(88, 101, 242, 0.3);
-        }
-
-        .user-menu {
-            position: relative;
-        }
-
-        .user-menu-btn {
-            background: var(--primary);
-            color: white;
-            padding: 0.6rem 1.5rem;
-            border: none;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .user-dropdown {
+        
+        .blob {
             position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-            min-width: 200px;
-            display: none;
-            z-index: 1001;
-            overflow: hidden;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.4;
         }
 
-        .user-dropdown.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            padding: 0.8rem 1.2rem;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            color: #333;
-            text-decoration: none;
-            display: block;
-            font-size: 0.95rem;
-        }
-
-        .dropdown-item:hover {
-            background: var(--light);
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background: #e0e0e0;
-            margin: 0.5rem 0;
-        }
-
-        .btn-login {
-            background: transparent;
-            color: var(--primary);
-            padding: 0.6rem 1.5rem;
-            border: 2px solid var(--primary);
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-            cursor: pointer;
-        }
-
-        .btn-login:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(88, 101, 242, 0.3);
-        }
-
-        .btn-nav {
-            background: var(--primary);
-            color: white;
-            padding: 0.6rem 1.5rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-nav:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(88, 101, 242, 0.3);
-        }
-
-        .hero {
-            padding: 8rem 2rem 4rem;
-            min-height: 90vh;
-            display: flex;
-            align-items: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-content h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-            color: white;
-            line-height: 1.2;
-        }
-
-        .hero-content p {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .btn-primary {
-            background: white;
-            color: var(--primary);
-            padding: 1rem 2.5rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .image-carousel-section {
-            padding: 3rem 2rem 2rem;
-            background: white;
-        }
-
-        .carousel-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-            overflow: hidden;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .carousel-track {
-            display: flex;
-            transition: transform 0.5s ease-in-out;
-        }
-
-        .carousel-slide {
-            min-width: 100%;
-            position: relative;
-        }
-
-        .carousel-slide img {
-            width: 100%;
-            height: auto;
-            display: block;
-            border-radius: 20px;
-        }
-
-        .carousel-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--primary);
-            transition: all 0.3s ease;
-            z-index: 10;
-        }
-
-        .carousel-nav:hover {
-            background: white;
-            transform: translateY(-50%) scale(1.1);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .carousel-nav.prev {
-            left: 20px;
-        }
-
-        .carousel-nav.next {
-            right: 20px;
-        }
-
-        .carousel-dots {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-            z-index: 10;
-        }
-
-        .carousel-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .carousel-dot.active {
-            background: white;
-            width: 30px;
-            border-radius: 6px;
-        }
-
-        /* Cookie Banner Styles */
-        .cookie-banner {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(26, 26, 46, 0.98);
-            backdrop-filter: blur(10px);
-            padding: 1.5rem;
-            z-index: 9999;
-            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
-            transform: translateY(100%);
-            transition: transform 0.4s ease;
-        }
-
-        .cookie-banner.show {
-            transform: translateY(0);
-        }
-
-        .cookie-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .cookie-text {
-            flex: 1;
-            color: white;
-            min-width: 300px;
-        }
-
-        .cookie-text h3 {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-            color: var(--accent);
-        }
-
-        .cookie-text p {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            opacity: 0.9;
-        }
-
-        .cookie-text a {
-            color: var(--accent);
-            text-decoration: underline;
-        }
-
-        .cookie-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .cookie-btn {
-            padding: 0.8rem 1.8rem;
-            border-radius: 8px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-        }
-
-        .cookie-accept {
-            background: var(--accent);
-            color: white;
-        }
-
-        .cookie-accept:hover {
-            background: #3db5ac;
-            transform: translateY(-2px);
-        }
-
-        .cookie-decline {
-            background: transparent;
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .cookie-decline:hover {
-            border-color: rgba(255, 255, 255, 0.6);
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        @media (max-width: 768px) {
-            .nav-container {
-                flex-wrap: wrap;
-                gap: 1rem;
-                padding: 0 1rem;
-            }
-
-            .nav-buttons {
-                width: 100%;
-                justify-content: space-between;
-                order: 2;
-                flex-wrap: wrap;
-            }
-
-            .logo {
-                font-size: 1.4rem;
-                order: 1;
-            }
-
-            .lang-switcher {
-                order: 3;
-            }
-
-            .btn-login,
-            .btn-nav {
-                padding: 0.5rem 1rem;
-                font-size: 0.85rem;
-            }
-
-            .hero {
-                padding: 7rem 1.5rem 3rem;
-                min-height: 85vh;
-            }
-
-            .hero-container {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-
-            .hero-content h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero-content p {
-                font-size: 1.15rem;
-            }
-
-            .btn-primary {
-                padding: 0.8rem 1.8rem;
-                font-size: 1rem;
-            }
-
-            .cookie-content {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .cookie-text {
-                min-width: auto;
-            }
-
-            .cookie-buttons {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .cookie-btn {
-                flex: 1;
-                min-width: 120px;
-            }
-
-            .carousel-nav {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
-            }
-
-            .carousel-nav.prev {
-                left: 10px;
-            }
-
-            .carousel-nav.next {
-                right: 10px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .nav-buttons {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .lang-switcher {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .btn-login,
-            .btn-nav,
-            .user-menu-btn {
-                width: 100%;
-                text-align: center;
-                justify-content: center;
-            }
-
-            .hero {
-                padding: 5rem 1rem 2rem;
-            }
-
-            .hero-content h1 {
-                font-size: 1.8rem;
-            }
-
-            .hero-content p {
-                font-size: 1rem;
-            }
-
-            .logo {
-                font-size: 1.2rem;
-            }
-        }
+        /* Carousel Styles (Preserving Logic) */
+        .carousel-track { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .carousel-dot.active { background-color: #6366f1; width: 32px; }
     </style>
 </head>
-<body>
-    <!-- Cookie Banner -->
-    <div class="cookie-banner" id="cookieBanner">
-        <div class="cookie-content">
-            <div class="cookie-text">
-                <h3>🍪 Çerez Bildirimi / Cookie Notice</h3>
-                <p>
-                    Web sitemizi kullanarak, deneyiminizi geliştirmek ve site trafiğini analiz etmek için çerezleri kabul etmiş olursunuz. 
-                    <br>By using our website, you accept cookies to improve your experience and analyze site traffic.
-                </p>
-            </div>
-            <div class="cookie-buttons">
-                <button class="cookie-btn cookie-accept" id="acceptCookies">Kabul Et / Accept</button>
-                <button class="cookie-btn cookie-decline" id="declineCookies">Reddet / Decline</button>
+<body class="font-sans text-slate-600 bg-slate-50 antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden">
+
+    <div id="cookieBanner" class="fixed bottom-0 inset-x-0 z-[60] transform translate-y-full transition-transform duration-500">
+        <div class="bg-dark/95 backdrop-blur text-white p-4 md:p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex-1 text-center md:text-left">
+                    <h3 class="font-bold text-lg mb-1">🍪 Cookie Notice</h3>
+                    <p class="text-sm text-slate-300">We use cookies to improve your community experience. By continuing, you agree to our use of cookies.</p>
+                </div>
+                <div class="flex gap-3">
+                    <button id="declineCookies" class="px-6 py-2.5 rounded-xl border border-white/20 hover:bg-white/10 transition-colors text-sm font-semibold">Decline</button>
+                    <button id="acceptCookies" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 transition-colors text-white text-sm font-semibold shadow-lg shadow-indigo-500/30">Accept</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="landing-page" id="landingPage">
-        <nav>
-            <div class="nav-container">
-                <div class="logo" id="logoText">Organize.Quest</div>
-                <div class="nav-buttons">
-                    <div class="lang-switcher">
-                        <button class="lang-btn active" id="btnEN">EN</button>
-                        <button class="lang-btn" id="btnTR">TR</button>
+    <nav class="fixed top-0 w-full z-50 glass">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="#" class="flex items-center gap-2 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-map-location-dot"></i>
                     </div>
-                    <a href="profile.html" class="btn-login" id="loginBtn">Log In</a>
-                    <div class="user-menu" id="userMenu" style="display: none;">
-                        <button class="user-menu-btn" id="userMenuBtn">
-                            <span id="userMenuName">My Account</span>
-                        </button>
-                        <div class="user-dropdown" id="userDropdown">
-                            <a href="profile.html" class="dropdown-item">My Account</a>
-                            <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item" id="logoutDropdown">Logout</a>
-                        </div>
-                    </div>
-                    <a href="organizations.html" class="btn-nav" id="openMapBtn">Open Map</a>
-                </div>
-            </div>
-        </nav>
+                    <span id="logoText" class="font-bold text-xl text-slate-900 tracking-tight">Organize<span class="text-indigo-600">.Quest</span></span>
+                </a>
 
-        <section class="hero">
-            <div class="hero-container">
-                <div class="hero-content">
-                    <h1 id="heroTitle">Build Your Local Community Network</h1>
-                    <p id="heroDesc">Create, discover, and join organizations in your neighborhood.</p>
-                    <div class="hero-buttons">
-                        <a href="organizations.html" class="btn-primary" id="heroMapBtn">Start Exploring</a>
+                <div class="flex items-center gap-4">
+                    <div class="bg-slate-100 p-1 rounded-lg flex items-center">
+                        <button id="btnEN" class="px-3 py-1 rounded-md text-sm font-bold transition-all bg-white shadow-sm text-indigo-600">EN</button>
+                        <button id="btnTR" class="px-3 py-1 rounded-md text-sm font-bold text-slate-500 hover:text-indigo-600 transition-all">TR</button>
                     </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- Image Carousel Section -->
-        <section class="image-carousel-section">
-            <div class="carousel-container">
-                <div class="carousel-track" id="carouselTrack">
-                    <div class="carousel-slide">
-                        <img src="Meet_with_new_people.png" alt="Meet with new people">
-                    </div>
-                    <div class="carousel-slide">
-                        <img src="for_business.png" alt="For business">
-                    </div>
-                </div>
-                
-                <button class="carousel-nav prev" id="prevBtn">‹</button>
-                <button class="carousel-nav next" id="nextBtn">›</button>
-                
-                <div class="carousel-dots">
-                    <button class="carousel-dot active" data-slide="0"></button>
-                    <button class="carousel-dot" data-slide="1"></button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Features Section -->
-        <section style="padding: 4rem 2rem; background: white;">
-            <div style="max-width: 1200px; margin: 0 auto;">
-                <h2 id="featuresTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 1rem; color: var(--dark);">How Organize.Quest Works</h2>
-                <p id="featuresSubtitle" style="text-align: center; font-size: 1.2rem; color: var(--gray); margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto;">From creating organizations to meeting in real life - everything you need to build your local community</p>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-top: 3rem;">
-                    <div style="text-align: center; padding: 2rem;">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
+                    <div class="hidden md:flex items-center gap-3">
+                        <a href="organizations.html" id="openMapBtn" class="text-slate-600 hover:text-indigo-600 font-semibold px-4 py-2 transition-colors">Open Map</a>
+                        
+                        <div id="authButtons">
+                            <a href="profile.html" id="loginBtn" class="px-6 py-2.5 rounded-full bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20">Log In</a>
+                            
+                            <div id="userMenu" class="relative hidden group">
+                                <button id="userMenuBtn" class="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors">
+                                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xs">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                    <span id="userMenuName" class="font-semibold text-sm text-slate-700 max-w-[100px] truncate">User</span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+                                </button>
+                                
+                                <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 hidden py-2 animate-in fade-in slide-in-from-top-2">
+                                    <a href="profile.html" class="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-indigo-600">
+                                        <i class="fa-solid fa-id-card mr-2"></i> My Profile
+                                    </a>
+                                    <a href="#" id="logoutDropdown" class="block px-4 py-2 text-sm text-red-500 hover:bg-red-50">
+                                        <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Logout
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                        <h3 id="feature1Title" style="color: var(--primary); margin-bottom: 1rem;">Create & Discover</h3>
-                        <p id="feature1Desc" style="color: var(--gray);">Create your own organization or discover existing ones on the interactive map. Set location, date, category and invite others to join your community initiative.</p>
-                    </div>
-                    <div style="text-align: center; padding: 2rem;">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                        </div>
-                        <h3 id="feature2Title" style="color: var(--primary); margin-bottom: 1rem;">Chat & Plan</h3>
-                        <p id="feature2Desc" style="color: var(--gray);">Join organizations and use the built-in chat to communicate with members. Discuss details, make plans, and coordinate activities before meeting in person.</p>
-                    </div>
-                    <div style="text-align: center; padding: 2rem;">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="9" cy="7" r="4"></circle>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                            </svg>
-                        </div>
-                        <h3 id="feature3Title" style="color: var(--primary); margin-bottom: 1rem;">Meet & Participate</h3>
-                        <p id="feature3Desc" style="color: var(--gray);">Once everything is planned, meet at the agreed location and participate in the activities. Turn online connections into real-world community experiences.</p>
-                    </div>
-                    <div style="text-align: center; padding: 2rem;">
-                        <div class="feature-icon">
-                            <svg viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                                <line x1="15" y1="9" x2="15.01" y2="9"></line>
-                            </svg>
-                        </div>
-                        <h3 id="feature4Title" style="color: var(--primary); margin-bottom: 1rem;">Build Community</h3>
-                        <p id="feature4Desc" style="color: var(--gray);">Strengthen relationships through regular meetups and shared activities. Grow your local network and make lasting connections in your neighborhood.</p>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </nav>
 
-        <!-- How It Works Section -->
-        <section style="padding: 4rem 2rem; background: var(--light);">
-            <div style="max-width: 1200px; margin: 0 auto;">
-                <h2 id="howItWorksTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark);">How It Works</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
-                    <div style="text-align: center;">
-                        <div class="step-number">1</div>
-                        <h3 id="step1Title" style="color: var(--dark); margin-bottom: 0.5rem;">Create Account</h3>
-                        <p id="step1Desc" style="color: var(--gray);">Sign up in seconds with just your email</p>
+    <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        <div class="blob bg-purple-300 w-96 h-96 rounded-full top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="blob bg-indigo-300 w-96 h-96 rounded-full bottom-0 right-0 translate-x-1/2 translate-y-1/2"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-sm font-bold mb-6">
+                        <span class="flex h-2 w-2 rounded-full bg-indigo-600"></span>
+                        New way to connect locally
                     </div>
-                    <div style="text-align: center;">
-                        <div class="step-number">2</div>
-                        <h3 id="step2Title" style="color: var(--dark); margin-bottom: 0.5rem;">Explore Map</h3>
-                        <p id="step2Desc" style="color: var(--gray);">Browse organizations in your area</p>
+                    <h1 id="heroTitle" class="text-5xl lg:text-7xl font-extrabold text-slate-900 leading-tight mb-6">
+                        Build Your Local <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-pink-500">Community Network</span>
+                    </h1>
+                    <p id="heroDesc" class="text-xl text-slate-500 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                        Create, discover, and join organizations in your neighborhood. Turn online connections into real-world friendships.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+                        <a href="organizations.html" id="heroMapBtn" class="px-8 py-4 rounded-full bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 hover:scale-105 flex items-center gap-2">
+                            <i class="fa-solid fa-compass"></i> Start Exploring
+                        </a>
+                        <div class="flex items-center gap-4 text-sm font-semibold text-slate-600 pl-4">
+                            <div class="flex -space-x-3">
+                                <img class="w-10 h-10 rounded-full border-2 border-white" src="https://i.pravatar.cc/100?img=1" alt="">
+                                <img class="w-10 h-10 rounded-full border-2 border-white" src="https://i.pravatar.cc/100?img=5" alt="">
+                                <img class="w-10 h-10 rounded-full border-2 border-white" src="https://i.pravatar.cc/100?img=8" alt="">
+                                <div class="w-10 h-10 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-xs">+1k</div>
+                            </div>
+                            <span>Active Members</span>
+                        </div>
                     </div>
-                    <div style="text-align: center;">
-                        <div class="step-number">3</div>
-                        <h3 id="step3Title" style="color: var(--dark); margin-bottom: 0.5rem;">Create or Join</h3>
-                        <p id="step3Desc" style="color: var(--gray);">Start your own or join existing groups</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <div class="step-number">4</div>
-                        <h3 id="step4Title" style="color: var(--dark); margin-bottom: 0.5rem;">Connect & Grow</h3>
-                        <p id="step4Desc" style="color: var(--gray);">Build your community network</p>
+                </div>
+
+                <div class="relative animate-float hidden lg:block">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-[2rem] rotate-3 opacity-20 blur-lg"></div>
+                    <div class="carousel-container relative bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100 aspect-[4/3]">
+                        <div id="carouselTrack" class="carousel-track flex h-full">
+                            <div class="carousel-slide min-w-full relative">
+                                <img src="Meet_with_new_people.png" onerror="this.src='https://images.unsplash.com/photo-1528605248644-14dd04022da1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'" class="w-full h-full object-cover" alt="Community">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
+                                    <p class="text-white font-bold text-xl">Meet new people nearby</p>
+                                </div>
+                            </div>
+                            <div class="carousel-slide min-w-full relative">
+                                <img src="for_business.png" onerror="this.src='https://images.unsplash.com/photo-1515187029135-18ee286d815b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'" class="w-full h-full object-cover" alt="Business">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
+                                    <p class="text-white font-bold text-xl">Grow your local network</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="prevBtn" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 shadow-lg flex items-center justify-center hover:bg-white transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button id="nextBtn" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 shadow-lg flex items-center justify-center hover:bg-white transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
+                        
+                        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                            <button class="carousel-dot w-2 h-2 rounded-full bg-white/50 active transition-all" data-slide="0"></button>
+                            <button class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all" data-slide="1"></button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- About Us Section -->
-        <section style="padding: 4rem 2rem; background: white;">
-            <div style="max-width: 900px; margin: 0 auto; text-align: center;">
-                <h2 id="aboutTitle" style="font-size: 2.5rem; margin-bottom: 2rem; color: var(--dark);">About Organize.Quest</h2>
-                <p id="aboutText1" style="font-size: 1.2rem; color: var(--gray); line-height: 1.8; margin-bottom: 2rem;">
-                    Organize.Quest is a platform dedicated to strengthening local communities by making it easy to discover, create, and participate in community organizations and events. We believe that strong communities are built on meaningful connections and shared experiences.
+    <section class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 id="featuresTitle" class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">How Organize.Quest Works</h2>
+                <p id="featuresSubtitle" class="text-lg text-slate-500">From creating organizations to meeting in real life - everything you need to build your local community.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-xl hover:bg-white transition-all duration-300 group">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-map-marked-alt"></i>
+                    </div>
+                    <h3 id="feature1Title" class="text-xl font-bold text-slate-900 mb-3">Create & Discover</h3>
+                    <p id="feature1Desc" class="text-slate-500 leading-relaxed text-sm">Create your own organization or discover existing ones on the interactive map.</p>
+                </div>
+
+                <div class="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-xl hover:bg-white transition-all duration-300 group">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <h3 id="feature2Title" class="text-xl font-bold text-slate-900 mb-3">Chat & Plan</h3>
+                    <p id="feature2Desc" class="text-slate-500 leading-relaxed text-sm">Join organizations and use the built-in chat to communicate with members.</p>
+                </div>
+
+                <div class="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-xl hover:bg-white transition-all duration-300 group">
+                    <div class="w-14 h-14 rounded-2xl bg-pink-100 text-pink-600 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-handshake-simple"></i>
+                    </div>
+                    <h3 id="feature3Title" class="text-xl font-bold text-slate-900 mb-3">Meet & Participate</h3>
+                    <p id="feature3Desc" class="text-slate-500 leading-relaxed text-sm">Once planned, meet at the agreed location and participate in activities.</p>
+                </div>
+
+                <div class="p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-xl hover:bg-white transition-all duration-300 group">
+                    <div class="w-14 h-14 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-users-rays"></i>
+                    </div>
+                    <h3 id="feature4Title" class="text-xl font-bold text-slate-900 mb-3">Build Community</h3>
+                    <p id="feature4Desc" class="text-slate-500 leading-relaxed text-sm">Strengthen relationships and grow your local network with lasting connections.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 bg-slate-900 text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <h2 id="howItWorksTitle" class="text-3xl md:text-4xl font-bold text-center mb-16">How It Works</h2>
+            
+            <div class="grid md:grid-cols-4 gap-8 relative">
+                <div class="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-slate-700 -z-10"></div>
+
+                <div class="text-center relative">
+                    <div class="w-24 h-24 mx-auto bg-slate-800 rounded-full border-4 border-slate-900 flex items-center justify-center text-3xl font-bold text-indigo-400 mb-6 shadow-xl">1</div>
+                    <h3 id="step1Title" class="text-xl font-bold mb-2">Create Account</h3>
+                    <p id="step1Desc" class="text-slate-400 text-sm">Sign up in seconds</p>
+                </div>
+
+                <div class="text-center relative">
+                    <div class="w-24 h-24 mx-auto bg-slate-800 rounded-full border-4 border-slate-900 flex items-center justify-center text-3xl font-bold text-purple-400 mb-6 shadow-xl">2</div>
+                    <h3 id="step2Title" class="text-xl font-bold mb-2">Explore Map</h3>
+                    <p id="step2Desc" class="text-slate-400 text-sm">Browse organizations</p>
+                </div>
+
+                <div class="text-center relative">
+                    <div class="w-24 h-24 mx-auto bg-slate-800 rounded-full border-4 border-slate-900 flex items-center justify-center text-3xl font-bold text-pink-400 mb-6 shadow-xl">3</div>
+                    <h3 id="step3Title" class="text-xl font-bold mb-2">Join Groups</h3>
+                    <p id="step3Desc" class="text-slate-400 text-sm">Connect with others</p>
+                </div>
+
+                <div class="text-center relative">
+                    <div class="w-24 h-24 mx-auto bg-slate-800 rounded-full border-4 border-slate-900 flex items-center justify-center text-3xl font-bold text-teal-400 mb-6 shadow-xl">4</div>
+                    <h3 id="step4Title" class="text-xl font-bold mb-2">Grow</h3>
+                    <p id="step4Desc" class="text-slate-400 text-sm">Build your network</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 bg-white">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <span class="text-indigo-600 font-bold tracking-wider uppercase text-sm">Our Mission</span>
+            <h2 id="aboutTitle" class="text-3xl md:text-4xl font-bold text-slate-900 mt-2 mb-8">Connecting Communities</h2>
+            <div class="prose prose-lg mx-auto text-slate-500">
+                <p id="aboutText1" class="mb-6">
+                    Organize.Quest is dedicated to strengthening local communities. We believe that real connections happen when people come together for a shared purpose, whether it's a hobby, a cause, or just to have fun.
                 </p>
-                <p id="aboutText2" style="font-size: 1.2rem; color: var(--gray); line-height: 1.8;">
-                    Whether you're looking to volunteer, find a local sports team, attend cultural events, or start your own community initiative, Organize.Quest connects you with opportunities right in your neighborhood.
+                <p id="aboutText2">
+                    Whether you're looking to volunteer, find a sports team, or start a new initiative, we provide the digital tools to make real-world gatherings happen.
                 </p>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- FAQ Section -->
-        <section style="padding: 4rem 2rem; background: var(--light);">
-            <div style="max-width: 900px; margin: 0 auto;">
-                <h2 id="faqTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark);">Frequently Asked Questions</h2>
-                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary id="faq1Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Is Organize.Quest free to use?</summary>
-                        <p id="faq1A" style="margin-top: 1rem; color: var(--gray);">Yes! Organize.Quest is completely free for users to browse organizations, create their own groups, and participate in community events.</p>
-                    </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary id="faq2Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">How do I create an organization?</summary>
-                        <p id="faq2A" style="margin-top: 1rem; color: var(--gray);">Simply sign up for an account, click on the map where you want to place your organization, fill out the details, and publish. Your organization will be visible to everyone in the community.</p>
-                    </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary id="faq3Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Can I edit or delete my organization?</summary>
-                        <p id="faq3A" style="margin-top: 1rem; color: var(--gray);">Yes! Go to your profile page and click on "My Organizations" to manage all your created organizations. You can edit details or delete them at any time.</p>
-                    </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary id="faq4Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">What types of organizations can I create?</summary>
-                        <p id="faq4A" style="margin-top: 1rem; color: var(--gray);">You can create any type of community organization including educational groups, healthcare initiatives, technology communities, non-profits, sports teams, arts collectives, environmental groups, and general community organizations.</p>
-                    </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary id="faq5Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Is my personal information safe?</summary>
-                        <p id="faq5A" style="margin-top: 1rem; color: var(--gray);">We take privacy seriously. Your personal information is encrypted and stored securely. We never share your data with third parties without your explicit consent.</p>
-                    </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
-                        <summary id="faq6Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">How do I find organizations near me?</summary>
-                        <p id="faq6A" style="margin-top: 1rem; color: var(--gray);">Click "Find My Location" on the map and we'll show you all organizations in your area. You can also use filters to search by category, distance, and event type.</p>
-                    </details>
+    <section class="py-24 bg-slate-50">
+        <div class="max-w-3xl mx-auto px-4">
+            <h2 id="faqTitle" class="text-3xl md:text-4xl font-bold text-center text-slate-900 mb-12">Frequently Asked Questions</h2>
+            
+            <div class="space-y-4">
+                <details class="group bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                    <summary id="faq1Q" class="flex justify-between items-center cursor-pointer p-6 font-bold text-slate-800">
+                        Is Organize.Quest free?
+                        <span class="transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-indigo-500"></i></span>
+                    </summary>
+                    <div id="faq1A" class="px-6 pb-6 text-slate-500 leading-relaxed">
+                        Yes! Organize.Quest is completely free for users to browse organizations, create their own groups, and participate in community events.
+                    </div>
+                </details>
+
+                <details class="group bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                    <summary id="faq2Q" class="flex justify-between items-center cursor-pointer p-6 font-bold text-slate-800">
+                        How to create an organization?
+                        <span class="transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-indigo-500"></i></span>
+                    </summary>
+                    <div id="faq2A" class="px-6 pb-6 text-slate-500 leading-relaxed">
+                        Sign up, click on the map, fill details, and publish. It's visible instantly.
+                    </div>
+                </details>
+                
+                <details class="group bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                    <summary id="faq6Q" class="flex justify-between items-center cursor-pointer p-6 font-bold text-slate-800">
+                        Finding nearby organizations?
+                        <span class="transition group-open:rotate-180"><i class="fa-solid fa-chevron-down text-indigo-500"></i></span>
+                    </summary>
+                    <div id="faq6A" class="px-6 pb-6 text-slate-500 leading-relaxed">
+                        Use the "Open Map" button and allow location access to see everything nearby.
+                    </div>
+                </details>
+
+                <div class="hidden">
+                    <span id="faq3Q"></span><span id="faq3A"></span>
+                    <span id="faq4Q"></span><span id="faq4A"></span>
+                    <span id="faq5Q"></span><span id="faq5A"></span>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Footer -->
-        <footer style="background: var(--dark); color: white; padding: 3rem 2rem;">
-            <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
-                <h3 style="font-size: 1.8rem; margin-bottom: 1rem; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Organize.Quest</h3>
-                <p id="footerTagline" style="opacity: 0.8; margin-bottom: 2rem;">Building stronger communities, one connection at a time</p>
-                <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 2rem;">
-                    <a id="footerHome" href="index.html" style="color: white; text-decoration: none; opacity: 0.8;">Home</a>
-                    <a id="footerOrgs" href="organizations.html" style="color: white; text-decoration: none; opacity: 0.8;">Organizations</a>
-                    <a id="footerProfile" href="profile.html" style="color: white; text-decoration: none; opacity: 0.8;">Profile</a>
-                </div>
-                <p id="footerCopyright" style="opacity: 0.6; font-size: 0.9rem;">© 2025 Organize.Quest. All rights reserved.</p>
+    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-center md:text-left">
+                <h3 class="text-2xl font-bold text-white mb-2">Organize<span class="text-indigo-500">.Quest</span></h3>
+                <p id="footerTagline" class="text-sm">Building stronger communities.</p>
             </div>
-        </footer>
-    </div>
+            
+            <div class="flex gap-8 font-semibold text-sm">
+                <a id="footerHome" href="index.html" class="hover:text-white transition-colors">Home</a>
+                <a id="footerOrgs" href="organizations.html" class="hover:text-white transition-colors">Organizations</a>
+                <a id="footerProfile" href="profile.html" class="hover:text-white transition-colors">Profile</a>
+            </div>
+
+            <p id="footerCopyright" class="text-sm">© 2025 Organize.Quest</p>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -841,6 +382,10 @@
             
             dots.forEach((dot, i) => {
                 dot.classList.toggle('active', i === currentSlide);
+                dot.classList.toggle('w-8', i === currentSlide); // Active width
+                dot.classList.toggle('w-2', i !== currentSlide);  // Inactive width
+                dot.classList.toggle('bg-indigo-600', i === currentSlide);
+                dot.classList.toggle('bg-white/50', i !== currentSlide);
             });
         }
 
@@ -857,13 +402,13 @@
         // Auto-advance carousel
         let autoAdvance = setInterval(nextSlide, 5000);
 
-        document.getElementById('nextBtn').addEventListener('click', () => {
+        document.getElementById('nextBtn')?.addEventListener('click', () => {
             nextSlide();
             clearInterval(autoAdvance);
             autoAdvance = setInterval(nextSlide, 5000);
         });
 
-        document.getElementById('prevBtn').addEventListener('click', () => {
+        document.getElementById('prevBtn')?.addEventListener('click', () => {
             prevSlide();
             clearInterval(autoAdvance);
             autoAdvance = setInterval(nextSlide, 5000);
@@ -882,197 +427,176 @@
             const consent = localStorage.getItem('cookieConsent');
             if (!consent) {
                 setTimeout(() => {
-                    document.getElementById('cookieBanner').classList.add('show');
+                    document.getElementById('cookieBanner').classList.remove('translate-y-full');
                 }, 1000);
             }
         }
 
         function acceptCookies() {
             localStorage.setItem('cookieConsent', 'accepted');
-            document.getElementById('cookieBanner').classList.remove('show');
+            document.getElementById('cookieBanner').classList.add('translate-y-full');
         }
 
         function declineCookies() {
             localStorage.setItem('cookieConsent', 'declined');
-            document.getElementById('cookieBanner').classList.remove('show');
+            document.getElementById('cookieBanner').classList.add('translate-y-full');
         }
 
         document.getElementById('acceptCookies').addEventListener('click', acceptCookies);
         document.getElementById('declineCookies').addEventListener('click', declineCookies);
-
-        // Check cookie consent on page load
         checkCookieConsent();
 
+        // Translations
         const translations = {
             en: {
                 heroTitle: 'Build Your Local Community Network',
-                heroDesc: 'Create, discover, and join organizations in your neighborhood.',
+                heroDesc: 'Create, discover, and join organizations in your neighborhood. Turn online connections into real-world friendships.',
                 startBtn: 'Start Exploring',
                 loginBtn: 'Log In',
                 openMapBtn: 'Open Map',
-                myAccount: 'My Account',
+                myAccount: 'User',
                 logout: 'Logout',
                 featuresTitle: 'How Organize.Quest Works',
                 featuresSubtitle: 'From creating organizations to meeting in real life - everything you need to build your local community',
                 feature1Title: 'Create & Discover',
-                feature1Desc: 'Create your own organization or discover existing ones on the interactive map. Set location, date, category and invite others to join your community initiative.',
+                feature1Desc: 'Create your own organization or discover existing ones on the interactive map.',
                 feature2Title: 'Chat & Plan',
-                feature2Desc: 'Join organizations and use the built-in chat to communicate with members. Discuss details, make plans, and coordinate activities before meeting in person.',
+                feature2Desc: 'Join organizations and use the built-in chat to communicate with members.',
                 feature3Title: 'Meet & Participate',
-                feature3Desc: 'Once everything is planned, meet at the agreed location and participate in the activities. Turn online connections into real-world community experiences.',
+                feature3Desc: 'Once everything is planned, meet at the agreed location and participate.',
                 feature4Title: 'Build Community',
-                feature4Desc: 'Strengthen relationships through regular meetups and shared activities. Grow your local network and make lasting connections in your neighborhood.',
+                feature4Desc: 'Strengthen relationships and grow your local network with lasting connections.',
                 howItWorksTitle: 'How It Works',
                 step1Title: 'Create Account',
-                step1Desc: 'Sign up in seconds with just your email',
+                step1Desc: 'Sign up in seconds',
                 step2Title: 'Explore Map',
-                step2Desc: 'Browse organizations in your area',
-                step3Title: 'Create or Join',
-                step3Desc: 'Start your own or join existing groups',
-                step4Title: 'Connect & Grow',
-                step4Desc: 'Build your community network',
-                aboutTitle: 'About Organize.Quest',
-                aboutText1: 'Organize.Quest is a platform dedicated to strengthening local communities by making it easy to discover, create, and participate in community organizations and events. We believe that strong communities are built on meaningful connections and shared experiences.',
-                aboutText2: 'Whether you\'re looking to volunteer, find a local sports team, attend cultural events, or start your own community initiative, Organize.Quest connects you with opportunities right in your neighborhood.',
+                step2Desc: 'Browse organizations',
+                step3Title: 'Join Groups',
+                step3Desc: 'Connect with others',
+                step4Title: 'Grow',
+                step4Desc: 'Build your network',
+                aboutTitle: 'Connecting Communities',
+                aboutText1: 'Organize.Quest is dedicated to strengthening local communities. We believe that real connections happen when people come together.',
+                aboutText2: 'Whether you\'re looking to volunteer or find a sports team, we provide the digital tools to make real-world gatherings happen.',
                 faqTitle: 'Frequently Asked Questions',
-                faq1Q: 'Is Organize.Quest free to use?',
-                faq1A: 'Yes! Organize.Quest is completely free for users to browse organizations, create their own groups, and participate in community events.',
-                faq2Q: 'How do I create an organization?',
-                faq2A: 'Simply sign up for an account, click on the map where you want to place your organization, fill out the details, and publish. Your organization will be visible to everyone in the community.',
-                faq3Q: 'Can I edit or delete my organization?',
-                faq3A: 'Yes! Go to your profile page and click on "My Organizations" to manage all your created organizations. You can edit details or delete them at any time.',
-                faq4Q: 'What types of organizations can I create?',
-                faq4A: 'You can create any type of community organization including educational groups, healthcare initiatives, technology communities, non-profits, sports teams, arts collectives, environmental groups, and general community organizations.',
-                faq5Q: 'Is my personal information safe?',
-                faq5A: 'We take privacy seriously. Your personal information is encrypted and stored securely. We never share your data with third parties without your explicit consent.',
-                faq6Q: 'How do I find organizations near me?',
-                faq6A: 'Click "Find My Location" on the map and we\'ll show you all organizations in your area. You can also use filters to search by category, distance, and event type.',
-                footerTagline: 'Building stronger communities, one connection at a time',
+                faq1Q: 'Is Organize.Quest free?',
+                faq1A: 'Yes! Organize.Quest is completely free for users to browse and join events.',
+                faq2Q: 'How to create an organization?',
+                faq2A: 'Sign up, click on the map, fill details, and publish.',
+                faq6Q: 'Finding nearby organizations?',
+                faq6A: 'Use the "Open Map" button to see everything nearby.',
+                footerTagline: 'Building stronger communities.',
                 footerHome: 'Home',
                 footerOrgs: 'Organizations',
                 footerProfile: 'Profile',
-                footerCopyright: '© 2025 Organize.Quest. All rights reserved.'
+                footerCopyright: '© 2025 Organize.Quest'
             },
             tr: {
                 heroTitle: 'Yerel Topluluk Ağınızı Oluşturun',
-                heroDesc: 'Mahallenizde organizasyonlar oluşturun, keşfedin ve katılın.',
+                heroDesc: 'Mahallenizde organizasyonlar oluşturun, keşfedin ve katılın. Çevrimiçi bağlantıları gerçek arkadaşlıklara dönüştürün.',
                 startBtn: 'Keşfetmeye Başla',
                 loginBtn: 'Giriş Yap',
                 openMapBtn: 'Haritayı Aç',
                 myAccount: 'Hesabım',
                 logout: 'Çıkış Yap',
-                featuresTitle: 'Organize.Quest Nasıl Çalışır',
-                featuresSubtitle: 'Organizasyon oluşturmaktan gerçek hayatta buluşmaya kadar - yerel topluluğunuzu kurmak için ihtiyacınız olan her şey',
+                featuresTitle: 'Nasıl Çalışır?',
+                featuresSubtitle: 'Organizasyon kurmaktan gerçek hayatta buluşmaya kadar ihtiyacınız olan her şey.',
                 feature1Title: 'Oluştur & Keşfet',
-                feature1Desc: 'Kendi organizasyonunuzu oluşturun veya interaktif haritada mevcut olanları keşfedin. Konum, tarih, kategori belirleyin ve diğerlerini topluluk girişiminize katılmaya davet edin.',
+                feature1Desc: 'Kendi organizasyonunuzu kurun veya haritada var olanları keşfedin.',
                 feature2Title: 'Sohbet Et & Planla',
-                feature2Desc: 'Organizasyonlara katılın ve üyelerle iletişim kurmak için yerleşik sohbeti kullanın. Detayları tartışın, planlar yapın ve yüz yüze buluşmadan önce aktiviteleri koordine edin.',
+                feature2Desc: 'Gruplara katılın ve üyelerle iletişim kurmak için sohbeti kullanın.',
                 feature3Title: 'Buluş & Katıl',
-                feature3Desc: 'Her şey planlandıktan sonra, kararlaştırılan yerde buluşun ve aktivitelere katılın. Çevrimiçi bağlantıları gerçek dünya topluluk deneyimlerine dönüştürün.',
-                feature4Title: 'Topluluk Oluştur',
-                feature4Desc: 'Düzenli buluşmalar ve ortak aktivitelerle ilişkileri güçlendirin. Yerel ağınızı büyütün ve mahallenizde kalıcı bağlantılar kurun.',
+                feature3Desc: 'Plan yapıldıktan sonra kararlaştırılan yerde buluşun.',
+                feature4Title: 'Topluluk Kur',
+                feature4Desc: 'İlişkileri güçlendirin ve yerel ağınızı büyütün.',
                 howItWorksTitle: 'Nasıl Çalışır',
-                step1Title: 'Hesap Oluştur',
-                step1Desc: 'Sadece e-postanızla saniyeler içinde kaydolun',
-                step2Title: 'Haritayı Keşfet',
-                step2Desc: 'Bölgenizdeki organizasyonlara göz atın',
-                step3Title: 'Oluştur veya Katıl',
-                step3Desc: 'Kendiniz başlatın veya mevcut gruplara katılın',
-                step4Title: 'Bağlan ve Büyüt',
-                step4Desc: 'Topluluk ağınızı oluşturun',
-                aboutTitle: 'Organize.Quest Hakkında',
-                aboutText1: 'Organize.Quest, topluluk organizasyonlarını ve etkinlikleri keşfetmeyi, oluşturmayı ve katılmayı kolaylaştırarak yerel toplulukları güçlendirmeye adanmış bir platformdur. Güçlü toplulukların anlamlı bağlantılar ve paylaşılan deneyimler üzerine inşa edildiğine inanıyoruz.',
-                aboutText2: 'İster gönüllü olmak, yerel bir spor takımı bulmak, kültürel etkinliklere katılmak veya kendi topluluk girişiminizi başlatmak isteyin, Organize.Quest sizi mahallenizde bulunan fırsatlarla buluşturur.',
+                step1Title: 'Hesap Aç',
+                step1Desc: 'Saniyeler içinde kaydol',
+                step2Title: 'Haritayı Gez',
+                step2Desc: 'Organizasyonlara göz at',
+                step3Title: 'Gruplara Katıl',
+                step3Desc: 'Başkalarıyla bağlan',
+                step4Title: 'Büyüt',
+                step4Desc: 'Ağını genişlet',
+                aboutTitle: 'Toplulukları Birleştiriyoruz',
+                aboutText1: 'Organize.Quest yerel toplulukları güçlendirmeye adanmıştır. Gerçek bağların insanlar bir araya gelince oluştuğuna inanıyoruz.',
+                aboutText2: 'İster gönüllü olun ister spor takımı arayın, gerçek buluşmalar için dijital araçlar sunuyoruz.',
                 faqTitle: 'Sıkça Sorulan Sorular',
-                faq1Q: 'Organize.Quest kullanımı ücretsiz mi?',
-                faq1A: 'Evet! Organize.Quest, kullanıcıların organizasyonlara göz atması, kendi gruplarını oluşturması ve topluluk etkinliklerine katılması için tamamen ücretsizdir.',
-                faq2Q: 'Nasıl organizasyon oluşturabilirim?',
-                faq2A: 'Sadece bir hesap oluşturun, organizasyonunuzu yerleştirmek istediğiniz haritaya tıklayın, detayları doldurun ve yayınlayın. Organizasyonunuz topluluktaki herkes tarafından görülebilir olacaktır.',
-                faq3Q: 'Organizasyonumu düzenleyebilir veya silebilir miyim?',
-                faq3A: 'Evet! Profil sayfanıza gidin ve oluşturduğunuz tüm organizasyonları yönetmek için "Organizasyonlarım" sekmesine tıklayın. Detayları düzenleyebilir veya istediğiniz zaman silebilirsiniz.',
-                faq4Q: 'Ne tür organizasyonlar oluşturabilirim?',
-                faq4A: 'Eğitim grupları, sağlık girişimleri, teknoloji toplulukları, kar amacı gütmeyen kuruluşlar, spor takımları, sanat kolektifleri, çevre grupları ve genel topluluk organizasyonları dahil olmak üzere her türlü topluluk organizasyonu oluşturabilirsiniz.',
-                faq5Q: 'Kişisel bilgilerim güvende mi?',
-                faq5A: 'Gizliliği ciddiye alıyoruz. Kişisel bilgileriniz şifrelenir ve güvenli bir şekilde saklanır. Verilerinizi açık izniniz olmadan asla üçüncü taraflarla paylaşmayız.',
-                faq6Q: 'Yakınımdaki organizasyonları nasıl bulabilirim?',
-                faq6A: 'Haritada "Konumumu Bul" seçeneğine tıklayın, bölgenizdeki tüm organizasyonları size göstereceğiz. Ayrıca kategoriye, mesafeye ve etkinlik türüne göre arama yapmak için filtreleri kullanabilirsiniz.',
-                footerTagline: 'Daha güçlü topluluklar inşa ediyoruz, her seferinde bir bağlantı',
+                faq1Q: 'Ücretsiz mi?',
+                faq1A: 'Evet! Organize.Quest tamamen ücretsizdir.',
+                faq2Q: 'Nasıl organizasyon kurulur?',
+                faq2A: 'Kaydolun, haritaya tıklayın ve yayınlayın.',
+                faq6Q: 'Yakındakileri nasıl bulurum?',
+                faq6A: 'Haritayı açarak çevrenizdeki her şeyi görebilirsiniz.',
+                footerTagline: 'Daha güçlü topluluklar inşa ediyoruz.',
                 footerHome: 'Ana Sayfa',
                 footerOrgs: 'Organizasyonlar',
                 footerProfile: 'Profil',
-                footerCopyright: '© 2025 Organize.Quest. Tüm hakları saklıdır.'
+                footerCopyright: '© 2025 Organize.Quest'
             }
         };
 
         function switchLanguage(lang) {
             currentLang = lang;
-            document.getElementById('btnEN').classList.toggle('active', lang === 'en');
-            document.getElementById('btnTR').classList.toggle('active', lang === 'tr');
+            const btnEN = document.getElementById('btnEN');
+            const btnTR = document.getElementById('btnTR');
+
+            if(lang === 'en') {
+                btnEN.classList.add('bg-white', 'shadow-sm', 'text-indigo-600');
+                btnEN.classList.remove('text-slate-500');
+                btnTR.classList.remove('bg-white', 'shadow-sm', 'text-indigo-600');
+                btnTR.classList.add('text-slate-500');
+            } else {
+                btnTR.classList.add('bg-white', 'shadow-sm', 'text-indigo-600');
+                btnTR.classList.remove('text-slate-500');
+                btnEN.classList.remove('bg-white', 'shadow-sm', 'text-indigo-600');
+                btnEN.classList.add('text-slate-500');
+            }
             
             const t = translations[lang];
             
-            document.getElementById('heroTitle').textContent = t.heroTitle;
-            document.getElementById('heroDesc').textContent = t.heroDesc;
-            document.getElementById('heroMapBtn').textContent = t.startBtn;
+            // Safe update for elements that exist
+            const ids = [
+                'heroTitle', 'heroDesc', 'logoText', 'featuresTitle', 'featuresSubtitle',
+                'feature1Title', 'feature1Desc', 'feature2Title', 'feature2Desc',
+                'feature3Title', 'feature3Desc', 'feature4Title', 'feature4Desc',
+                'howItWorksTitle', 'step1Title', 'step1Desc', 'step2Title', 'step2Desc',
+                'step3Title', 'step3Desc', 'step4Title', 'step4Desc',
+                'aboutTitle', 'aboutText1', 'aboutText2', 'faqTitle',
+                'faq1Q', 'faq1A', 'faq2Q', 'faq2A', 'faq6Q', 'faq6A',
+                'footerTagline', 'footerHome', 'footerOrgs', 'footerProfile', 'footerCopyright'
+            ];
+
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if(el && t[id]) el.innerHTML = t[id].replace(/\n/g, '<br>');
+            });
+
+            // Button texts
+            document.getElementById('heroMapBtn').innerHTML = `<i class="fa-solid fa-compass"></i> ${t.startBtn}`;
             document.getElementById('loginBtn').textContent = t.loginBtn;
             document.getElementById('openMapBtn').textContent = t.openMapBtn;
-            document.getElementById('featuresTitle').textContent = t.featuresTitle;
-            document.getElementById('featuresSubtitle').textContent = t.featuresSubtitle;
-            document.getElementById('feature1Title').textContent = t.feature1Title;
-            document.getElementById('feature1Desc').textContent = t.feature1Desc;
-            document.getElementById('feature2Title').textContent = t.feature2Title;
-            document.getElementById('feature2Desc').textContent = t.feature2Desc;
-            document.getElementById('feature3Title').textContent = t.feature3Title;
-            document.getElementById('feature3Desc').textContent = t.feature3Desc;
-            document.getElementById('feature4Title').textContent = t.feature4Title;
-            document.getElementById('feature4Desc').textContent = t.feature4Desc;
-            document.getElementById('howItWorksTitle').textContent = t.howItWorksTitle;
-            document.getElementById('step1Title').textContent = t.step1Title;
-            document.getElementById('step1Desc').textContent = t.step1Desc;
-            document.getElementById('step2Title').textContent = t.step2Title;
-            document.getElementById('step2Desc').textContent = t.step2Desc;
-            document.getElementById('step3Title').textContent = t.step3Title;
-            document.getElementById('step3Desc').textContent = t.step3Desc;
-            document.getElementById('step4Title').textContent = t.step4Title;
-            document.getElementById('step4Desc').textContent = t.step4Desc;
-            document.getElementById('aboutTitle').textContent = t.aboutTitle;
-            document.getElementById('aboutText1').textContent = t.aboutText1;
-            document.getElementById('aboutText2').textContent = t.aboutText2;
-            document.getElementById('faqTitle').textContent = t.faqTitle;
-            document.getElementById('faq1Q').textContent = t.faq1Q;
-            document.getElementById('faq1A').textContent = t.faq1A;
-            document.getElementById('faq2Q').textContent = t.faq2Q;
-            document.getElementById('faq2A').textContent = t.faq2A;
-            document.getElementById('faq3Q').textContent = t.faq3Q;
-            document.getElementById('faq3A').textContent = t.faq3A;
-            document.getElementById('faq4Q').textContent = t.faq4Q;
-            document.getElementById('faq4A').textContent = t.faq4A;
-            document.getElementById('faq5Q').textContent = t.faq5Q;
-            document.getElementById('faq5A').textContent = t.faq5A;
-            document.getElementById('faq6Q').textContent = t.faq6Q;
-            document.getElementById('faq6A').textContent = t.faq6A;
-            document.getElementById('footerTagline').textContent = t.footerTagline;
-            document.getElementById('footerHome').textContent = t.footerHome;
-            document.getElementById('footerOrgs').textContent = t.footerOrgs;
-            document.getElementById('footerProfile').textContent = t.footerProfile;
-            document.getElementById('footerCopyright').textContent = t.footerCopyright;
             
+            // Only update "User" text if no specific user name is set
             const userMenuName = document.getElementById('userMenuName');
-            if (userMenuName) {
-                userMenuName.textContent = currentUser ? currentUser.name : t.myAccount;
+            if (userMenuName && (!currentUser || !currentUser.name)) {
+                userMenuName.textContent = t.myAccount;
             }
         }
 
+        // Auth & Menu Logic
         function showUserMenu() {
-            document.getElementById('loginBtn').style.display = 'none';
-            document.getElementById('userMenu').style.display = 'block';
-            const userName = currentUser.name || currentUser.email || 'My Account';
+            document.getElementById('authButtons').classList.add('logged-in'); // Helper class
+            document.getElementById('loginBtn').classList.add('hidden');
+            document.getElementById('userMenu').classList.remove('hidden');
+            
+            const userName = currentUser.name || currentUser.email || 'User';
             document.getElementById('userMenuName').textContent = userName;
         }
 
         function hideUserMenu() {
-            document.getElementById('loginBtn').style.display = 'block';
-            document.getElementById('userMenu').style.display = 'none';
+            document.getElementById('loginBtn').classList.remove('hidden');
+            document.getElementById('userMenu').classList.add('hidden');
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -1084,24 +608,24 @@
 
             document.getElementById('userMenuBtn')?.addEventListener('click', function(e) {
                 e.stopPropagation();
-                document.getElementById('userDropdown').classList.toggle('show');
+                document.getElementById('userDropdown').classList.toggle('hidden');
             });
 
-            document.addEventListener('click', function() {
-                document.getElementById('userDropdown')?.classList.remove('show');
+            document.addEventListener('click', function(e) {
+                if(!e.target.closest('#userMenu')) {
+                    document.getElementById('userDropdown')?.classList.add('hidden');
+                }
             });
 
             document.getElementById('logoutDropdown')?.addEventListener('click', async function(e) {
                 e.preventDefault();
                 try {
                     await supabase.auth.signOut();
-                } catch (err) {
-                    console.error('Error signing out:', err);
-                }
+                } catch (err) { console.error(err); }
                 currentUser = null;
                 localStorage.removeItem('currentUser');
                 hideUserMenu();
-                alert('Successfully logged out!');
+                alert('Logged out successfully.');
             });
             
             document.getElementById('btnEN').addEventListener('click', () => switchLanguage('en'));
