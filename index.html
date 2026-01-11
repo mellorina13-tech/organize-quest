@@ -14,33 +14,36 @@
         }
 
         :root {
-            --primary: #5865F2;
-            --primary-dark: #4752C4;
-            --secondary: #FF6B6B;
-            --accent: #4ECDC4;
-            --dark: #1a1a2e;
-            --light: #f8f9fa;
-            --gray: #6c757d;
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #f43f5e;
+            --accent: #14b8a6;
+            --accent-light: #2dd4bf;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --gray: #64748b;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
-            color: #333;
+            color: #1e293b;
             overflow-x: hidden;
-            background: white;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
         }
 
         .feature-icon {
-            width: 64px;
-            height: 64px;
+            width: 72px;
+            height: 72px;
             margin: 0 auto 1.5rem;
             background: linear-gradient(135deg, var(--primary), var(--accent));
-            border-radius: 16px;
+            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 20px rgba(88, 101, 242, 0.25);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .feature-icon svg {
@@ -73,10 +76,12 @@
             top: 0;
             width: 100%;
             background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
             z-index: 1000;
             padding: 1rem 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         .nav-container {
@@ -118,7 +123,7 @@
             cursor: pointer;
             font-size: 0.9rem;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             line-height: 1;
         }
 
@@ -156,9 +161,9 @@
             position: absolute;
             top: calc(100% + 10px);
             right: 0;
-            background: white;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
             border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
             min-width: 200px;
             display: none;
             z-index: 1001;
@@ -173,7 +178,7 @@
             padding: 0.8rem 1.2rem;
             cursor: pointer;
             transition: background 0.3s ease;
-            color: #333;
+            color: #1e293b;
             text-decoration: none;
             display: block;
             font-size: 0.95rem;
@@ -197,7 +202,7 @@
             border-radius: 50px;
             text-decoration: none;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.95rem;
             cursor: pointer;
         }
@@ -206,17 +211,17 @@
             background: var(--primary);
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(88, 101, 242, 0.3);
+            box-shadow: 0 5px 20px rgba(99, 102, 241, 0.4);
         }
 
         .btn-nav {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
             padding: 0.6rem 1.5rem;
             border-radius: 50px;
             text-decoration: none;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.95rem;
             cursor: pointer;
             border: none;
@@ -225,7 +230,7 @@
         .btn-nav:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(88, 101, 242, 0.3);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
         }
 
         .hero {
@@ -233,7 +238,7 @@
             min-height: 90vh;
             display: flex;
             align-items: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
             position: relative;
             overflow: hidden;
         }
@@ -271,26 +276,31 @@
         }
 
         .btn-primary {
-            background: white;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
             color: var(--primary);
             padding: 1rem 2.5rem;
             border-radius: 50px;
             text-decoration: none;
             font-weight: 700;
             font-size: 1.1rem;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             border: none;
         }
 
         .btn-primary:hover {
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
             transform: translateY(-3px);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
         }
 
         .image-carousel-section {
             padding: 3rem 2rem 2rem;
-            background: white;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
         }
 
         .carousel-container {
@@ -298,8 +308,8 @@
             margin: 0 auto;
             position: relative;
             overflow: hidden;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
         }
 
         .carousel-track {
@@ -316,7 +326,7 @@
             width: 100%;
             height: auto;
             display: block;
-            border-radius: 20px;
+            border-radius: 24px;
         }
 
         .carousel-nav {
@@ -334,12 +344,12 @@
             justify-content: center;
             font-size: 1.5rem;
             color: var(--primary);
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 10;
         }
 
         .carousel-nav:hover {
-            background: white;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
             transform: translateY(-50%) scale(1.1);
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
@@ -369,11 +379,11 @@
             background: rgba(255, 255, 255, 0.5);
             border: none;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .carousel-dot.active {
-            background: white;
+            background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
             width: 30px;
             border-radius: 6px;
         }
@@ -442,7 +452,7 @@
             border: none;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 0.95rem;
         }
 
@@ -552,6 +562,24 @@
                 right: 10px;
             }
         }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-20px) scale(1.05);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
 
         @media (max-width: 480px) {
             .nav-buttons {
@@ -668,7 +696,7 @@
         </section>
 
         <!-- Features Section -->
-        <section style="padding: 4rem 2rem; background: white;">
+        <section style="padding: 4rem 2rem; background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);">
             <div style="max-width: 1200px; margin: 0 auto;">
                 <h2 id="featuresTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 1rem; color: var(--dark);">How Organize.Quest Works</h2>
                 <p id="featuresSubtitle" style="text-align: center; font-size: 1.2rem; color: var(--gray); margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto;">From creating organizations to meeting in real life - everything you need to build your local community</p>
@@ -751,7 +779,7 @@
         </section>
 
         <!-- About Us Section -->
-        <section style="padding: 4rem 2rem; background: white;">
+        <section style="padding: 4rem 2rem; background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);">
             <div style="max-width: 900px; margin: 0 auto; text-align: center;">
                 <h2 id="aboutTitle" style="font-size: 2.5rem; margin-bottom: 2rem; color: var(--dark);">About Organize.Quest</h2>
                 <p id="aboutText1" style="font-size: 1.2rem; color: var(--gray); line-height: 1.8; margin-bottom: 2rem;">
@@ -768,27 +796,27 @@
             <div style="max-width: 900px; margin: 0 auto;">
                 <h2 id="faqTitle" style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark);">Frequently Asked Questions</h2>
                 <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
+                    <details style="background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%); padding: 1.5rem; border-radius: 10px; cursor: pointer;">
                         <summary id="faq1Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Is Organize.Quest free to use?</summary>
                         <p id="faq1A" style="margin-top: 1rem; color: var(--gray);">Yes! Organize.Quest is completely free for users to browse organizations, create their own groups, and participate in community events.</p>
                     </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
+                    <details style="background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%); padding: 1.5rem; border-radius: 10px; cursor: pointer;">
                         <summary id="faq2Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">How do I create an organization?</summary>
                         <p id="faq2A" style="margin-top: 1rem; color: var(--gray);">Simply sign up for an account, click on the map where you want to place your organization, fill out the details, and publish. Your organization will be visible to everyone in the community.</p>
                     </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
+                    <details style="background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%); padding: 1.5rem; border-radius: 10px; cursor: pointer;">
                         <summary id="faq3Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Can I edit or delete my organization?</summary>
                         <p id="faq3A" style="margin-top: 1rem; color: var(--gray);">Yes! Go to your profile page and click on "My Organizations" to manage all your created organizations. You can edit details or delete them at any time.</p>
                     </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
+                    <details style="background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%); padding: 1.5rem; border-radius: 10px; cursor: pointer;">
                         <summary id="faq4Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">What types of organizations can I create?</summary>
                         <p id="faq4A" style="margin-top: 1rem; color: var(--gray);">You can create any type of community organization including educational groups, healthcare initiatives, technology communities, non-profits, sports teams, arts collectives, environmental groups, and general community organizations.</p>
                     </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
+                    <details style="background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%); padding: 1.5rem; border-radius: 10px; cursor: pointer;">
                         <summary id="faq5Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">Is my personal information safe?</summary>
                         <p id="faq5A" style="margin-top: 1rem; color: var(--gray);">We take privacy seriously. Your personal information is encrypted and stored securely. We never share your data with third parties without your explicit consent.</p>
                     </details>
-                    <details style="background: white; padding: 1.5rem; border-radius: 10px; cursor: pointer;">
+                    <details style="background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%); padding: 1.5rem; border-radius: 10px; cursor: pointer;">
                         <summary id="faq6Q" style="font-weight: 600; color: var(--dark); font-size: 1.1rem;">How do I find organizations near me?</summary>
                         <p id="faq6A" style="margin-top: 1rem; color: var(--gray);">Click "Find My Location" on the map and we'll show you all organizations in your area. You can also use filters to search by category, distance, and event type.</p>
                     </details>
