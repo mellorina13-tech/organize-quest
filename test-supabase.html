@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Connection Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .info {
+            color: #17a2b8;
+        }
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #4f46e5;
+        }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        #results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Supabase Connection Test</h1>
+        <p>Bu sayfa Supabase bağlantınızı test etmek için kullanılır.</p>
+
+        <div class="test-section">
+            <h3>1. Supabase Library Loading</h3>
+            <div id="library-status">Checking...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Client Initialization</h3>
+            <div id="client-status">Checking...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Test Actions</h3>
+            <button onclick="testSignUp()">Test Sign Up</button>
+            <button onclick="testConnection()">Test Database Connection</button>
+            <button onclick="clearConsole()">Clear Console</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://ymrxfbkghznrosgfqwrh.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltcnhmYmtnaHpucm9zZ2Zxd3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NzQ4MTMsImV4cCI6MjA3NDA1MDgxM30.GyrbrTmWMc6--zCUcfKwc-2qlsBI0z3oly8iv9Fq9-0';
+
+        let supabase;
+
+        function log(message, type = 'info') {
+            console.log(message);
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+
+        function clearConsole() {
+            document.getElementById('results').innerHTML = '';
+            console.clear();
+        }
+
+        // Test 1: Check if library loaded
+        setTimeout(() => {
+            const libStatus = document.getElementById('library-status');
+            if (typeof window.supabase !== 'undefined') {
+                libStatus.innerHTML = '<span class="success">✅ Supabase library loaded successfully</span>';
+                console.log('✅ Supabase library loaded');
+
+                // Test 2: Initialize client
+                try {
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    const clientStatus = document.getElementById('client-status');
+                    clientStatus.innerHTML = '<span class="success">✅ Supabase client initialized</span>';
+                    console.log('✅ Supabase client created:', supabase);
+                } catch (err) {
+                    const clientStatus = document.getElementById('client-status');
+                    clientStatus.innerHTML = '<span class="error">❌ Failed to initialize client: ' + err.message + '</span>';
+                    console.error('❌ Client initialization error:', err);
+                }
+            } else {
+                libStatus.innerHTML = '<span class="error">❌ Supabase library failed to load</span>';
+                console.error('❌ Supabase library not found');
+                document.getElementById('client-status').innerHTML = '<span class="error">❌ Cannot test - library not loaded</span>';
+            }
+        }, 1000);
+
+        async function testSignUp() {
+            if (!supabase) {
+                log('❌ Supabase not initialized', 'error');
+                return;
+            }
+
+            const testEmail = 'test_' + Date.now() + '@example.com';
+            const testPassword = 'Test123456';
+
+            log('🔵 Testing signup with email: ' + testEmail, 'info');
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: testEmail,
+                    password: testPassword,
+                    options: {
+                        data: { name: 'Test User' }
+                    }
+                });
+
+                if (error) {
+                    log('❌ Signup error: ' + error.message, 'error');
+                    log('Error details: ' + JSON.stringify(error, null, 2), 'error');
+                } else {
+                    log('✅ Signup successful!', 'success');
+                    log('User data: ' + JSON.stringify(data.user, null, 2), 'success');
+                    if (data.session) {
+                        log('✅ Session created (auto-confirm enabled)', 'success');
+                    } else {
+                        log('⚠️ Email confirmation required', 'info');
+                    }
+                }
+            } catch (err) {
+                log('❌ Unexpected error: ' + err.message, 'error');
+                console.error('Full error:', err);
+            }
+        }
+
+        async function testConnection() {
+            if (!supabase) {
+                log('❌ Supabase not initialized', 'error');
+                return;
+            }
+
+            log('🔵 Testing database connection...', 'info');
+
+            try {
+                // Try to query users table
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('count')
+                    .limit(1);
+
+                if (error) {
+                    log('❌ Database query error: ' + error.message, 'error');
+                    log('Error code: ' + error.code, 'error');
+                } else {
+                    log('✅ Database connection successful!', 'success');
+                    log('Query result: ' + JSON.stringify(data, null, 2), 'success');
+                }
+            } catch (err) {
+                log('❌ Unexpected error: ' + err.message, 'error');
+                console.error('Full error:', err);
+            }
+        }
+    </script>
+</body>
+</html>

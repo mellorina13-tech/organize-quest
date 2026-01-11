@@ -779,6 +779,9 @@
 
     <div class="profile-container">
         <div id="authSection" class="auth-container">
+            <div id="connectionStatus" style="text-align: center; margin-bottom: 1rem; padding: 0.5rem; border-radius: 8px; font-size: 0.9rem; display: none;">
+                <span id="statusIcon"></span> <span id="statusText"></span>
+            </div>
             <h2 style="text-align: center; margin-bottom: 2rem;">Welcome to Organize.Quest</h2>
             
             <div class="auth-tabs">
@@ -964,7 +967,61 @@
     <script>
         const SUPABASE_URL = 'https://ymrxfbkghznrosgfqwrh.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltcnhmYmtnaHpucm9zZ2Zxd3JoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NzQ4MTMsImV4cCI6MjA3NDA1MDgxM30.GyrbrTmWMc6--zCUcfKwc-2qlsBI0z3oly8iv9Fq9-0';
+
+        // Check if Supabase is loaded
+        if (typeof window.supabase === 'undefined') {
+            console.error('❌ Supabase library failed to load!');
+            alert('Error: Database connection failed to initialize. Please refresh the page.');
+        }
+
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('✅ Supabase client initialized:', supabase);
+
+        // Show connection status
+        function showConnectionStatus(success, message) {
+            const statusDiv = document.getElementById('connectionStatus');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+
+            if (statusDiv) {
+                statusDiv.style.display = 'block';
+                if (success) {
+                    statusDiv.style.background = '#d4edda';
+                    statusDiv.style.color = '#155724';
+                    statusIcon.textContent = '✅';
+                } else {
+                    statusDiv.style.background = '#f8d7da';
+                    statusDiv.style.color = '#721c24';
+                    statusIcon.textContent = '❌';
+                }
+                statusText.textContent = message;
+
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Test connection on page load
+        async function testConnection() {
+            try {
+                const { data, error } = await supabase.from('users').select('count').limit(1);
+                if (error) {
+                    console.warn('⚠️ Database connection test failed:', error);
+                    showConnectionStatus(false, 'Database connection issue detected. Please check console (F12).');
+                } else {
+                    console.log('✅ Database connection test passed');
+                    showConnectionStatus(true, 'Connected to database successfully');
+                }
+            } catch (err) {
+                console.error('❌ Connection test error:', err);
+                showConnectionStatus(false, 'Failed to connect to database');
+            }
+        }
+
+        // Run connection test
+        testConnection();
 
         let currentUser = JSON.parse(localStorage.getItem('currentUser'));
         let myOrganizations = [];
@@ -1681,16 +1738,23 @@
 
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            console.log('🔵 Login form submitted');
+
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
-            
+
+            console.log('📝 Login attempt for:', email);
+
             try {
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
 
+                console.log('📊 Login response:', { data, error });
+
                 if (error) {
+                    console.error('❌ Login error:', error);
                     alert('Error: ' + error.message);
                     return;
                 }
@@ -1737,10 +1801,14 @@
 
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            console.log('🔵 Signup form submitted');
+
             const name = document.getElementById('signupName').value;
             const email = document.getElementById('signupEmail').value;
             const password = document.getElementById('signupPassword').value;
             const confirm = document.getElementById('signupConfirm').value;
+
+            console.log('📝 Form data:', { name, email, passwordLength: password.length });
 
             if (password !== confirm) {
                 alert('Passwords do not match! / Şifreler eşleşmiyor!');
@@ -1752,6 +1820,8 @@
                 return;
             }
 
+            console.log('🔄 Starting Supabase signup...');
+
             try {
                 const { data, error } = await supabase.auth.signUp({
                     email: email,
@@ -1762,7 +1832,10 @@
                     }
                 });
 
+                console.log('📊 Supabase response:', { data, error });
+
                 if (error) {
+                    console.error('❌ Signup error:', error);
                     alert('Error / Hata: ' + error.message);
                     return;
                 }
